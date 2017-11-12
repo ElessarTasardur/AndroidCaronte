@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +26,11 @@ import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+
 import es.situm.sdk.SitumSdk;
 import es.situm.sdk.error.Error;
 import es.situm.sdk.location.LocationListener;
@@ -37,6 +43,7 @@ import es.situm.sdk.model.location.Bounds;
 import es.situm.sdk.model.location.Coordinate;
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.Edificio;
+import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.util.PermisosUtil;
 import gal.caronte.caronte.util.StringUtil;
 
@@ -57,6 +64,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Situm
     private RecuperarEdificio recuperarEdificioServizo = new RecuperarEdificio();
     private RecuperarMapa recuperarMapaServizo = new RecuperarMapa();
+    private RecuperarPoi recuperarPoi = new RecuperarPoi();
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -84,6 +92,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onDestroy() {
         this.recuperarEdificioServizo.cancel();
         this.recuperarMapaServizo.cancel();
+        this.recuperarPoi.cancel(true);
         deterLocalizacionSitum();
         activarLocalizacionGoogle(false);
         super.onDestroy();
@@ -173,6 +182,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     MapaActivity.this.edificio = edificio;
                                     recuperarMapa();
 
+                                    recuperarListaPoi(edificio.getEdificio().getIdentifier());
+
                                 }
 
                                 @Override
@@ -180,7 +191,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     Toast.makeText(MapaActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
                                 }
 
-                            }, idEdificio, idPiso);
+                            }, idEdificio);
 
                             MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
 
@@ -194,8 +205,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     .strokeWidth(0f)
                                     .fillColor(Color.BLUE)
                                     .zIndex(1));
-                        }
-                        else {
+                        } else {
                             Log.i(TAG, "Pintamos circulo antigo en " + latLng);
                             circle.setCenter(latLng);
                         }
@@ -230,7 +240,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Se ainda non temos o mapa, recuperamolo
         Bitmap mapaPiso = this.edificio.getMapa(this.idPiso);
-        if (mapaPiso ==  null) {
+        if (mapaPiso == null) {
 
             Floor floor = edificio.getFloor(idPiso);
             this.recuperarMapaServizo.get(new RecuperarMapa.Callback() {
@@ -288,35 +298,30 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    //    private void recuperarPoi(final Edificio edificio) {
+    private void recuperarListaPoi(String idEdificioExterno) {
 
-//        SitumSdk.communicationManager().fetchIndoorPOIsFromBuilding(building, new Handler<Collection<Poi>>() {
-//            @Override
-//            public void onSuccess(Collection<Poi> pois) {
-//                Edificio edificio = edificioMap.get(building.getIdentifier());
-//                edificio.setListaPoi(pois);
-//
-//                StringBuilder mensaxe;
-//                for (Poi poi : pois) {
-//                    mensaxe = new StringBuilder();
-//                    mensaxe.append("Identificador: ").append(poi.getIdentifier());
-//                    mensaxe.append("; Piso:").append(poi.getFloorIdentifier());
-//                    mensaxe.append("; Edificio: ").append(poi.getBuildingIdentifier());
-//                    mensaxe.append("; Coordenadas: ").append(poi.getCoordinate());
-//                    mensaxe.append("; Nome: ").append(poi.getName());
-//                    mensaxe.append("; Posicion: ").append(poi.getPosition());
-//                    Log.i(TAG, mensaxe.toString());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Error error) {
-//                if (hasCallback()){
-//                    callback.onError(error);
-//                }
-//                clearCallback();
-//            }
-//        });
-//    }
+        this.recuperarPoi.setMapaActivity(this);
+        AsyncTask<String, Void, List<PuntoInterese>> callback = this.recuperarPoi.execute(idEdificioExterno);
+
+    }
+
+    public void mostrarListaPoi(List<PuntoInterese> listaPoi) {
+
+        if (listaPoi != null) {
+            LatLng latLng;
+            Circle circuloPoi;
+            for (PuntoInterese poi : listaPoi) {
+                latLng = new LatLng(poi.getLatitude(), poi.getLonxitude());
+                circuloPoi = this.map.addCircle(new CircleOptions()
+                        .center(latLng)
+                        .radius(0.3d)
+                        .strokeWidth(0f)
+                        .fillColor(Color.GREEN)
+                        .zIndex(1));
+            }
+        }
+
+
+    }
 
 }

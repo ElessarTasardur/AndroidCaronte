@@ -1,9 +1,6 @@
 package gal.caronte.caronte.mostrarmapa;
 
-import android.graphics.Bitmap;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import java.util.Collection;
 
@@ -22,28 +19,26 @@ public class RecuperarEdificio {
 
     private static final String TAG = RecuperarEdificio.class.getSimpleName();
 
-
-
     private Edificio edificio;
-
-    interface Callback{
-        void onSuccess(Edificio edficio);
-        void onError(Error error);
-    }
-
     private Callback callback;
 
-    void get(final Callback callback, final String idEdificio, final String idPiso) {
+    interface Callback {
+        void onSuccess(Edificio edficio);
+        void onError(Error error);
+
+    }
+
+    void get(final Callback callback, final String idEdificio) {
         if (hasCallback()){
             Log.d(TAG, "Xa se realizou outra chamada");
             return;
         }
         this.callback = callback;
 
-        recuperarEdificio(idEdificio, idPiso);
+        recuperarEdificio(idEdificio);
     }
 
-    private void recuperarEdificio(final String idEdificio, final String idPiso) {
+    private void recuperarEdificio(final String idEdificio) {
         SitumSdk.communicationManager().fetchBuildings(new Handler<Collection<Building>>() {
 
             @Override
@@ -59,7 +54,7 @@ public class RecuperarEdificio {
                 }
 
                 //Recuperar pisos a partir de edificioActual
-                recuperarPiso(novoEdificio, idPiso);
+                recuperarPiso(novoEdificio);
             }
 
             @Override
@@ -72,7 +67,7 @@ public class RecuperarEdificio {
         });
     }
 
-    private void recuperarPiso(final Edificio edificio, final String idPiso) {
+    private void recuperarPiso(final Edificio edificio) {
 
         SitumSdk.communicationManager().fetchFloorsFromBuilding(edificio.getEdificio(), new Handler<Collection<Floor>>() {
             @Override

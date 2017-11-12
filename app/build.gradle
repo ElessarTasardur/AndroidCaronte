@@ -46,6 +46,9 @@ dependencies {
         transitive = true
     }
 
+    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
+
     testCompile 'junit:junit:4.12'
 }
 
