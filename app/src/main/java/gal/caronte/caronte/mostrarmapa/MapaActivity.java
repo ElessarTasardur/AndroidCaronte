@@ -2,6 +2,7 @@ package gal.caronte.caronte.mostrarmapa;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -9,9 +10,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -25,10 +31,10 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import es.situm.sdk.SitumSdk;
@@ -43,6 +49,7 @@ import es.situm.sdk.model.location.Bounds;
 import es.situm.sdk.model.location.Coordinate;
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.Edificio;
+import gal.caronte.caronte.custom.MarcadorCustom;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.util.PermisosUtil;
 import gal.caronte.caronte.util.StringUtil;
@@ -74,6 +81,20 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String idEdificio;
     private String idPiso;
 
+    //Lista cos marcadores creados na aplicacion, visibeis ou invisibeis.
+    List<MarcadorCustom> listaMarcadores = new ArrayList<>();
+
+
+
+    //Menu lateral
+    private String[] mPlanetTitles = {"Primeira", "Segunda"};;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +107,71 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         Log.d("MapaActivity", "onCreate");
         mapFragment.getMapAsync(this);
+
+
+
+//        mPlanetTitles = getResources().getStringArray(R.array.planets_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // Set the adapter for the list view
+//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mPlanetTitles));
+        // Set the list's click listener
+//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.abrir_menu_lateral, R.string.pechar_menu_lateral) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                getSupportActionBar().setTitle("nha");
+//                getSupportActionBar().setTitle(mTitle);
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getSupportActionBar().setTitle("nha2");
+//                getSupportActionBar().setTitle(mDrawerTitle);
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+
     }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Pass the event to ActionBarDrawerToggle, if it returns true, then it has handled the app icon touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        // Handle your other action bar items...
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -106,6 +191,16 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
+
+        //Desactivar as opcions dos marcadores cando se fai click
+        this.map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                marker.showInfoWindow();
+                map.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 250, null);
+                return true;
+            }
+        });
 
         //Comprobamos o permiso de localizacion para activar a localizacion
         boolean permisoConcedido = PermisosUtil.comprobarPermisos(this, Manifest.permission.ACCESS_FINE_LOCATION, CODIGO_SOLICITUDE_PERMISO_LOCALIZACION, true);
@@ -164,7 +259,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (location.getBuildingIdentifier() != "-1") {
 
                         if (MapaActivity.this.googleActivado) {
-//                            activarLocalizacionGoogle(false);
+                            activarLocalizacionGoogle(false);
                         }
 
                         LatLng latLng = new LatLng(location.getCoordinate().getLatitude(), location.getCoordinate().getLongitude());
@@ -289,7 +384,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.map.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100));
     }
 
-
     @Override
     public boolean onMyLocationButtonClick() {
         Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
@@ -297,30 +391,42 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         return false;
     }
 
-
     private void recuperarListaPoi(String idEdificioExterno) {
-
         this.recuperarPoi.setMapaActivity(this);
         AsyncTask<String, Void, List<PuntoInterese>> callback = this.recuperarPoi.execute(idEdificioExterno);
-
     }
 
     public void mostrarListaPoi(List<PuntoInterese> listaPoi) {
 
+        List<Short> listaIdPoiVisible = new ArrayList<>();
+
+        //Comprobamos os Pois que nos pasan como parametro para ver se xa os temos creados na lista de marcadores do edificio
         if (listaPoi != null) {
             LatLng latLng;
-            Circle circuloPoi;
+            Marker marcadorPoi;
+            MarcadorCustom marcadorCustom;
+
             for (PuntoInterese poi : listaPoi) {
-                latLng = new LatLng(poi.getLatitude(), poi.getLonxitude());
-                circuloPoi = this.map.addCircle(new CircleOptions()
-                        .center(latLng)
-                        .radius(0.3d)
-                        .strokeWidth(0f)
-                        .fillColor(Color.GREEN)
-                        .zIndex(1));
+                //Se non conten o poi debemos crear o marcador
+                marcadorCustom = new MarcadorCustom(poi.getIdPuntoInterese());
+                if (!this.listaMarcadores.contains(marcadorCustom)) {
+                    latLng = new LatLng(poi.getLatitude(), poi.getLonxitude());
+                    marcadorPoi = this.map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(poi.getNome()));
+                    marcadorCustom.setMarcadorGoogle(marcadorPoi);
+                    this.listaMarcadores.add(marcadorCustom);
+                }
+
+                listaIdPoiVisible.add(poi.getIdPuntoInterese());
             }
+
         }
 
+        //Facemos visibeis os pois que se pasan como parametro e invisibeis o resto
+        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
+            marcadorCustom.getMarcadorGoogle().setVisible(listaIdPoiVisible.contains(marcadorCustom.getIdPoi()));
+        }
 
     }
 

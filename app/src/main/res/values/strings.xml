@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Caronte</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Caronte</string>
 
-    <!--    Permissions    -->
+    <string name="abrir_menu_lateral">Abrir</string>
+    <string name="pechar_menu_lateral">Pechar</string>
+
+    <!--    Permisos    -->
     <string name="permiso_motivo">O permiso de localización é necesario para poder situarse e guiarse a través dos museos.</string>
     <string name="location_permission_denied">This sample requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.</string>
     <string name="permiso_necesario">O permiso de localización é necesario para a execución desta aplicación.</string>
