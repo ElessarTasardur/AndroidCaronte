@@ -2,7 +2,6 @@ package gal.caronte.caronte.mostrarmapa;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -10,12 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -50,6 +50,7 @@ import es.situm.sdk.model.location.Coordinate;
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.Edificio;
 import gal.caronte.caronte.custom.MarcadorCustom;
+import gal.caronte.caronte.custom.sw.Conta;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.util.PermisosUtil;
 import gal.caronte.caronte.util.StringUtil;
@@ -68,10 +69,13 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap map;
     private boolean googleActivado = false;
 
-    //Situm
+    //Servizos
     private RecuperarEdificio recuperarEdificioServizo = new RecuperarEdificio();
     private RecuperarMapa recuperarMapaServizo = new RecuperarMapa();
     private RecuperarPoi recuperarPoi = new RecuperarPoi();
+    private RecuperarConta recuperarConta = new RecuperarConta();
+
+    private Conta conta;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -84,21 +88,17 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Lista cos marcadores creados na aplicacion, visibeis ou invisibeis.
     List<MarcadorCustom> listaMarcadores = new ArrayList<>();
 
-
-
     //Menu lateral
-    private String[] mPlanetTitles = {"Primeira", "Segunda"};;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
+
+        recuperarListaConta();
 
         //Hai que inicializar Situm
         SitumSdk.init(this);
@@ -108,76 +108,54 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("MapaActivity", "onCreate");
         mapFragment.getMapAsync(this);
 
-
-
-//        mPlanetTitles = getResources().getStringArray(R.array.planets_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        // Set the adapter for the list view
-//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mPlanetTitles));
         // Set the list's click listener
-//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                conta = (Conta) mDrawerList.getItemAtPosition(position);
+                SitumSdk.configuration().setUserPass(conta.getNomeUsuario(), conta.getContrasinal());
 
+                map.clear();
+                edificio = null;
+                idEdificio = null;
+                idPiso = null;
+                activarLocalizacionSitum();
 
-
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.abrir_menu_lateral, R.string.pechar_menu_lateral) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                getSupportActionBar().setTitle("nha");
-//                getSupportActionBar().setTitle(mTitle);
+                mDrawerLayout.closeDrawer(GravityCompat.START);
             }
+        });
 
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle("nha2");
-//                getSupportActionBar().setTitle(mDrawerTitle);
-            }
-        };
+//        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.abrir_menu_lateral, R.string.pechar_menu_lateral) {
+//
+//            /** Called when a drawer has settled in a completely closed state. */
+//            public void onDrawerClosed(View view) {
+//                super.onDrawerClosed(view);
+//            }
+//
+//            /** Called when a drawer has settled in a completely open state. */
+//            public void onDrawerOpened(View drawerView) {
+//                super.onDrawerOpened(drawerView);
+//            }
+//        };
 
         // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+//        mDrawerLayout.addDrawerListener(mDrawerToggle);
+//
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
 
 
     }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        // Handle your other action bar items...
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     @Override
     protected void onDestroy() {
         this.recuperarEdificioServizo.cancel();
         this.recuperarMapaServizo.cancel();
         this.recuperarPoi.cancel(true);
+        this.recuperarConta.cancel(true);
         deterLocalizacionSitum();
         activarLocalizacionGoogle(false);
         super.onDestroy();
@@ -243,7 +221,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void activarLocalizacionSitum() {
         //Localizacion permitida
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && this.map != null) {
+                && this.map != null
+                && this.conta != null) {
             Log.i(TAG, "Activase a localizacion de Situm");
             if (locationManager.isRunning()) {
                 return;
@@ -428,6 +407,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             marcadorCustom.getMarcadorGoogle().setVisible(listaIdPoiVisible.contains(marcadorCustom.getIdPoi()));
         }
 
+    }
+
+    private void recuperarListaConta() {
+        this.recuperarConta.setMapaActivity(this);
+        AsyncTask<String, Void, List<Conta>> callback = this.recuperarConta.execute();
+    }
+
+    public void mostrarListaConta(List<Conta> listaConta) {
+        this.mDrawerList.setAdapter(new ArrayAdapter<Conta>(this, R.layout.drawer_list_item, listaConta));
     }
 
 }

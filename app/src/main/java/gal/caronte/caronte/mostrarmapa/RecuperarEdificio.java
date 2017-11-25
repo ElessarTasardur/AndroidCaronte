@@ -25,7 +25,6 @@ public class RecuperarEdificio {
     interface Callback {
         void onSuccess(Edificio edficio);
         void onError(Error error);
-
     }
 
     void get(final Callback callback, final String idEdificio) {
@@ -54,7 +53,12 @@ public class RecuperarEdificio {
                 }
 
                 //Recuperar pisos a partir de edificioActual
-                recuperarPiso(novoEdificio);
+                if (novoEdificio != null) {
+                    recuperarPiso(novoEdificio);
+                }
+                else {
+                    clearCallback();
+                }
             }
 
             @Override
