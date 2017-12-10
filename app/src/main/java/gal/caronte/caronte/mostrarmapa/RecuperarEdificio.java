@@ -8,8 +8,10 @@ import es.situm.sdk.SitumSdk;
 import es.situm.sdk.error.Error;
 import es.situm.sdk.model.cartography.Building;
 import es.situm.sdk.model.cartography.Floor;
+import es.situm.sdk.model.cartography.Poi;
 import es.situm.sdk.utils.Handler;
 import gal.caronte.caronte.custom.Edificio;
+import gal.caronte.caronte.util.StringUtil;
 
 /**
  * Created by ElessarTasardur on 08/10/2017.
@@ -46,6 +48,30 @@ public class RecuperarEdificio {
                 //Convertimos os edificios aos nosos customs
                 Edificio novoEdificio = null;
                 for (final Building edificio : buildings) {
+
+//                    if (edificio.getIdentifier().equals("2452")) {
+//                        SitumSdk.communicationManager().fetchIndoorPOIsFromBuilding(edificio, new Handler<Collection<Poi>>() {
+//                            @Override
+//                            public void onSuccess(Collection<Poi> pois) {
+//
+//                                for (Poi poi : pois) {
+//                                    String poiString = StringUtil.creaString("POI: ", poi.getName(),
+//                                            "; Cartesiano [", poi.getCartesianCoordinate().getX(), ", ", poi.getCartesianCoordinate().getY(), "]",
+//                                            "; Piso: ", poi.getFloorIdentifier(),
+//                                            "; Latitude: ", poi.getCoordinate().getLatitude(),
+//                                            "; Lonxitude: ", poi.getCoordinate().getLongitude());
+//                                    Log.i(TAG, poiString);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Error error) {
+//
+//                            }
+//                        });
+//                    }
+
+
                     if (idEdificio.equals(edificio.getIdentifier())) {
                         novoEdificio = new Edificio(edificio);
                         break;
@@ -63,6 +89,7 @@ public class RecuperarEdificio {
 
             @Override
             public void onFailure(Error error) {
+                Log.e(TAG, error.getMessage());
                 if (hasCallback()){
                     callback.onError(error);
                 }
@@ -88,6 +115,7 @@ public class RecuperarEdificio {
 
             @Override
             public void onFailure(Error error) {
+                Log.e(TAG, error.getMessage());
                 if (hasCallback()){
                     callback.onError(error);
                 }

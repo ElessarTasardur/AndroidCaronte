@@ -12,14 +12,16 @@ public class MarcadorCustom {
 
     private Marker marcadorGoogle;
     private Short idPoi;
+    private Short idPlanta;
 
     public MarcadorCustom() {
         super();
     }
 
-    public MarcadorCustom(Short idPoi) {
+    public MarcadorCustom(Short idPoi, Short idPlanta) {
         super();
         this.idPoi = idPoi;
+        this.idPlanta = idPlanta;
     }
 
     public Marker getMarcadorGoogle() {
@@ -36,6 +38,14 @@ public class MarcadorCustom {
 
     public void setIdPoi(Short idPoi) {
         this.idPoi = idPoi;
+    }
+
+    public Short getIdPlanta() {
+        return idPlanta;
+    }
+
+    public void setIdPlanta(Short idPlanta) {
+        this.idPlanta = idPlanta;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package gal.caronte.caronte.mostrarmapa;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import es.situm.sdk.SitumSdk;
 import es.situm.sdk.error.Error;
@@ -48,6 +49,7 @@ public class RecuperarMapa {
 
                 @Override
                 public void onFailure(Error error) {
+                    Log.e(TAG, error.getMessage());
                     if (hasCallback()) {
                         callback.onError(error);
                     }

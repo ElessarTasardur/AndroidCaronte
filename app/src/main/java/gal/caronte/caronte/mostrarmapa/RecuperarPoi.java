@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import gal.caronte.caronte.custom.sw.PuntoInterese;
+import gal.caronte.caronte.util.StringUtil;
 
 /**
  * Created by ElessarTasardur on 05/11/2017.
@@ -55,13 +56,15 @@ public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
             Log.e(TAG, e.getMessage(), e);
         }
 
+        Log.i(TAG, StringUtil.creaString("Lista de POI recuperados para o edificio ", idEdificioExterno, ": ", listaPoi));
+
         return listaPoi;
     }
 
     @Override
     protected void onPostExecute(List<PuntoInterese> listaPoi) {
         Log.i(TAG, String.valueOf(listaPoi));
-        this.mapaActivity.mostrarListaPoi(listaPoi);
+        this.mapaActivity.crearMostrarListaPoi(listaPoi);
     }
 
     public void setMapaActivity(MapaActivity mapaActivity) {
