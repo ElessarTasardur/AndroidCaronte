@@ -22,7 +22,6 @@ import gal.caronte.caronte.custom.MarcadorCustom;
 /**
  * Created by ElessarTasardur on 10/12/2017.
  */
-
 public class RecuperarRuta {
 
     private static final String TAG = RecuperarRuta.class.getSimpleName();
