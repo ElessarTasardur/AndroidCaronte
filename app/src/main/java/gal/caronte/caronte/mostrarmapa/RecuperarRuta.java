@@ -95,11 +95,12 @@ public class RecuperarRuta {
         SitumSdk.directionsManager().requestDirections(directionsRequest, new Handler<Route>() {
             @Override
             public void onSuccess(Route route) {
+                Log.d(TAG, "Exito solicitando ruta: " + String.valueOf(route));
                 PolylineOptions polyLineOptions = new PolylineOptions().color(Color.GREEN).width(4f);
 //                LatLngBounds.Builder builder = new LatLngBounds.Builder();
                 List<Point> routePoints = route.getPoints();
                 LatLng latLng;
-                for (Point point:routePoints){
+                for (Point point : routePoints){
                     latLng = new LatLng(point.getCoordinate().getLatitude(), point.getCoordinate().getLongitude());
 //                    builder.include(latLng);
                     polyLineOptions.add(latLng);
@@ -107,9 +108,11 @@ public class RecuperarRuta {
 //                builder.include(new LatLng(inicio.getCoordinate().getLatitude(), inicio.getCoordinate().getLongitude()));
 //                builder.include(new LatLng(fin.getCoordinate().getLatitude(), fin.getCoordinate().getLongitude()));
 
+                listaRutas.add(polyLineOptions);
                 diminuirNumeroChamadas();
                 if (getNumeroChamadas() == 0) {
                     if (hasCallback()) {
+                        Log.d(TAG, "Devolvemos os datos de rutas");
                         callback.onSuccess(listaRutas);
                     }
                     clearCallback();

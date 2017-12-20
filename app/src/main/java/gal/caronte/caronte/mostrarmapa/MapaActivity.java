@@ -472,6 +472,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onSuccess(List<PolylineOptions> listaRutas) {
                 if (listaRutas != null) {
+                    Toast.makeText(MapaActivity.this, String.valueOf(listaRutas), Toast.LENGTH_LONG).show();
                     for (PolylineOptions po : listaRutas) {
                         map.addPolyline(po);
                     }
