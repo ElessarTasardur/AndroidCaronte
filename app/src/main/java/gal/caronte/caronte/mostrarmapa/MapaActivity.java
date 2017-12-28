@@ -18,6 +18,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,6 +36,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,13 +65,20 @@ import gal.caronte.caronte.util.StringUtil;
  * Created by ElessarTasardur on 08/10/2017.
  */
 
-public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
+public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
+//        GoogleMap.OnMyLocationButtonClickListener,
+//        GoogleApiClient.ConnectionCallbacks,
+//        com.google.android.gms.location.LocationListener,
+//        GoogleApiClient.OnConnectionFailedListener,
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
 
     private static final int CODIGO_SOLICITUDE_PERMISO_LOCALIZACION = 1;
 
+    //GoogleMaps
     private GoogleMap map;
+    private FusedLocationProviderClient mfusedLocationProviderclient;
     private boolean googleActivado = false;
 
     //Servizos
@@ -106,7 +119,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         setup();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        Log.d("MapaActivity", "onCreate");
+        Log.d(TAG, "onCreate");
         mapFragment.getMapAsync(this);
 
         this.mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -167,6 +180,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
+        this.map.setIndoorEnabled(false);
+        this.map.getUiSettings().setMapToolbarEnabled(false);
 
         //Desactivar as opcions dos marcadores cando se fai click
         this.map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -212,6 +227,23 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.i(TAG, StringUtil.creaString("Activase a localizacion de Google: ", activar));
             this.googleActivado = activar;
             this.map.setMyLocationEnabled(activar);
+
+            if (activar) {
+                if (this.mfusedLocationProviderclient == null) {
+                    this.mfusedLocationProviderclient = LocationServices.getFusedLocationProviderClient(this);
+                }
+                this.mfusedLocationProviderclient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<android.location.Location>() {
+                    @Override
+                    public void onSuccess(android.location.Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            MapaActivity.this.map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+                        }
+                    }
+                });
+            }
+
         }
     }
 
@@ -403,12 +435,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         mostrarTodosPoiPlanta();
     }
 
-    @Override
-    public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
-        return false;
-    }
+//    @Override
+//    public boolean onMyLocationButtonClick() {
+//        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+////        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
+//        return false;
+//    }
 
     private void recuperarListaPoi(String idEdificioExterno) {
         this.recuperarPoi = new RecuperarPoi();
@@ -459,7 +491,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void recuperarListaConta() {
         this.recuperarConta.setMapaActivity(this);
-        this.recuperarConta.execute();
+//        this.recuperarConta.execute();
     }
 
     public void mostrarListaConta(List<Conta> listaConta) {
