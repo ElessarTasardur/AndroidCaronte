@@ -12,13 +12,11 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
-        debug{
+        debug {
             def gmaps_api_key = System.getenv("GMAPS_KEY").toString()
 //            def api_user = System.getenv("API_USER").toString()
 //            def api_key = System.getenv("API_KEY").toString()
             resValue 'string', 'google_maps_key', "AIzaSyAJUqzy0W87HwurLOVwiPdC_Qwdja_bKiA"
-//            resValue 'string', 'api_user', "pfcgvisual@situm.es"
-//            resValue 'string', 'api_key', "Ta8Eel6aKuXqXUbTbGnAwFOJuVUL2xUr"
         }
         release {
             minifyEnabled false
@@ -36,22 +34,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:26.0.2'
     compile 'com.google.android.gms:play-services-maps:10.0.1'
-    compile ('es.situm:situm-sdk:2.9.0@aar') {
+    compile('es.situm:situm-sdk:2.9.0@aar') {
         transitive = true
     }
-
-    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M4'
+    compile group: 'org.springframework.android', name: 'spring-android-rest-template', version: '2.0.0.M4'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
-
     testCompile 'junit:junit:4.12'
 }
-
 
 //compile 'com.android.support:recyclerview-v7:25.3.1'
 //compile 'com.android.support:design:25.3.1'
