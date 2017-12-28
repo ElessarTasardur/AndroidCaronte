@@ -180,8 +180,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
-        this.map.setIndoorEnabled(false);
+//        this.map.setIndoorEnabled(false);
         this.map.getUiSettings().setMapToolbarEnabled(false);
+        this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
+
+        //TODO crear seleccionador de niveis. So se activa cando estamos dentro de Situm e hai varios pisos
 
         //Desactivar as opcions dos marcadores cando se fai click
         this.map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
