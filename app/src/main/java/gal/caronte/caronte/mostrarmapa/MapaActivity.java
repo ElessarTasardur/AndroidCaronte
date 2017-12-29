@@ -15,11 +15,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,7 +36,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,31 +112,36 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         recuperarListaConta();
 
-        //Hai que inicializar Situm
-        SitumSdk.init(this);
+        Button botonActualizar = findViewById(R.id.buttonActualizar);
+        botonActualizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refrescarLocalizacionSitum();
+            }
+        });
 
-        setup();
+        //Inicializamos Situm
+        SitumSdk.init(this);
+        this.locationManager = SitumSdk.locationManager();
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        Log.d(TAG, "onCreate");
         mapFragment.getMapAsync(this);
 
         this.mDrawerLayout = findViewById(R.id.drawer_layout);
         this.mDrawerList = findViewById(R.id.left_drawer);
 
         // Set the list's click listener
-       this.mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+        this.mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Conta contaSeleccionada = (Conta) mDrawerList.getItemAtPosition(position);
 
                 if (!contaSeleccionada.equals(conta)) {
-                    deterLocalizacionSitum();
                     conta = contaSeleccionada;
                     Log.i(TAG, StringUtil.creaString("Seleccionada a conta: ", conta));
-                    SitumSdk.configuration().setUserPass(conta.getNomeUsuario(), conta.getContrasinal());
 
-                    activarLocalizacionSitum();
+                    refrescarLocalizacionSitum();
                 }
 
                 mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -148,6 +151,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+    }
+
+    private void refrescarLocalizacionSitum() {
+        deterLocalizacionSitum();
+        SitumSdk.configuration().setUserPass(conta.getNomeUsuario(), conta.getContrasinal());
+        activarLocalizacionSitum();
     }
 
     @Override
@@ -171,10 +180,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         activarLocalizacionGoogle(false);
 //        unregisterReceiver(yourReceiver);
         super.onStop();
-    }
-
-    private void setup() {
-        this.locationManager = SitumSdk.locationManager();
     }
 
     @Override
@@ -329,8 +334,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                             imaxeOverlay.remove();
                         }
                         recuperarMapa();
-                    }
-                    else {
+                    } else {
                         Log.i(TAG, "Non facemos nada");
                     }
 
@@ -342,8 +346,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .strokeWidth(0f)
                                 .fillColor(Color.BLUE)
                                 .zIndex(10));
-                    }
-                    else {
+                    } else {
                         Log.i(TAG, "Pintamos circulo antigo en " + latLng);
                         circle.setCenter(latLng);
                     }
@@ -415,7 +418,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    void debuxarEdificio(Bitmap mapa) {
+    private void debuxarEdificio(Bitmap mapa) {
 
         Building building = this.edificio.getEdificio();
 
@@ -494,7 +497,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void recuperarListaConta() {
         this.recuperarConta.setMapaActivity(this);
-//        this.recuperarConta.execute();
+        this.recuperarConta.execute();
     }
 
     public void mostrarListaConta(List<Conta> listaConta) {
