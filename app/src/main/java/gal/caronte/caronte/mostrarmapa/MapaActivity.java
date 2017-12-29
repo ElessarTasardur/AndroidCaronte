@@ -15,7 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -95,6 +96,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Edificio edificio;
     private String idEdificio;
     private String idPlanta;
+    private String idPlantaVisibel;
     private GroundOverlay imaxeOverlay;
     private Location posicionActual;
 
@@ -105,14 +107,18 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
 
+    private SelectorPiso selectorPiso;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
 
+        this.selectorPiso = new SelectorPiso(this, (LinearLayout) findViewById(R.id.layout_niveis));
+
         recuperarListaConta();
 
-        Button botonActualizar = findViewById(R.id.buttonActualizar);
+        ImageButton botonActualizar = findViewById(R.id.imageButtonActualizar);
         botonActualizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,6 +146,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (!contaSeleccionada.equals(conta)) {
                     conta = contaSeleccionada;
                     Log.i(TAG, StringUtil.creaString("Seleccionada a conta: ", conta));
+                    SitumSdk.configuration().setUserPass(conta.getNomeUsuario(), conta.getContrasinal());
 
                     refrescarLocalizacionSitum();
                 }
@@ -154,16 +161,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void refrescarLocalizacionSitum() {
+        deterChamadas();
         deterLocalizacionSitum();
-        SitumSdk.configuration().setUserPass(conta.getNomeUsuario(), conta.getContrasinal());
         activarLocalizacionSitum();
     }
 
-    @Override
-    protected void onStop() {
-        if (recuperarConta != null) {
-            this.recuperarConta.cancel(true);
-        }
+    private void deterChamadas() {
         if (recuperarEdificioServizo != null) {
             this.recuperarEdificioServizo.cancel();
         }
@@ -176,20 +179,25 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (recuperarRuta != null) {
             this.recuperarRuta.cancel();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        if (recuperarConta != null) {
+            this.recuperarConta.cancel(true);
+        }
+        deterChamadas();
         deterLocalizacionSitum();
         activarLocalizacionGoogle(false);
-//        unregisterReceiver(yourReceiver);
         super.onStop();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
-//        this.map.setIndoorEnabled(false);
+
         this.map.getUiSettings().setMapToolbarEnabled(false);
         this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
-
-        //TODO crear seleccionador de niveis. So se activa cando estamos dentro de Situm e hai varios pisos
 
         //Desactivar as opcions dos marcadores cando se fai click
         this.map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -261,7 +269,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 && this.map != null
                 && this.conta != null) {
             Log.i(TAG, "Activase a localizacion de Situm");
-            if (locationManager.isRunning()) {
+            if (this.locationManager.isRunning()) {
                 return;
             }
 
@@ -274,7 +282,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .useBle(true)
                     .useForegroundService(true)
                     .build();
-            locationManager.requestLocationUpdates(locationRequest, locationListener);
+            this.locationManager.requestLocationUpdates(locationRequest, locationListener);
         }
     }
 
@@ -286,7 +294,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationChanged(@NonNull Location location) {
 
                 Log.i(TAG, "Localizacion: " + location);
-                posicionActual = location;
+                MapaActivity.this.posicionActual = location;
 
                 //Atopamonos dentro dun edificio de Situm, desactivase Google
                 if (!"-1".equals(location.getBuildingIdentifier())) {
@@ -301,7 +309,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                             || !location.getBuildingIdentifier().equals(MapaActivity.this.idEdificio)) {
                         Log.i(TAG, "Edificio novo. Preparamos a carga do mesmo");
                         MapaActivity.this.idEdificio = location.getBuildingIdentifier();
-                        MapaActivity.this.idPlanta = location.getFloorIdentifier();
 
                         MapaActivity.this.recuperarEdificioServizo = new RecuperarEdificio();
                         MapaActivity.this.recuperarEdificioServizo.get(new RecuperarEdificio.Callback() {
@@ -310,7 +317,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                 Log.i(TAG, StringUtil.creaString("Recuperado o edificio: ", edificio));
                                 MapaActivity.this.edificio = edificio;
-                                recuperarMapa();
+
+                                MapaActivity.this.selectorPiso.mostrarSelectorPiso(MapaActivity.this.edificio.getPisos(), MapaActivity.this.idPlanta);
+
+                                recuperarMapa(MapaActivity.this.idPlanta);
 
                                 recuperarListaPoi(edificio.getEdificio().getIdentifier());
 
@@ -326,30 +336,38 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                         MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
 
                     }
-                    //Se a planta e distinta da previa debemos ocultar o mapa actual e mostrar o novo cos seus POIs
-                    else if (!MapaActivity.this.idPlanta.equals(location.getFloorIdentifier())) {
+                    //Se a planta visibel e a planta previa son iguais e non coinciden coa actual, debemos ocultar o mapa actual e mostrar o novo
+                    else if (MapaActivity.this.idPlanta.equals(MapaActivity.this.idPlantaVisibel)
+                            && !MapaActivity.this.idPlanta.equals(location.getFloorIdentifier())) {
                         Log.i(TAG, "Cambiamos o piso");
-                        MapaActivity.this.idPlanta = location.getFloorIdentifier();
                         if (imaxeOverlay != null) {
                             imaxeOverlay.remove();
                         }
-                        recuperarMapa();
-                    } else {
+                        recuperarMapa(MapaActivity.this.idPlanta);
+                        MapaActivity.this.selectorPiso.cambiarPisoSeleccionado(location.getFloorIdentifier());
+                    }
+                    else {
                         Log.i(TAG, "Non facemos nada");
                     }
 
-                    if (circle == null) {
-                        Log.i(TAG, "Pintamos novo circulo en " + latLng);
-                        circle = MapaActivity.this.map.addCircle(new CircleOptions()
-                                .center(latLng)
-                                .radius(0.5d)
-                                .strokeWidth(0f)
-                                .fillColor(Color.BLUE)
-                                .zIndex(10));
-                    } else {
-                        Log.i(TAG, "Pintamos circulo antigo en " + latLng);
-                        circle.setCenter(latLng);
+                    //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
+                    if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibel)) {
+                        if (circle == null) {
+                            Log.i(TAG, "Pintamos novo circulo en " + latLng);
+                            circle = MapaActivity.this.map.addCircle(new CircleOptions()
+                                    .center(latLng)
+                                    .radius(0.5d)
+                                    .strokeWidth(0f)
+                                    .fillColor(Color.BLUE)
+                                    .zIndex(10));
+                        }
+                        else {
+                            Log.i(TAG, "Pintamos circulo antigo en " + latLng);
+                            circle.setCenter(latLng);
+                        }
                     }
+
+                    MapaActivity.this.idPlanta = location.getFloorIdentifier();
 
                 }
                 //Activamos a localizacion de Google se non o estaba xa
@@ -372,18 +390,20 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
     }
 
-    private void recuperarMapa() {
+    public void recuperarMapa(final String idPlantaMapa) {
+
+        this.idPlantaVisibel = idPlantaMapa;
 
         //Se ainda non temos o mapa, recuperamolo
-        Bitmap mapaPiso = this.edificio.getMapa(this.idPlanta);
+        Bitmap mapaPiso = this.edificio.getMapa(idPlantaMapa);
         if (mapaPiso == null) {
 
-            Floor floor = this.edificio.getFloor(idPlanta);
+            Floor floor = this.edificio.getFloor(idPlantaMapa);
             this.recuperarMapaServizo = new RecuperarMapa();
             this.recuperarMapaServizo.get(new RecuperarMapa.Callback() {
                 @Override
                 public void onSuccess(Bitmap mapa) {
-                    edificio.setMapa(idPlanta, mapa);
+                    edificio.setMapa(idPlantaMapa, mapa);
                     debuxarEdificio(mapa);
                 }
 
@@ -438,6 +458,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.imaxeOverlay = this.map.addGroundOverlay(gooMapa);
 
         this.map.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100));
+
+        //TODO
         mostrarTodosPoiPlanta();
     }
 

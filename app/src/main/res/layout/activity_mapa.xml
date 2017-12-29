@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,14 +12,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <include layout="@layout/fragment_mapa" />
-        <Button
-            android:id="@+id/buttonActualizar"
+
+        <ImageButton
+            android:id="@+id/imageButtonActualizar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_margin="5dp"
-            android:text="Actualizar"
-            android:textColor="#ffffff" />
+            app:srcCompat="@drawable/ic_refresh_black_24dp" />
+
+        <include layout="@layout/layout_niveis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center" />
+
     </FrameLayout>
 
     <!-- The navigation drawer -->

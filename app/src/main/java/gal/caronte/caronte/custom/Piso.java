@@ -17,15 +17,15 @@ public class Piso {
         this.piso = piso;
     }
 
-    Floor getPiso() {
+    public Floor getPiso() {
         return this.piso;
     }
 
-    Bitmap getMapa() {
+    public Bitmap getMapa() {
         return this.mapa;
     }
 
-    void setMapa(Bitmap mapa) {
+    public void setMapa(Bitmap mapa) {
         this.mapa = mapa;
     }
 }
