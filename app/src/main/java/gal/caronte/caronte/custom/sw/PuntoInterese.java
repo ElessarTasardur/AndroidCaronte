@@ -11,25 +11,19 @@ public class PuntoInterese {
     private Short idPuntoInterese;
     private String nome;
     private String descricion;
-    private Short idEdificio;
-    private Short idPlanta;
-    private Float latitude;
-    private Float lonxitude;
+    private Posicion posicion;
 
     public PuntoInterese() {
         super();
     }
     
-    public PuntoInterese(Short idPuntoInterese, String nome, String descricion, Short idEdificio, Short idPlanta,
+    public PuntoInterese(Short idPuntoInterese, String nome, String descricion, Short idEdificio, Short idPlanta, Short nivel,
                          Float latitude, Float lonxitude) {
         super();
         this.idPuntoInterese = idPuntoInterese;
         this.nome = nome;
         this.descricion = descricion;
-        this.idEdificio = idEdificio;
-        this.idPlanta = idPlanta;
-        this.latitude = latitude;
-        this.lonxitude = lonxitude;
+        this.posicion = new Posicion(idEdificio, idPlanta, nivel, latitude, lonxitude);
     }
 
     /**
@@ -75,59 +69,17 @@ public class PuntoInterese {
     }
 
     /**
-     * @return the idEdificio
+     * @return the posicion
      */
-    public Short getIdEdificio() {
-        return this.idEdificio;
+    public Posicion getPosicion() {
+        return posicion;
     }
 
     /**
-     * @param idEdificio the idEdificio to set
+     * @param posicion the posicion to set
      */
-    public void setIdEdificio(Short idEdificio) {
-        this.idEdificio = idEdificio;
-    }
-
-    /**
-     * @return the idPlanta
-     */
-    public Short getIdPlanta() {
-        return this.idPlanta;
-    }
-
-    /**
-     * @param idPlanta the idPlanta to set
-     */
-    public void setIdPlanta(Short idPlanta) {
-        this.idPlanta = idPlanta;
-    }
-
-    /**
-     * @return the latitude
-     */
-    public Float getLatitude() {
-        return this.latitude;
-    }
-
-    /**
-     * @param latitude the latitude to set
-     */
-    public void setLatitude(Float latitude) {
-        this.latitude = latitude;
-    }
-
-    /**
-     * @return the lonxitude
-     */
-    public Float getLonxitude() {
-        return this.lonxitude;
-    }
-
-    /**
-     * @param lonxitude the lonxitude to set
-     */
-    public void setLonxitude(Float lonxitude) {
-        this.lonxitude = lonxitude;
+    public void setPosicion(Posicion posicion) {
+        this.posicion = posicion;
     }
 
     /**
@@ -135,7 +87,7 @@ public class PuntoInterese {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.nome, this.idEdificio, this.idPlanta, this.latitude, this.lonxitude);
+        return Objects.hash(this.nome, this.posicion);
     }
 
     /**
@@ -154,10 +106,7 @@ public class PuntoInterese {
         }
         final PuntoInterese other = (PuntoInterese) obj;
         return Objects.equals(this.nome, other.nome)
-                && Objects.equals(this.idEdificio, other.idEdificio)
-                && Objects.equals(this.idPlanta, other.idPlanta)
-                && Objects.equals(this.latitude, other.latitude)
-                && Objects.equals(this.lonxitude, other.lonxitude);
+                && Objects.equals(this.posicion, other.posicion);
     }
 
 }

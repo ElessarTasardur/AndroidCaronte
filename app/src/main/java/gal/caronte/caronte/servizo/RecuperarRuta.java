@@ -1,4 +1,4 @@
-package gal.caronte.caronte.mostrarmapa;
+package gal.caronte.caronte.servizo;
 
 import android.graphics.Color;
 import android.util.Log;
@@ -14,7 +14,6 @@ import es.situm.sdk.directions.DirectionsRequest;
 import es.situm.sdk.error.Error;
 import es.situm.sdk.model.cartography.Point;
 import es.situm.sdk.model.directions.Route;
-import es.situm.sdk.model.location.Coordinate;
 import es.situm.sdk.model.location.Location;
 import es.situm.sdk.utils.Handler;
 import gal.caronte.caronte.custom.MarcadorCustom;
@@ -27,16 +26,16 @@ public class RecuperarRuta {
     private static final String TAG = RecuperarRuta.class.getSimpleName();
 
     private int numeroChamadas = 0;
-    final List<PolylineOptions> listaRutas = new ArrayList<>();
+    private final List<PolylineOptions> listaRutas = new ArrayList<>();
 
     private RecuperarRuta.Callback callback;
 
-    interface Callback {
+    public interface Callback {
         void onSuccess(List<PolylineOptions> listaRutas);
         void onError(Error error);
     }
 
-    void get(final RecuperarRuta.Callback callback, final String idEdificio, final Location posicionActual, final List<MarcadorCustom> listaMarcadores) {
+    public void get(final RecuperarRuta.Callback callback, final String idEdificio, final Location posicionActual, final List<MarcadorCustom> listaMarcadores) {
         Log.i(TAG, "Realizase a chamada para recuperar as rutas");
         if (hasCallback()){
             Log.d(TAG, "Xa se realizou outra chamada");
@@ -44,47 +43,66 @@ public class RecuperarRuta {
         }
         this.callback = callback;
 
-        recuperarRuta(idEdificio, posicionActual, listaMarcadores);
+        recuperarRuta(idEdificio, listaMarcadores);
     }
 
-    private void recuperarRuta(final String idEdificio, final Location posicionActual, final List<MarcadorCustom> listaMarcadores) {
+    private void recuperarRuta(final String idEdificio, final List<MarcadorCustom> listaMarcadores) {
 
         if (listaMarcadores == null
                 || listaMarcadores.isEmpty()
-                || (posicionActual == null
-                        && listaMarcadores.size() < 2)) {
+                || listaMarcadores.size() < 2) {
             Log.e(TAG, "Non hai suficientes puntos para crear unha ruta");
         }
         else {
-            Point inicio;
-            Point fin;
-            int indice = 0;
-            if (posicionActual != null) {
-                inicio = posicionActual.getPosition();
-                MarcadorCustom mc = listaMarcadores.get(0);
-                Coordinate coordenada = new Coordinate(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude);
-                fin = new Point(idEdificio, listaMarcadores.get(0).getIdPlanta().toString(), coordenada, null);
-                indice = 1;
-                DirectionsRequest directionsRequest = new DirectionsRequest.Builder()
-                        .from(inicio, null)
-                        .to(fin)
-                        .build();
-                solicitarDireccions(directionsRequest, inicio, fin);
-            }
-            Coordinate coordenada;
-            for (; indice < listaMarcadores.size() - 1; indice++) {
-                MarcadorCustom mcInicial = listaMarcadores.get(indice);
-                coordenada = new Coordinate(mcInicial.getMarcadorGoogle().getPosition().latitude, mcInicial.getMarcadorGoogle().getPosition().longitude);
-                inicio = new Point(idEdificio, listaMarcadores.get(0).getIdPlanta().toString(), coordenada, null);
+            List<Point> listaPuntos = new ArrayList<>();
+            PolylineOptions polyLineOptions = new PolylineOptions().color(Color.GREEN).width(4f);
+            LatLng latLng;
 
-                fin = new Point(idEdificio, listaMarcadores.get(0).getIdPlanta().toString(), coordenada, null);
-                DirectionsRequest directionsRequest = new DirectionsRequest.Builder()
-                        .from(inicio, null)
-                        .to(fin)
-                        .build();
-                solicitarDireccions(directionsRequest, inicio, fin);
+            for (MarcadorCustom mc : listaMarcadores) {
+                latLng = new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude);
+                polyLineOptions.add(latLng);
             }
+
+            listaRutas.add(polyLineOptions);
+            if (hasCallback()) {
+                Log.d(TAG, "Devolvemos os datos de rutas");
+                callback.onSuccess(listaRutas);
+            }
+            clearCallback();
+
         }
+
+
+//        else {
+//            Point inicio;
+//            Point fin;
+//            int indice = 0;
+//            if (posicionActual != null) {
+//                inicio = posicionActual.getPosition();
+//                MarcadorCustom mc = listaMarcadores.get(0);
+//                Coordinate coordenada = new Coordinate(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude);
+//                fin = new Point(idEdificio, listaMarcadores.get(0).getIdPlanta().toString(), coordenada, null);
+//                indice = 1;
+//                DirectionsRequest directionsRequest = new DirectionsRequest.Builder()
+//                        .from(inicio, null)
+//                        .to(fin)
+//                        .build();
+//                solicitarDireccions(directionsRequest, inicio, fin);
+//            }
+//            Coordinate coordenada;
+//            for (; indice < listaMarcadores.size() - 1; indice++) {
+//                MarcadorCustom mcInicial = listaMarcadores.get(indice);
+//                coordenada = new Coordinate(mcInicial.getMarcadorGoogle().getPosition().latitude, mcInicial.getMarcadorGoogle().getPosition().longitude);
+//                inicio = new Point(idEdificio, listaMarcadores.get(0).getIdPlanta().toString(), coordenada, null);
+//
+//                fin = new Point(idEdificio, listaMarcadores.get(0).getIdPlanta().toString(), coordenada, null);
+//                DirectionsRequest directionsRequest = new DirectionsRequest.Builder()
+//                        .from(inicio, null)
+//                        .to(fin)
+//                        .build();
+//                solicitarDireccions(directionsRequest, inicio, fin);
+//            }
+//        }
 
     }
 
@@ -144,7 +162,7 @@ public class RecuperarRuta {
         return this.numeroChamadas;
     }
 
-    void cancel() {
+    public void cancel() {
         callback = null;
     }
 

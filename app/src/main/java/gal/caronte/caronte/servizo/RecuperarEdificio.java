@@ -1,4 +1,4 @@
-package gal.caronte.caronte.mostrarmapa;
+package gal.caronte.caronte.servizo;
 
 import android.util.Log;
 
@@ -8,10 +8,8 @@ import es.situm.sdk.SitumSdk;
 import es.situm.sdk.error.Error;
 import es.situm.sdk.model.cartography.Building;
 import es.situm.sdk.model.cartography.Floor;
-import es.situm.sdk.model.cartography.Poi;
 import es.situm.sdk.utils.Handler;
 import gal.caronte.caronte.custom.Edificio;
-import gal.caronte.caronte.util.StringUtil;
 
 /**
  * Created by ElessarTasardur on 08/10/2017.
@@ -24,12 +22,12 @@ public class RecuperarEdificio {
     private Edificio edificio;
     private Callback callback;
 
-    interface Callback {
+    public interface Callback {
         void onSuccess(Edificio edficio);
         void onError(Error error);
     }
 
-    void get(final Callback callback, final String idEdificio) {
+    public void get(final Callback callback, final String idEdificio) {
         if (hasCallback()){
             Log.d(TAG, "Xa se realizou outra chamada");
             return;
@@ -101,7 +99,7 @@ public class RecuperarEdificio {
         });
     }
 
-    void cancel() {
+    public void cancel() {
         callback = null;
     }
 

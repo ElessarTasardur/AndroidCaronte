@@ -1,12 +1,17 @@
 package gal.caronte.caronte.mostrarmapa;
 
+import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gal.caronte.caronte.custom.Piso;
 
@@ -16,10 +21,13 @@ import gal.caronte.caronte.custom.Piso;
 
 public class SelectorPiso {
 
+    private static final int TAMANHO_BOTON = 10;
+
     private MapaActivity mapaActivity;
     private LinearLayout layoutNiveis;
     private String idPlantaActual;
     private List<Button> listaBotons = new ArrayList<>();
+    private Map<Integer, Integer> mapaCor = new HashMap<>();
 
     public SelectorPiso(MapaActivity mapaActivity, LinearLayout layoutNiveis) {
         super();
@@ -27,30 +35,53 @@ public class SelectorPiso {
         this.layoutNiveis = layoutNiveis;
     }
 
+//    private void crearListaCor() {
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_GREEN);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_YELLOW);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_MAGENTA);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_CYAN);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_ORANGE);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_ROSE);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_BLUE);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_RED);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_VIOLET);
+//        this.listaCor.add(BitmapDescriptorFactory.HUE_AZURE);
+//    }
+
     public void ocultarBotons() {
         this.layoutNiveis.removeAllViewsInLayout();
     }
 
-    public void mostrarSelectorPiso(Collection<Piso> listaPiso, String idPlantaActual) {
+    public void mostrarSelectorPiso(Collection<Piso> listaPiso, String idPlantaActual, HashMap<Short, Float> mapaCorMarcador) {
 
         this.idPlantaActual = idPlantaActual;
         this.listaBotons.clear();
+
+        this.mapaCor.clear();
+        if (mapaCorMarcador != null) {
+            for (Short chave : mapaCorMarcador.keySet()) {
+                Float valor = mapaCorMarcador.get(chave);
+                float[] hsv = {valor, 1F, 1F};
+                int cor = Color.HSVToColor(hsv);
+                this.mapaCor.put(chave.intValue(), cor);
+            }
+        }
 
         //Eliminamos los botones existentes para crear los nuevos
         ocultarBotons();
         if (listaPiso != null) {
 
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
             Button botonPiso;
             for (Piso piso : listaPiso) {
                 botonPiso = new Button(this.mapaActivity);
-                final int nivel = piso.getPiso().getLevel();
                 final String idPlantaBoton = piso.getPiso().getIdentifier();
                 botonPiso.setId(Integer.valueOf(idPlantaBoton));
-                botonPiso.setText(nivel);
-                this.layoutNiveis.addView(botonPiso, params);
+                botonPiso.setText(String.valueOf(piso.getPiso().getLevel()));
+                botonPiso.setWidth(TAMANHO_BOTON);
+                botonPiso.setHeight(TAMANHO_BOTON);
+                Integer cor = this.mapaCor.get(piso.getPiso().getLevel());
+                botonPiso.setTextColor(cor);
+                this.layoutNiveis.addView(botonPiso);
                 botonPiso.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         SelectorPiso.this.mapaActivity.recuperarMapa(idPlantaBoton);

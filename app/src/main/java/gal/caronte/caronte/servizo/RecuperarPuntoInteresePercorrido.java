@@ -1,4 +1,4 @@
-package gal.caronte.caronte.mostrarmapa;
+package gal.caronte.caronte.servizo;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -17,27 +17,28 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 import java.util.List;
 
-import gal.caronte.caronte.custom.sw.PuntoInterese;
+import gal.caronte.caronte.R;
+import gal.caronte.caronte.custom.sw.PuntoInteresePosicion;
+import gal.caronte.caronte.mostrarmapa.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
- * Created by ElessarTasardur on 05/11/2017.
+ * Created by ElessarTasardur on 10/01/2018.
  */
 
-public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
+public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, List<PuntoInteresePosicion>> {
 
-    private static final String TAG = RecuperarPoi.class.getSimpleName();
+    private static final String TAG = RecuperarPuntoInteresePercorrido.class.getSimpleName();
 
     private MapaActivity mapaActivity;
 
     @Override
-    protected List<PuntoInterese> doInBackground(String... params) {
+    protected List<PuntoInteresePosicion> doInBackground(String... params) {
+        String idPercorrido = params[0];
 
-        String idEdificioExterno = params[0];
-
-        List<PuntoInterese> listaPoi = null;
+        List<PuntoInteresePosicion> listaPIP = null;
         try {
-            final String url = "http://ec2-34-241-173-6.eu-west-1.compute.amazonaws.com:8080/sw/museo/pois/{idEdificioExterno}";
+            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), "/ppi/{idPercorrido}");
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -45,26 +46,25 @@ public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             HttpEntity<String> entity = new HttpEntity<String>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idEdificioExterno);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idPercorrido);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
-            listaPoi = mapper.convertValue(resource, new TypeReference<List<PuntoInterese>>() { });
+            listaPIP = mapper.convertValue(resource, new TypeReference<List<PuntoInteresePosicion>>() { });
 
         }
         catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        Log.i(TAG, StringUtil.creaString("Lista de POI recuperados para o edificio ", idEdificioExterno, ": ", listaPoi));
+        Log.i(TAG, StringUtil.creaString("Lista de puntos (e posicions) recuperados para o percorrido ", idPercorrido, ": ", listaPIP));
 
-        return listaPoi;
+        return listaPIP;
     }
 
     @Override
-    protected void onPostExecute(List<PuntoInterese> listaPoi) {
-        Log.i(TAG, String.valueOf(listaPoi));
-        this.mapaActivity.crearMostrarListaPoi(listaPoi);
+    protected void onPostExecute(List<PuntoInteresePosicion> listaPIP) {
+        this.mapaActivity.asociarPuntosPercorrido(listaPIP);
     }
 
     public void setMapaActivity(MapaActivity mapaActivity) {

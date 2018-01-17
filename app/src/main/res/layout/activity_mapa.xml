@@ -5,6 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+        <!--tools:openDrawer="end"-->
 
     <!-- The main content view -->
     <FrameLayout
@@ -14,25 +15,29 @@
         <include layout="@layout/fragment_mapa" />
 
         <ImageButton
-            android:id="@+id/imageButtonActualizar"
+            android:id="@+id/image_button_actualizar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/boton_actualizar_descricion"
             app:srcCompat="@drawable/ic_refresh_black_24dp" />
+
+        <Spinner
+            android:id="@+id/spinner_percorridos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center" />
 
         <include layout="@layout/layout_niveis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|center" />
+            android:layout_gravity="end|center" />
 
     </FrameLayout>
 
     <!-- The navigation drawer -->
-    <ListView android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+    <include layout="@layout/layout_drawer"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="@color/colorPrimary"/>
+        android:layout_gravity="start" />
+
 </android.support.v4.widget.DrawerLayout>

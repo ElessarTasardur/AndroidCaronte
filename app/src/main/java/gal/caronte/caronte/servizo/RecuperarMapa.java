@@ -1,4 +1,4 @@
-package gal.caronte.caronte.mostrarmapa;
+package gal.caronte.caronte.servizo;
 
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -7,7 +7,6 @@ import es.situm.sdk.SitumSdk;
 import es.situm.sdk.error.Error;
 import es.situm.sdk.model.cartography.Floor;
 import es.situm.sdk.utils.Handler;
-import gal.caronte.caronte.custom.Edificio;
 
 /**
  * Created by ElessarTasardur on 04/11/2017.
@@ -19,12 +18,12 @@ public class RecuperarMapa {
 
     private Callback callback;
 
-    interface Callback{
+    public interface Callback{
         void onSuccess(Bitmap mapa);
         void onError(Error error);
     }
 
-    void get(final RecuperarMapa.Callback callback, final Floor floor) {
+    public void get(final RecuperarMapa.Callback callback, final Floor floor) {
         if (hasCallback()){
             return;
         }
@@ -59,7 +58,7 @@ public class RecuperarMapa {
         }
     }
 
-    void cancel() {
+    public void cancel() {
         callback = null;
     }
 
