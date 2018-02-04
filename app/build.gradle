@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion '27.0.2'
     defaultConfig {
-        applicationId "gal.caronte.caronte"
+        applicationId "gal.caronte"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
@@ -45,6 +45,7 @@ dependencies {
     compile 'com.android.support:support-v4:27.0.2'
     compile 'com.google.android.gms:play-services-maps:11.8.0'
     compile 'com.google.android.gms:play-services-location:11.8.0'
+    compile 'com.google.android.gms:play-services-auth:11.8.0'
     compile('es.situm:situm-sdk:2.9.0@aar') {
         transitive = true
     }
@@ -52,6 +53,8 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     testCompile 'junit:junit:4.12'
 }
+
+apply plugin: 'com.google.gms.google-services'
 
 //compile 'com.android.support:recyclerview-v7:25.3.1'
 //compile 'com.android.support:design:25.3.1'

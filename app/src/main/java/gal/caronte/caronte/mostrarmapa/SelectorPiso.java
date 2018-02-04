@@ -77,6 +77,7 @@ public class SelectorPiso {
                 final String idPlantaBoton = piso.getPiso().getIdentifier();
                 botonPiso.setId(Integer.valueOf(idPlantaBoton));
                 botonPiso.setText(String.valueOf(piso.getPiso().getLevel()));
+                botonPiso.setTextSize(12F);
                 botonPiso.setWidth(TAMANHO_BOTON);
                 botonPiso.setHeight(TAMANHO_BOTON);
                 Integer cor = this.mapaCor.get(piso.getPiso().getLevel());

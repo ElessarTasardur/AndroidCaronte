@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="gal.caronte.caronte.activity.InicioActivity">
+
+    <LinearLayout android:id="@+id/lytBotones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/boton_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/boton_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logout" />
+
+        <Button
+            android:id="@+id/boton_desconectar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/desconectar" />
+
+    </LinearLayout>
+
+    <!--<TextView android:id="@+id/txtNombre"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/lytBotones" />-->
+
+    <!--<TextView android:id="@+id/txtEmail"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/txtNombre" />-->
+
+</RelativeLayout>
