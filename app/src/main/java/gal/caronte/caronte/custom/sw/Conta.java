@@ -2,31 +2,43 @@ package gal.caronte.caronte.custom.sw;
 
 import java.util.Objects;
 
+import gal.caronte.caronte.util.StringUtil;
+
 /**
  * Created by ElessarTasardur on 25/11/2017.
  */
 
 public class Conta {
 
-    private String nomeUsuario;
+    private String contaUsuario;
+    private String nome;
     private String contrasinal;
 
     public Conta() {
         super();
     }
 
-    public Conta(String nomeUsuario, String contrasinal) {
+    public Conta(String contaUsuario, String nome, String contrasinal) {
         super();
-        this.nomeUsuario = nomeUsuario;
+        this.contaUsuario = contaUsuario;
+        this.nome = nome;
         this.contrasinal = contrasinal;
     }
 
-    public String getNomeUsuario() {
-        return nomeUsuario;
+    public String getContaUsuario() {
+        return contaUsuario;
     }
 
-    public void setNomeUsuario(String nomeUsuario) {
-        this.nomeUsuario = nomeUsuario;
+    public void setContaUsuario(String contaUsuario) {
+        this.contaUsuario = contaUsuario;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getContrasinal() {
@@ -42,7 +54,7 @@ public class Conta {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.nomeUsuario, this.contrasinal);
+        return Objects.hash(this.contaUsuario, this.nome);
     }
 
     /**
@@ -60,8 +72,8 @@ public class Conta {
             return false;
         }
         final Conta other = (Conta) obj;
-        return Objects.equals(this.nomeUsuario, other.nomeUsuario)
-                && Objects.equals(this.contrasinal, other.contrasinal);
+        return Objects.equals(this.contaUsuario, other.contaUsuario)
+                && Objects.equals(this.nome, other.nome);
     }
 
     /**
@@ -69,6 +81,6 @@ public class Conta {
      */
     @Override
     public String toString() {
-        return nomeUsuario.toString();
+        return this.nome;
     }
 }

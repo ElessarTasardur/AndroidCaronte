@@ -59,6 +59,7 @@ import es.situm.sdk.model.location.Bounds;
 import es.situm.sdk.model.location.Coordinate;
 import es.situm.sdk.model.location.Location;
 import gal.caronte.caronte.R;
+import gal.caronte.caronte.activity.InicioActivity;
 import gal.caronte.caronte.custom.Edificio;
 import gal.caronte.caronte.custom.MarcadorCustom;
 import gal.caronte.caronte.custom.Piso;
@@ -69,7 +70,6 @@ import gal.caronte.caronte.custom.sw.Posicion;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.custom.sw.PuntoInteresePosicion;
 import gal.caronte.caronte.servizo.GardarPercorrido;
-import gal.caronte.caronte.servizo.RecuperarConta;
 import gal.caronte.caronte.servizo.RecuperarEdificio;
 import gal.caronte.caronte.servizo.RecuperarMapa;
 import gal.caronte.caronte.servizo.RecuperarPercorrido;
@@ -92,6 +92,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
+    private static final String NOME_CONTA = "nomeConta";
+    private static final String CONTRASINAL_CONTA = "contrasinalConta";
+    private static final String ID_TOKEN = "idToken";
 
     private static final int CODIGO_SOLICITUDE_PERMISO_LOCALIZACION = 1;
 
@@ -101,7 +104,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean googleActivado = false;
 
     //Servizos
-    private RecuperarConta recuperarConta;
     private RecuperarEdificio recuperarEdificio;
     private RecuperarMapa recuperarMapa;
     private RecuperarPoi recuperarPoi;
@@ -109,8 +111,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RecuperarPercorrido recuperarPercorrido;
     private RecuperarPuntoInteresePercorrido recuperarPuntoInteresePercorrido;
     private GardarPercorrido gardarPercorrido;
-
-    private Conta conta;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -140,11 +140,20 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
 
+        //Recuperamos a informacion do intent
+        Bundle bundle = getIntent().getExtras();
+        String nomeConta = bundle.getString(NOME_CONTA);
+        String contrasinalConta = bundle.getString(CONTRASINAL_CONTA);
+        String idToken = bundle.getString(ID_TOKEN);
+
+        //Inicializamos Situm
+        SitumSdk.init(this);
+        SitumSdk.configuration().setUserPass(nomeConta, contrasinalConta);
+        this.locationManager = SitumSdk.locationManager();
+
         crearListaCor();
 
         this.selectorPiso = new SelectorPiso(this, (LinearLayout) findViewById(R.id.layout_niveis));
-
-        recuperarListaConta();
 
         ImageButton botonActualizar = findViewById(R.id.image_button_actualizar);
         botonActualizar.setOnClickListener(new View.OnClickListener() {
@@ -153,10 +162,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 refrescarLocalizacionSitum();
             }
         });
-
-        //Inicializamos Situm
-        SitumSdk.init(this);
-        this.locationManager = SitumSdk.locationManager();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -241,9 +246,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onStop() {
-        if (recuperarConta != null) {
-            this.recuperarConta.cancel(true);
-        }
         deterLocalizacion();
         activarLocalizacionGoogle(false);
         super.onStop();
@@ -323,8 +325,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void activarLocalizacionSitum() {
         //Localizacion permitida
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && this.map != null
-                && this.conta != null) {
+                && this.map != null) {
             Log.i(TAG, "Activase a localizacion de Situm");
             if (this.locationManager.isRunning()) {
                 return;
@@ -642,40 +643,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
             marcadorCustom.getMarcadorGoogle().setVisible(false);
         }
-    }
-
-    private void recuperarListaConta() {
-        this.recuperarConta = new RecuperarConta();
-        this.recuperarConta.setMapaActivity(this);
-        this.recuperarConta.execute();
-    }
-
-    public void mostrarListaConta(List<Conta> listaConta) {
-
-        final Spinner spinner = findViewById(R.id.spinner_contas);
-        spinner.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, listaConta));
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                Conta contaSeleccionada = (Conta) spinner.getSelectedItem();
-
-                if (!contaSeleccionada.equals(conta)) {
-                    MapaActivity.this.conta = contaSeleccionada;
-                    Log.i(TAG, StringUtil.creaString("Seleccionada a conta: ", MapaActivity.this.conta));
-                    SitumSdk.configuration().setUserPass(MapaActivity.this.conta.getNomeUsuario(), MapaActivity.this.conta.getContrasinal());
-
-                    refrescarLocalizacionSitum();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                //Non se fai nada
-            }
-
-        });
-
     }
 
     private void recuperarRuta() {

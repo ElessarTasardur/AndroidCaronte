@@ -14,4 +14,5 @@
     <string name="boton_actualizar_descricion">Recargar compoñentes</string>
     <string name="logout">Logout</string>
     <string name="desconectar">Desconectar</string>
+    <string name="acceder">Acceder</string>
 </resources>

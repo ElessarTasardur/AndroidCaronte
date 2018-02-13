@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="gal.caronte.caronte.activity.InicioActivity">
 
-    <LinearLayout android:id="@+id/lytBotones"
+    <LinearLayout android:id="@+id/lytBotons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -29,14 +29,20 @@
 
     </LinearLayout>
 
-    <!--<TextView android:id="@+id/txtNombre"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@id/lytBotones" />-->
+    <Spinner
+        android:id="@+id/spinner_contas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|start"
+        android:layout_below="@+id/lytBotons"
+        android:textColor="@color/branco" />
 
-    <!--<TextView android:id="@+id/txtEmail"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@id/txtNombre" />-->
+    <Button
+        android:id="@+id/boton_acceder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_below="@+id/spinner_contas"
+        android:text="@string/acceder" />
 
 </RelativeLayout>

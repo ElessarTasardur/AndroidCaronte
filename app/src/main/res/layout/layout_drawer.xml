@@ -13,13 +13,6 @@
     android:orientation="vertical">
 
 
-    <Spinner
-        android:id="@+id/spinner_contas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:textColor="@color/branco" />
-
     <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/checkbox_mostrar_pois"
         android:layout_width="match_parent"

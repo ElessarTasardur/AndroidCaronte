@@ -15,55 +15,54 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
-import java.util.List;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.activity.InicioActivity;
-import gal.caronte.caronte.custom.sw.Conta;
-import gal.caronte.caronte.mostrarmapa.MapaActivity;
+import gal.caronte.caronte.custom.sw.ComprobarLoginGoogleCustom;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
- * Created by ElessarTasardur on 25/11/2017.
+ * Created by ElessarTasardur on 11/02/2018.
  */
 
-public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
+public class ComprobarUsuarioGoogle extends AsyncTask<String, Void, ComprobarLoginGoogleCustom> {
 
-    private static final String TAG = RecuperarConta.class.getSimpleName();
+    private static final String TAG = GardarPercorrido.class.getSimpleName();
 
     private InicioActivity inicioActivity;
 
     @Override
-    protected List<Conta> doInBackground(String... params) {
-
-        List<Conta> listaContas = null;
+    protected ComprobarLoginGoogleCustom doInBackground(String... strings) {
+        String idToken = strings[0];
+        ComprobarLoginGoogleCustom usuarioCorrecto = null;
         try {
-            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), "contas");
+            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), "comprobarUsuarioGoogle");
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> entity = new HttpEntity<String>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(idToken, headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
-            listaContas = mapper.convertValue(resource, new TypeReference<List<Conta>>() { });
+            usuarioCorrecto = mapper.convertValue(resource, new TypeReference<ComprobarLoginGoogleCustom>() { });
 
         }
         catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        return listaContas;
+        Log.i(TAG, StringUtil.creaString("Usuario de Google correctamente logueado: ", usuarioCorrecto));
+
+        return usuarioCorrecto;
     }
 
     @Override
-    protected void onPostExecute(List<Conta> listaContas) {
-        Log.i(TAG, String.valueOf(listaContas));
-        this.inicioActivity.mostrarListaConta(listaContas);
+    protected void onPostExecute(ComprobarLoginGoogleCustom usuarioCorrecto) {
+        this.inicioActivity.setUsuarioCorrecto(usuarioCorrecto);
     }
 
     public void setInicioActivity(InicioActivity inicioActivity) {
