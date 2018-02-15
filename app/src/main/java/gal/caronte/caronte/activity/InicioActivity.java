@@ -212,10 +212,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(this, "Error de conexion", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.erro_conexion), Toast.LENGTH_SHORT).show();
         Log.e(TAG, StringUtil.creaString("OnConnectionFailed: ", connectionResult));
-
-        //TODO engadir callbacks de conexion? http://www.sgoliver.net/blog/google-sign-in-android-1/
     }
 
     @Override

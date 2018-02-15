@@ -38,7 +38,7 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
         List<PuntoInteresePosicion> listaPIP = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), "/ppi/{idPercorrido}");
+            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_recuperar_puntos_interese_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 

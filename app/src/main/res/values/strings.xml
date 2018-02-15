@@ -1,8 +1,20 @@
 <resources>
+
+    <!-- Fixos -->
     <string name="app_name">Caronte</string>
     <string name="title_activity_maps">Caronte</string>
 
+    <!-- Direccions SW -->
     <string name="direccion_servidor">http://ec2-34-241-173-6.eu-west-1.compute.amazonaws.com:8080/sw/museo/</string>
+    <string name="direccion_servizo_recuperar_contas">contas</string>
+    <string name="direccion_servizo_comprobar_usuario_google">comprobarUsuarioGoogle</string>
+    <string name="direccion_servizo_gardar_percorrido">/percorrido/gardar</string>
+    <string name="direccion_servizo_recuperar_percorridos">/percorridosidexterno/{idEdificioExterno}</string>
+    <string name="direccion_servizo_recuperar_pois">pois/{idEdificioExterno}</string>
+    <string name="direccion_servizo_recuperar_puntos_interese_percorrido">/ppi/{idPercorrido}</string>
+
+
+    <!-- Texto -->
 
     <string name="abrir_menu_lateral">Abrir</string>
     <string name="pechar_menu_lateral">Pechar</string>
@@ -15,4 +27,9 @@
     <string name="logout">Logout</string>
     <string name="desconectar">Desconectar</string>
     <string name="acceder">Acceder</string>
+
+    <string name="mensaxe_abandonar_edificio">Saímos do edificio</string>
+    <string name="seleccionar_percorrido">Seleccionar percorrido</string>
+
+    <string name="erro_conexion">Erro na conexión</string>
 </resources>

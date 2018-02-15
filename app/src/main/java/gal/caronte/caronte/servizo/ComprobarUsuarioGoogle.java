@@ -36,7 +36,7 @@ public class ComprobarUsuarioGoogle extends AsyncTask<String, Void, ComprobarLog
         String idToken = strings[0];
         ComprobarLoginGoogleCustom usuarioCorrecto = null;
         try {
-            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), "comprobarUsuarioGoogle");
+            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_comprobar_usuario_google));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 

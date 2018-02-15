@@ -38,7 +38,7 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
 
         List<Conta> listaContas = null;
         try {
-            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), "contas");
+            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_contas));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 

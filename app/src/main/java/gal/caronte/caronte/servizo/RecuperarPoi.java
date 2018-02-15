@@ -39,7 +39,7 @@ public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
 
         List<PuntoInterese> listaPoi = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), "pois/{idEdificioExterno}");
+            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_recuperar_pois));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 

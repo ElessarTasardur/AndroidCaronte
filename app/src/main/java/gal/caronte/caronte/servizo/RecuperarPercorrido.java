@@ -38,7 +38,7 @@ public class RecuperarPercorrido extends AsyncTask<String, Void, List<Percorrido
 
         List<Percorrido> listaPercorrido = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), "/percorridosidexterno/{idEdificioExterno}");
+            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_recuperar_percorridos));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 

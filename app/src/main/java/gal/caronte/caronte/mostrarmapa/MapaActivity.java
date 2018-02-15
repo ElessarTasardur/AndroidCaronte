@@ -290,7 +290,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         //Se non foi concedido finalizamos a actividade
         else {
-            Toast.makeText(this, R.string.permiso_necesario, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.permiso_necesario), Toast.LENGTH_SHORT).show();
             finish();
         }
     }
@@ -435,7 +435,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 //Activamos a localizacion de Google se non o estaba xa
                 else if (!MapaActivity.this.googleActivado) {
-                    Toast.makeText(MapaActivity.this, "Saímos do edificio", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MapaActivity.this, getString(R.string.mensaxe_abandonar_edificio), Toast.LENGTH_LONG).show();
                     activarLocalizacionGoogle(true);
                     if (circle != null) {
                         circle.remove();
@@ -675,7 +675,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (listaPercorrido != null
                 && !listaPercorrido.isEmpty()) {
 
-            listaPercorrido.add(0, new Percorrido(Constantes.ID_FICTICIO, "Seleccionar percorrido", "Seleccionar percorrido", null));
+            listaPercorrido.add(0, new Percorrido(Constantes.ID_FICTICIO, getString(R.string.seleccionar_percorrido), getString(R.string.seleccionar_percorrido), null));
 
             final Spinner spinner = findViewById(R.id.spinner_percorridos);
             spinner.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, listaPercorrido));

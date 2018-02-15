@@ -36,7 +36,7 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
         GardarPercorridoParam percorridoParam = params[0];
         Short idPercorrido = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), "/percorrido/gardar");
+            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_gardar_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
