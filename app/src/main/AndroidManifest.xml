@@ -13,13 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- Situm SDK credentials -->
-        <!--<meta-data-->
-            <!--android:name="es.situm.sdk.API_USER"-->
-            <!--android:value="@string/api_user" />-->
-        <!--<meta-data-->
-            <!--android:name="es.situm.sdk.API_KEY"-->
-            <!--android:value="@string/api_key" />-->
         <!-- GMaps api key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -27,7 +20,7 @@
 
         <activity
             android:name=".activity.InicioActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_inicio">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -35,8 +28,18 @@
         </activity>
 
         <activity
-            android:name=".mostrarmapa.MapaActivity"
+            android:name=".activity.MapaActivity"
             android:label="@string/title_activity_maps">
+        </activity>
+
+        <activity
+            android:name=".activity.DetallePoiActivity"
+            android:label="@string/title_activity_detalle_poi">
+        </activity>
+
+        <activity
+            android:name=".activity.DetallePercorridoActivity"
+            android:label="@string/title_activity_detalle_percorrido">
         </activity>
 
     </application>

@@ -1,16 +1,19 @@
 package gal.caronte.caronte.custom.sw;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Objects;
 
 /**
  * Created by ElessarTasardur on 09/01/2018.
  */
 
-public class Posicion {
+public class Posicion implements Parcelable {
 
-    private Short idEdificio;
-    private Short idPlanta;
-    private Short nivel;
+    private Integer idEdificio;
+    private Integer idPlanta;
+    private Integer nivel;
     private Float latitude;
     private Float lonxitude;
 
@@ -18,7 +21,7 @@ public class Posicion {
         super();
     }
 
-    public Posicion(Short idEdificio, Short idPlanta, Short nivel, Float latitude, Float lonxitude) {
+    public Posicion(Integer idEdificio, Integer idPlanta, Integer nivel, Float latitude, Float lonxitude) {
         super();
         this.idEdificio = idEdificio;
         this.idPlanta = idPlanta;
@@ -30,42 +33,42 @@ public class Posicion {
     /**
      * @return the idEdificio
      */
-    public Short getIdEdificio() {
+    public Integer getIdEdificio() {
         return this.idEdificio;
     }
 
     /**
      * @param idEdificio the idEdificio to set
      */
-    public void setIdEdificio(Short idEdificio) {
+    public void setIdEdificio(Integer idEdificio) {
         this.idEdificio = idEdificio;
     }
 
     /**
      * @return the idPlanta
      */
-    public Short getIdPlanta() {
+    public Integer getIdPlanta() {
         return this.idPlanta;
     }
 
     /**
      * @param idPlanta the idPlanta to set
      */
-    public void setIdPlanta(Short idPlanta) {
+    public void setIdPlanta(Integer idPlanta) {
         this.idPlanta = idPlanta;
     }
 
     /**
      * @return the nivel
      */
-    public Short getNivel() {
+    public Integer getNivel() {
         return this.nivel;
     }
 
     /**
      * @param nivel the nivel to set
      */
-    public void setNivel(Short nivel) {
+    public void setNivel(Integer nivel) {
         this.nivel = nivel;
     }
 
@@ -117,4 +120,38 @@ public class Posicion {
     public int hashCode() {
         return Objects.hash(idEdificio, idPlanta, nivel, latitude, lonxitude);
     }
+
+    protected Posicion(Parcel in) {
+        this.idEdificio = in.readInt();
+        this.idPlanta = in.readInt();
+        this.nivel = in.readInt();
+        this.latitude = in.readFloat();
+        this.lonxitude = in.readFloat();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.idEdificio);
+        dest.writeInt(this.idPlanta);
+        dest.writeInt(this.nivel);
+        dest.writeFloat(this.latitude);
+        dest.writeFloat(this.lonxitude);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator<Posicion> CREATOR = new Parcelable.Creator<Posicion>() {
+        @Override
+        public Posicion createFromParcel(Parcel in) {
+            return new Posicion(in);
+        }
+
+        @Override
+        public Posicion[] newArray(int size) {
+            return new Posicion[size];
+        }
+    };
 }

@@ -3,12 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="gal.caronte.caronte.activity.InicioActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarInicio"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:theme="@style/ToolBar"
+        app:theme="@style/ToolBar"/>
 
     <LinearLayout android:id="@+id/lytBotons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_below="@+id/toolbarInicio">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/boton_login"
@@ -19,13 +29,15 @@
             android:id="@+id/boton_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/logout" />
+            android:text="@string/logout"
+            android:textColor="@color/colorPrimary" />
 
         <Button
             android:id="@+id/boton_desconectar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/desconectar" />
+            android:text="@string/desconectar"
+            android:textColor="@color/colorPrimary" />
 
     </LinearLayout>
 
@@ -41,8 +53,9 @@
         android:id="@+id/boton_acceder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
         android:layout_below="@+id/spinner_contas"
-        android:text="@string/acceder" />
+        android:layout_gravity="bottom|center"
+        android:text="@string/acceder"
+        android:textColor="@color/colorPrimary" />
 
 </RelativeLayout>

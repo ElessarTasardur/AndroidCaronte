@@ -1,11 +1,9 @@
-package gal.caronte.caronte.mostrarmapa;
+package gal.caronte.caronte.activity;
 
 import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,18 +50,18 @@ public class SelectorPiso {
         this.layoutNiveis.removeAllViewsInLayout();
     }
 
-    public void mostrarSelectorPiso(Collection<Piso> listaPiso, String idPlantaActual, HashMap<Short, Float> mapaCorMarcador) {
+    public void amosarSelectorPiso(Collection<Piso> listaPiso, String idPlantaActual, Map<Integer, Float> mapaCorMarcador) {
 
         this.idPlantaActual = idPlantaActual;
         this.listaBotons.clear();
 
         this.mapaCor.clear();
         if (mapaCorMarcador != null) {
-            for (Short chave : mapaCorMarcador.keySet()) {
+            for (Integer chave : mapaCorMarcador.keySet()) {
                 Float valor = mapaCorMarcador.get(chave);
                 float[] hsv = {valor, 1F, 1F};
                 int cor = Color.HSVToColor(hsv);
-                this.mapaCor.put(chave.intValue(), cor);
+                this.mapaCor.put(chave, cor);
             }
         }
 

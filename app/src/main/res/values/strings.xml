@@ -3,6 +3,8 @@
     <!-- Fixos -->
     <string name="app_name">Caronte</string>
     <string name="title_activity_maps">Caronte</string>
+    <string name="title_activity_detalle_percorrido">Detalle percorrido</string>
+    <string name="title_activity_detalle_poi">Detalle POI</string>
 
     <!-- Direccions SW -->
     <string name="direccion_servidor">http://ec2-34-241-173-6.eu-west-1.compute.amazonaws.com:8080/sw/museo/</string>
@@ -13,13 +15,15 @@
     <string name="direccion_servizo_recuperar_pois">pois/{idEdificioExterno}</string>
     <string name="direccion_servizo_recuperar_puntos_interese_percorrido">/ppi/{idPercorrido}</string>
 
+    <!-- Identificador do token de Caronte para a autenticacion en Google -->
+    <string name="id_token_google_caronte">448237493715-f8qnmr9mblorb5bqqaoc836sftm7jl6k.apps.googleusercontent.com</string>
+
 
     <!-- Texto -->
-
     <string name="abrir_menu_lateral">Abrir</string>
     <string name="pechar_menu_lateral">Pechar</string>
 
-    <!--    Permisos    -->
+    <!-- Permisos -->
     <string name="permiso_motivo">O permiso de localización é necesario para poder situarse e guiarse a través dos museos.</string>
     <string name="permiso_necesario">O permiso de localización é necesario para a execución desta aplicación.</string>
     <string name="checkbox_mostrar_pois">Mostrar puntos de interese</string>
@@ -32,4 +36,23 @@
     <string name="seleccionar_percorrido">Seleccionar percorrido</string>
 
     <string name="erro_conexion">Erro na conexión</string>
+    <string name="accion_opcions">Opcións</string>
+    <string name="accion_todos_pois">Mostrar todos os POIs</string>
+    <string name="accion_selector_pois">Mostrar selector de POIs</string>
+    <string name="accion_selector_percorridos">Mostrar selector de percorridos</string>
+    <string name="seleccionar_poi">Seleccionar POI</string>
+    <string name="marcador_non_localizado">Non se puido recuperar a ruta ata o punto seleccionado</string>
+    <string name="boton_editar_descricion">Editar</string>
+    <string name="direccion_servizo_recuperar_edificios">edificios</string>
+    <string name="boton_detalle_percorrido">Mostrar os detalles do percorrido</string>
+    <string name="boton_detalle_poi">Mostrar os detalles do POI</string>
+    <string name="accion_crear_poi">Crear POI</string>
+    <string name="accion_crear_percorrido">Crear percorrido</string>
+
+    <string name="textview_nome">Nome:</string>
+    <string name="edicion_nome">Nome</string>
+    <string name="textview_descricion">Descrición:</string>
+    <string name="edicion_descricion">Descrición</string>
+    <string name="boton_gardar">Gardar</string>
+    <string name="title_activity_inicio">Selección conta</string>
 </resources>

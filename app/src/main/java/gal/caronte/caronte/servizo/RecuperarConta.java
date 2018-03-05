@@ -20,7 +20,6 @@ import java.util.List;
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.activity.InicioActivity;
 import gal.caronte.caronte.custom.sw.Conta;
-import gal.caronte.caronte.mostrarmapa.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
@@ -44,7 +43,7 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> entity = new HttpEntity<String>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
             Object resource = response.getBody();

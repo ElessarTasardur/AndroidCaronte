@@ -6,42 +6,42 @@ package gal.caronte.caronte.custom.sw;
 
 public class PuntoInteresePosicion {
 
-    private Short idPercorrido;
-    private Short idPuntoInterese;
-    private Short posicion;
+    private Integer idPercorrido;
+    private Integer idPuntoInterese;
+    private Integer posicion;
 
     public PuntoInteresePosicion() {
         super();
     }
 
-    public PuntoInteresePosicion(Short idPercorrido, Short idPuntoInterese, Short posicion) {
+    public PuntoInteresePosicion(Integer idPercorrido, Integer idPuntoInterese, Integer posicion) {
         super();
         this.idPercorrido = idPercorrido;
         this.idPuntoInterese = idPuntoInterese;
         this.posicion = posicion;
     }
 
-    public Short getIdPercorrido() {
+    public Integer getIdPercorrido() {
         return this.idPercorrido;
     }
 
-    public void setIdPercorrido(Short idPercorrido) {
+    public void setIdPercorrido(Integer idPercorrido) {
         this.idPercorrido = idPercorrido;
     }
 
-    public Short getIdPuntoInterese() {
+    public Integer getIdPuntoInterese() {
         return this.idPuntoInterese;
     }
 
-    public void setIdPuntoInterese(Short idPuntoInterese) {
+    public void setIdPuntoInterese(Integer idPuntoInterese) {
         this.idPuntoInterese = idPuntoInterese;
     }
 
-    public Short getPosicion() {
+    public Integer getPosicion() {
         return this.posicion;
     }
 
-    public void setPosicion(Short posicion) {
+    public void setPosicion(Integer posicion) {
         this.posicion = posicion;
     }
 

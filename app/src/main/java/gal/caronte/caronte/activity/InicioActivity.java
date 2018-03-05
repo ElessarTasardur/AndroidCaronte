@@ -3,7 +3,9 @@ package gal.caronte.caronte.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,11 +27,14 @@ import com.google.android.gms.common.api.Status;
 import java.util.List;
 
 import gal.caronte.caronte.R;
+import gal.caronte.caronte.custom.ListaEdificioCustom;
+import gal.caronte.caronte.custom.UsuarioEdificioCustom;
 import gal.caronte.caronte.custom.sw.ComprobarLoginGoogleCustom;
 import gal.caronte.caronte.custom.sw.Conta;
-import gal.caronte.caronte.mostrarmapa.MapaActivity;
+import gal.caronte.caronte.custom.sw.EdificioCustom;
 import gal.caronte.caronte.servizo.ComprobarUsuarioGoogle;
 import gal.caronte.caronte.servizo.RecuperarConta;
+import gal.caronte.caronte.servizo.RecuperarEdificio;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
@@ -41,22 +46,25 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
     private static final String TAG = InicioActivity.class.getSimpleName();
     private static final String NOME_CONTA = "nomeConta";
     private static final String CONTRASINAL_CONTA = "contrasinalConta";
-    private static final String ID_TOKEN = "idToken";
+    private static final String USUARIO_EDIFICIO = "usuarioEdificio";
+    private static final String LISTA_EDIFICIO = "listaEdificio";
 
     private static final int RC_SIGN_IN = 123;
 
+    //Servizos
     private RecuperarConta recuperarConta;
     private ComprobarUsuarioGoogle comprobarUsuarioGoogle;
+    private RecuperarEdificio recuperarEdificio;
 
     private GoogleApiClient apiClient;
-    private String idToken;
-    private ComprobarLoginGoogleCustom usuarioCorrecto;
+    private UsuarioEdificioCustom usuarioEdificio;
+    private String nomeMostrar;
+    private ListaEdificioCustom listaEdificio;
 
     private SignInButton botonLogin;
     private Button botonLogout;
     private Button botonDesconectar;
     private Button botonAcceder;
-
     private Spinner spinnerContas;
 
     private ProgressDialog progressDialog;
@@ -66,9 +74,13 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inicio);
 
+        //Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbarInicio);
+        setSupportActionBar(toolbar);
+
         GoogleSignInOptions gso =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken("448237493715-f8qnmr9mblorb5bqqaoc836sftm7jl6k.apps.googleusercontent.com")
+                        .requestIdToken(getString(R.string.id_token_google_caronte))
                         .requestEmail()
                         .build();
 
@@ -77,7 +89,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        botonLogin = (SignInButton) findViewById(R.id.boton_login);
+        botonLogin = findViewById(R.id.boton_login);
 //        botonSignIn.setSize(SignInButton.SIZE_STANDARD);
 //        botonSignIn.setColorScheme(SignInButton.COLOR_LIGHT);
 //        botonSignIn.setScopes(gso.getScopeArray());
@@ -90,7 +102,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             }
         });
 
-        botonLogout = (Button) findViewById(R.id.boton_logout);
+        botonLogout = findViewById(R.id.boton_logout);
         botonLogout.setVisibility(View.GONE);
         botonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,14 +110,14 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                 Auth.GoogleSignInApi.signOut(apiClient).setResultCallback(
                         new ResultCallback<Status>() {
                             @Override
-                            public void onResult(Status status) {
+                            public void onResult(@NonNull Status status) {
                                 updateUI(false);
                             }
                         });
             }
         });
 
-        botonDesconectar = (Button) findViewById(R.id.boton_desconectar);
+        botonDesconectar = findViewById(R.id.boton_desconectar);
         botonDesconectar.setVisibility(View.GONE);
         botonDesconectar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,14 +125,14 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                 Auth.GoogleSignInApi.revokeAccess(apiClient).setResultCallback(
                         new ResultCallback<Status>() {
                             @Override
-                            public void onResult(Status status) {
+                            public void onResult(@NonNull Status status) {
                                 updateUI(false);
                             }
                         });
             }
         });
 
-        botonAcceder = (Button) findViewById(R.id.boton_acceder);
+        botonAcceder = findViewById(R.id.boton_acceder);
         botonAcceder.setEnabled(false);
         botonAcceder.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,7 +148,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                     Bundle b = new Bundle();
                     b.putString(NOME_CONTA, contaSeleccionada.getContaUsuario());
                     b.putString(CONTRASINAL_CONTA, contaSeleccionada.getContrasinal());
-                    b.putString(ID_TOKEN, InicioActivity.this.idToken);
+                    b.putParcelable(USUARIO_EDIFICIO, InicioActivity.this.usuarioEdificio);
+                    b.putParcelable(LISTA_EDIFICIO, InicioActivity.this.listaEdificio);
                     intent.putExtras(b);
 
                     //Iniciamos a actividade do mapa
@@ -162,6 +175,9 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         if (recuperarConta != null) {
             this.recuperarConta.cancel(true);
         }
+        if (recuperarEdificio != null) {
+            this.recuperarEdificio.cancel(true);
+        }
         super.onStop();
     }
 
@@ -170,9 +186,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             //Usuario logueado
             GoogleSignInAccount acct = result.getSignInAccount();
             if (acct != null) {
-                this.idToken = acct.getIdToken();
-                Log.i(TAG, "Token: " + this.idToken);
+                String idToken = acct.getIdToken();
+                Log.i(TAG, "Token: " + idToken);
                 Log.i(TAG, "Id: " + acct.getId());
+                this.nomeMostrar = acct.getDisplayName();
                 Log.i(TAG, "Display name: " + acct.getDisplayName());
                 Log.i(TAG, "Email: " + acct.getEmail());
                 Log.i(TAG, "Family name: " + acct.getFamilyName());
@@ -180,17 +197,13 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                 Log.i(TAG, "Auth code: " + acct.getServerAuthCode());
                 Log.i(TAG, "Photo URL: " + acct.getPhotoUrl());
 
-                Log.i(TAG, "Token: " + acct.getAccount().name);
-                Log.i(TAG, "Token: " + acct.getGrantedScopes());
-
                 this.comprobarUsuarioGoogle = new ComprobarUsuarioGoogle();
                 this.comprobarUsuarioGoogle.setInicioActivity(this);
                 this.comprobarUsuarioGoogle.execute(idToken);
 
             }
             updateUI(true);
-        }
-        else {
+        } else {
             //Usuario non logueado --> Desconectado
             updateUI(false);
             hideProgressDialog();
@@ -202,8 +215,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             botonLogin.setVisibility(View.GONE);
             botonLogout.setVisibility(View.VISIBLE);
             botonDesconectar.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             botonLogin.setVisibility(View.VISIBLE);
             botonLogout.setVisibility(View.GONE);
             botonDesconectar.setVisibility(View.GONE);
@@ -211,7 +223,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(this, getString(R.string.erro_conexion), Toast.LENGTH_SHORT).show();
         Log.e(TAG, StringUtil.creaString("OnConnectionFailed: ", connectionResult));
     }
@@ -221,6 +233,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         super.onStart();
 
         recuperarListaConta();
+        recuperarListaEdificio();
 
 //        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(apiClient);
 //        if (opr.isDone()) {
@@ -262,6 +275,12 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         this.recuperarConta.execute();
     }
 
+    private void recuperarListaEdificio() {
+        this.recuperarEdificio = new RecuperarEdificio();
+        this.recuperarEdificio.setInicioActivity(this);
+        this.recuperarEdificio.execute();
+    }
+
     public void mostrarListaConta(List<Conta> listaConta) {
 
         spinnerContas = findViewById(R.id.spinner_contas);
@@ -270,7 +289,9 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         spinnerContas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                botonAcceder.setEnabled(true);
+                if (InicioActivity.this.listaEdificio != null) {
+                    botonAcceder.setEnabled(true);
+                }
             }
 
             @Override
@@ -287,11 +308,17 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         hideProgressDialog();
         //Se o obxecto devolto e nulo ou o usuario non e correcto, facemos logout
         if (usuarioCorrecto == null
-                || !usuarioCorrecto.isLoginCorrecto()) {
+                || usuarioCorrecto.getIdUsuario() == null) {
             this.botonLogout.performClick();
+        } else {
+            this.usuarioEdificio = new UsuarioEdificioCustom(usuarioCorrecto.getIdUsuario(), this.nomeMostrar, usuarioCorrecto.getListaIdEdificioAdministrador());
         }
-        else {
-            this.usuarioCorrecto = usuarioCorrecto;
+    }
+
+    public void setListaEdificio(List<EdificioCustom> listaEdificio) {
+        this.listaEdificio = new ListaEdificioCustom(listaEdificio);
+        if (this.spinnerContas.getSelectedItem() != null) {
+            this.botonAcceder.setEnabled(true);
         }
     }
 }

@@ -19,8 +19,9 @@ import java.util.List;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.Percorrido;
-import gal.caronte.caronte.mostrarmapa.MapaActivity;
+import gal.caronte.caronte.activity.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
+import gal.caronte.caronte.view.SpinnerPercorrido;
 
 /**
  * Created by ElessarTasardur on 10/01/2018.
@@ -30,7 +31,7 @@ public class RecuperarPercorrido extends AsyncTask<String, Void, List<Percorrido
 
     private static final String TAG = RecuperarPercorrido.class.getSimpleName();
 
-    private MapaActivity mapaActivity;
+    private SpinnerPercorrido spinnerPercorrido;
 
     @Override
     protected List<Percorrido> doInBackground(String... params) {
@@ -38,13 +39,13 @@ public class RecuperarPercorrido extends AsyncTask<String, Void, List<Percorrido
 
         List<Percorrido> listaPercorrido = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_recuperar_percorridos));
+            final String url = StringUtil.creaString( this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servidor), this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servizo_recuperar_percorridos));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> entity = new HttpEntity<String>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idEdificioExterno);
             Object resource = response.getBody();
@@ -64,10 +65,10 @@ public class RecuperarPercorrido extends AsyncTask<String, Void, List<Percorrido
 
     @Override
     protected void onPostExecute(List<Percorrido> listaPercorrido) {
-        this.mapaActivity.mostrarListaPercorrido(listaPercorrido);
+        this.spinnerPercorrido.amosarListaPercorrido(listaPercorrido);
     }
 
-    public void setMapaActivity(MapaActivity mapaActivity) {
-        this.mapaActivity = mapaActivity;
+    public void setSpinnerPercorrido(SpinnerPercorrido spinnerPercorrido) {
+        this.spinnerPercorrido = spinnerPercorrido;
     }
 }

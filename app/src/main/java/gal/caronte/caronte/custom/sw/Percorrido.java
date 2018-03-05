@@ -11,17 +11,17 @@ import gal.caronte.caronte.custom.MarcadorCustom;
 
 public class Percorrido {
 
-    private Short idPercorrido;
+    private Integer idPercorrido;
     private String nome;
     private String descricion;
-    private Short idEdificio;
+    private Integer idEdificio;
     private List<MarcadorCustom> listaPIP = new ArrayList<>();
 
     public Percorrido() {
         super();
     }
 
-    public Percorrido(Short idPercorrido, String nome, String descricion, Short idEdificio) {
+    public Percorrido(Integer idPercorrido, String nome, String descricion, Integer idEdificio) {
         super();
         this.idPercorrido = idPercorrido;
         this.nome = nome;
@@ -32,14 +32,14 @@ public class Percorrido {
     /**
      * @return the idPercorrido
      */
-    public Short getIdPercorrido() {
+    public Integer getIdPercorrido() {
         return this.idPercorrido;
     }
 
     /**
      * @param idPercorrido the idPercorrido to set
      */
-    public void setIdPercorrido(Short idPercorrido) {
+    public void setIdPercorrido(Integer idPercorrido) {
         this.idPercorrido = idPercorrido;
     }
 
@@ -74,14 +74,14 @@ public class Percorrido {
     /**
      * @return the idEdificio
      */
-    public Short getIdEdificio() {
+    public Integer getIdEdificio() {
         return this.idEdificio;
     }
 
     /**
      * @param idEdificio the idEdificio to set
      */
-    public void setIdEdificio(Short idEdificio) {
+    public void setIdEdificio(Integer idEdificio) {
         this.idEdificio = idEdificio;
     }
 

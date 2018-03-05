@@ -1,8 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/map"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize"
     android:name="com.google.android.gms.maps.SupportMapFragment"
-    tools:context=".mostrarmapa.MapaActivity" />
+    tools:context=".activity.MapaActivity">
+
+    <ImageButton
+        android:id="@+id/image_button_actualizar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/boton_actualizar_descricion"
+        app:srcCompat="@drawable/ic_refresh_black_24dp" />
+
+    <include layout="@layout/layout_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center" />
+
+
+    <!--<Spinner-->
+        <!--android:id="@+id/spinner_percorridos"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="top|center" />-->
+
+    <!--<Spinner-->
+        <!--android:id="@+id/spinner_pois"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="top|center" />-->
+
+    <include layout="@layout/layout_niveis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center" />
+
+    <ImageButton
+        android:id="@+id/image_button_editar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/boton_editar_descricion"
+        app:srcCompat="@drawable/ic_mode_edit_black_24dp"
+        android:layout_gravity="end|bottom"
+        android:visibility="invisible"/>
+
+</fragment>

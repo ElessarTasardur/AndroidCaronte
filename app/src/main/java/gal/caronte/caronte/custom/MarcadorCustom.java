@@ -11,14 +11,14 @@ import java.util.Objects;
 public class MarcadorCustom {
 
     private Marker marcadorGoogle;
-    private Short idPoi;
-    private Short idPlanta;
+    private Integer idPoi;
+    private Integer idPlanta;
 
     public MarcadorCustom() {
         super();
     }
 
-    public MarcadorCustom(Short idPoi, Short idPlanta) {
+    public MarcadorCustom(Integer idPoi, Integer idPlanta) {
         super();
         this.idPoi = idPoi;
         this.idPlanta = idPlanta;
@@ -32,19 +32,19 @@ public class MarcadorCustom {
         this.marcadorGoogle = marcadorGoogle;
     }
 
-    public Short getIdPoi() {
+    public Integer getIdPoi() {
         return idPoi;
     }
 
-    public void setIdPoi(Short idPoi) {
+    public void setIdPoi(Integer idPoi) {
         this.idPoi = idPoi;
     }
 
-    public Short getIdPlanta() {
+    public Integer getIdPlanta() {
         return idPlanta;
     }
 
-    public void setIdPlanta(Short idPlanta) {
+    public void setIdPlanta(Integer idPlanta) {
         this.idPlanta = idPlanta;
     }
 

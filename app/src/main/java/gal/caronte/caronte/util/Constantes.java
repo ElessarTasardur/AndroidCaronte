@@ -6,5 +6,5 @@ package gal.caronte.caronte.util;
 
 public class Constantes {
 
-    public static final Short ID_FICTICIO = Short.valueOf("-1");
+    public static final Integer ID_FICTICIO = Integer.valueOf("-1");
 }

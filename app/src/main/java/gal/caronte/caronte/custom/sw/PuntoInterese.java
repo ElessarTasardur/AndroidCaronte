@@ -1,14 +1,17 @@
 package gal.caronte.caronte.custom.sw;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Objects;
 
 /**
  * Created by ElessarTasardur on 05/11/2017.
  */
 
-public class PuntoInterese {
+public class PuntoInterese implements Parcelable {
 
-    private Short idPuntoInterese;
+    private Integer idPuntoInterese;
     private String nome;
     private String descricion;
     private Posicion posicion;
@@ -16,27 +19,31 @@ public class PuntoInterese {
     public PuntoInterese() {
         super();
     }
-    
-    public PuntoInterese(Short idPuntoInterese, String nome, String descricion, Short idEdificio, Short idPlanta, Short nivel,
-                         Float latitude, Float lonxitude) {
+
+    public PuntoInterese(Integer idPuntoInterese, String nome, String descricion) {
         super();
         this.idPuntoInterese = idPuntoInterese;
         this.nome = nome;
         this.descricion = descricion;
+    }
+
+    public PuntoInterese(Integer idPuntoInterese, String nome, String descricion, Integer idEdificio, Integer idPlanta, Integer nivel,
+                         Float latitude, Float lonxitude) {
+        this(idPuntoInterese, nome, descricion);
         this.posicion = new Posicion(idEdificio, idPlanta, nivel, latitude, lonxitude);
     }
 
     /**
      * @return the idPuntoInterese
      */
-    public Short getIdPuntoInterese() {
+    public Integer getIdPuntoInterese() {
         return this.idPuntoInterese;
     }
 
     /**
      * @param idPuntoInterese the idPuntoInterese to set
      */
-    public void setIdPuntoInterese(Short idPuntoInterese) {
+    public void setIdPuntoInterese(Integer idPuntoInterese) {
         this.idPuntoInterese = idPuntoInterese;
     }
 
@@ -109,4 +116,43 @@ public class PuntoInterese {
                 && Objects.equals(this.posicion, other.posicion);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return this.nome;
+    }
+
+    protected PuntoInterese(Parcel in) {
+        this.idPuntoInterese = in.readInt();
+        this.nome = in.readString();
+        this.descricion = in.readString();
+        this.posicion = in.readParcelable(Posicion.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.idPuntoInterese);
+        dest.writeString(this.nome);
+        dest.writeString(this.descricion);
+        dest.writeParcelable(this.posicion, 0);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<PuntoInterese> CREATOR = new Creator<PuntoInterese>() {
+        @Override
+        public PuntoInterese createFromParcel(Parcel in) {
+            return new PuntoInterese(in);
+        }
+
+        @Override
+        public PuntoInterese[] newArray(int size) {
+            return new PuntoInterese[size];
+        }
+    };
 }

@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-        <!--tools:openDrawer="end"-->
+    <!--tools:openDrawer="end"-->
+
+    <!--android:popupMenuStyle="@style/AppTheme"-->
+    <!--android:popupBackground="@style/AppTheme"-->
+    <!--android:popupTheme="@style/AppTheme"-->
 
     <!-- The main content view -->
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <!--<android.support.v7.widget.Toolbar-->
+        <!--<gal.caronte.caronte.view.ToolbarMapa-->
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="4dp"
+            app:theme="@style/ToolBar" />
+
         <include layout="@layout/fragment_mapa" />
 
-        <ImageButton
-            android:id="@+id/image_button_actualizar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/boton_actualizar_descricion"
-            app:srcCompat="@drawable/ic_refresh_black_24dp" />
 
-        <Spinner
-            android:id="@+id/spinner_percorridos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center" />
+        <!--android:textColorPrimary="@color/branco"-->
+        <!--android:textColorSecondary="@color/branco"-->
+        <!--android:textColor="@color/branco"-->
+        <!--actionMenuTextColor="@color/branco"-->
+        <!--app:theme="@style/ToolBarStyle"-->
+        <!--app:popupTheme="@style/ToolBarPopupStyle"-->
 
-        <include layout="@layout/layout_niveis"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center" />
+        <!--<android.support.v7.widget.Toolbar-->
+        <!--android:id="@+id/toolbar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="?attr/actionBarSize"-->
+        <!--android:background="?attr/colorPrimary"-->
+        <!--android:elevation="4dp"-->
+        <!--android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
+        <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>-->
+
 
     </FrameLayout>
 
     <!-- The navigation drawer -->
-    <include layout="@layout/layout_drawer"
+    <include
+        layout="@layout/layout_drawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start" />

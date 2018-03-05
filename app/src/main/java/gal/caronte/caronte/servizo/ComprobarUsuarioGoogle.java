@@ -11,10 +11,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.activity.InicioActivity;
@@ -38,6 +43,7 @@ public class ComprobarUsuarioGoogle extends AsyncTask<String, Void, ComprobarLog
         try {
             final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_comprobar_usuario_google));
             RestTemplate restTemplate = new RestTemplate();
+            restTemplate.setErrorHandler(new TestErrorHandler());
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
@@ -68,4 +74,23 @@ public class ComprobarUsuarioGoogle extends AsyncTask<String, Void, ComprobarLog
     public void setInicioActivity(InicioActivity inicioActivity) {
         this.inicioActivity = inicioActivity;
     }
+
+
+    private class TestErrorHandler extends DefaultResponseErrorHandler {
+
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            //conversion logic for decoding conversion
+            ByteArrayInputStream arrayInputStream = (ByteArrayInputStream) response.getBody();
+            Scanner scanner = new Scanner(arrayInputStream);
+            scanner.useDelimiter("\\Z");
+            String data = "";
+            if (scanner.hasNext())
+                data = scanner.next();
+            System.out.println(data);
+        }
+    }
+
 }
+
+

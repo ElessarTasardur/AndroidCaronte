@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Mostrar crear poi -->
+    <item
+        android:id="@+id/accion_crear_poi"
+        android:icon="@drawable/ic_add_location_black_24dp"
+        android:title="@string/accion_crear_poi"
+        android:visibility="invisible"
+        app:showAsAction="always" />
+
+    <!-- Mostrar crear percorrido -->
+    <item
+        android:id="@+id/accion_crear_percorrido"
+        android:icon="@drawable/ic_refresh_black_24dp"
+        android:title="@string/accion_crear_percorrido"
+        android:visibility="invisible"
+        app:showAsAction="always" />
+
+    <!-- Mostrar selector percorridos -->
+    <item
+        android:id="@+id/accion_selector_percorridos"
+        android:icon="@drawable/ic_directions_walk_black_24dp"
+        android:title="@string/accion_selector_percorridos"
+        android:visibility="invisible"
+        app:showAsAction="always" />
+
+    <!-- Mostrar selector POIs -->
+    <item
+        android:id="@+id/accion_selector_pois"
+        android:icon="@drawable/ic_location_on_black_24dp"
+        android:title="@string/accion_selector_pois"
+        android:visibility="invisible"
+        app:showAsAction="always" />
+
+    <!-- Todos os POIs -->
+    <item
+        android:id="@+id/accion_todos_pois"
+        android:icon="@drawable/ic_visibility_black_24dp"
+        android:title="@string/accion_todos_pois"
+        android:visibility="invisible"
+        app:showAsAction="always" />
+
+    <!-- Opcions -->
+    <item
+        android:id="@+id/accion_opcions"
+        android:title="@string/accion_opcions"
+        app:showAsAction="never" />
+
+</menu>

@@ -1,113 +1,75 @@
 package gal.caronte.caronte.servizo;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
-import java.util.Collection;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.situm.sdk.SitumSdk;
-import es.situm.sdk.error.Error;
-import es.situm.sdk.model.cartography.Building;
-import es.situm.sdk.model.cartography.Floor;
-import es.situm.sdk.utils.Handler;
-import gal.caronte.caronte.custom.Edificio;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
+import java.util.List;
+
+import gal.caronte.caronte.R;
+import gal.caronte.caronte.activity.InicioActivity;
+import gal.caronte.caronte.activity.MapaActivity;
+import gal.caronte.caronte.custom.sw.EdificioCustom;
+import gal.caronte.caronte.custom.sw.Percorrido;
+import gal.caronte.caronte.util.StringUtil;
 
 /**
- * Created by ElessarTasardur on 08/10/2017.
+ * Created by ElessarTasardur on 19/02/2018.
  */
 
-public class RecuperarEdificio {
+public class RecuperarEdificio extends AsyncTask<Void, Void, List<EdificioCustom>> {
 
     private static final String TAG = RecuperarEdificio.class.getSimpleName();
 
-    private Edificio edificio;
-    private Callback callback;
+    private InicioActivity inicioActivity;
 
-    public interface Callback {
-        void onSuccess(Edificio edficio);
-        void onError(Error error);
-    }
+    @Override
+    protected List<EdificioCustom> doInBackground(Void... params) {
 
-    public void get(final Callback callback, final String idEdificio) {
-        if (hasCallback()){
-            Log.d(TAG, "Xa se realizou outra chamada");
-            return;
+        List<EdificioCustom> listaEdificio = null;
+        try {
+            final String url = StringUtil.creaString(this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_edificios));
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+            Object resource = response.getBody();
+
+            ObjectMapper mapper = new ObjectMapper();
+            listaEdificio = mapper.convertValue(resource, new TypeReference<List<EdificioCustom>>() { });
+
         }
-        this.callback = callback;
+        catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
 
-        recuperarEdificio(idEdificio);
+        Log.i(TAG, StringUtil.creaString("Lista de edificios recuperados: ", listaEdificio));
+
+        return listaEdificio;
     }
 
-    private void recuperarEdificio(final String idEdificio) {
-        SitumSdk.communicationManager().fetchBuildings(new Handler<Collection<Building>>() {
-
-            @Override
-            public void onSuccess(Collection<Building> buildings) {
-
-                //Convertimos os edificios aos nosos customs
-                Edificio novoEdificio = null;
-                for (final Building edificio : buildings) {
-
-                    if (idEdificio.equals(edificio.getIdentifier())) {
-                        novoEdificio = new Edificio(edificio);
-                        break;
-                    }
-                }
-
-                //Recuperar pisos a partir de edificioActual
-                if (novoEdificio != null) {
-                    recuperarPiso(novoEdificio);
-                }
-                else {
-                    clearCallback();
-                }
-            }
-
-            @Override
-            public void onFailure(Error error) {
-                Log.e(TAG, error.getMessage());
-                if (hasCallback()){
-                    callback.onError(error);
-                }
-                clearCallback();
-            }
-        });
+    @Override
+    protected void onPostExecute(List<EdificioCustom> listaEdificio) {
+        this.inicioActivity.setListaEdificio(listaEdificio);
     }
 
-    private void recuperarPiso(final Edificio edificio) {
-
-        SitumSdk.communicationManager().fetchFloorsFromBuilding(edificio.getEdificio(), new Handler<Collection<Floor>>() {
-            @Override
-            public void onSuccess(Collection<Floor> pisos) {
-                if (!pisos.isEmpty()) {
-                    edificio.setPisos(pisos);
-
-                    if (hasCallback()) {
-                        callback.onSuccess(edificio);
-                    }
-                    clearCallback();
-                }
-            }
-
-            @Override
-            public void onFailure(Error error) {
-                Log.e(TAG, error.getMessage());
-                if (hasCallback()){
-                    callback.onError(error);
-                }
-                clearCallback();
-            }
-        });
-    }
-
-    public void cancel() {
-        callback = null;
-    }
-
-    private boolean hasCallback(){
-        return callback != null;
-    }
-
-    private void clearCallback(){
-        callback = null;
+    public void setInicioActivity(InicioActivity inicioActivity) {
+        this.inicioActivity = inicioActivity;
     }
 }
+

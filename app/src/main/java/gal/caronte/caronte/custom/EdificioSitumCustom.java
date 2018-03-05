@@ -14,13 +14,13 @@ import es.situm.sdk.model.cartography.Poi;
  * Created by ElessarTasardur on 15/10/2017.
  */
 
-public class Edificio {
+public class EdificioSitumCustom {
 
     private Building edificio;
     private Collection<Piso> pisos;
     private Collection<Poi> listaPoi;
 
-    public Edificio(Building edificio) {
+    public EdificioSitumCustom(Building edificio) {
         super();
         this.edificio = edificio;
     }
@@ -82,7 +82,7 @@ public class Edificio {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Edificio edificioEquals = (Edificio) o;
+        EdificioSitumCustom edificioEquals = (EdificioSitumCustom) o;
         return Objects.equals(edificio, edificioEquals.edificio);
     }
 

@@ -19,8 +19,8 @@ import java.util.List;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.PuntoInteresePosicion;
-import gal.caronte.caronte.mostrarmapa.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
+import gal.caronte.caronte.view.SpinnerPercorrido;
 
 /**
  * Created by ElessarTasardur on 10/01/2018.
@@ -30,7 +30,7 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
     private static final String TAG = RecuperarPuntoInteresePercorrido.class.getSimpleName();
 
-    private MapaActivity mapaActivity;
+    private SpinnerPercorrido spinnerPercorrido;
 
     @Override
     protected List<PuntoInteresePosicion> doInBackground(String... params) {
@@ -38,13 +38,13 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
         List<PuntoInteresePosicion> listaPIP = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_recuperar_puntos_interese_percorrido));
+            final String url = StringUtil.creaString( this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servidor), this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servizo_recuperar_puntos_interese_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> entity = new HttpEntity<String>(headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idPercorrido);
             Object resource = response.getBody();
@@ -64,11 +64,10 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
     @Override
     protected void onPostExecute(List<PuntoInteresePosicion> listaPIP) {
-        this.mapaActivity.asociarPuntosPercorrido(listaPIP);
+        this.spinnerPercorrido.asociarPuntosPercorrido(listaPIP);
     }
 
-    public void setMapaActivity(MapaActivity mapaActivity) {
-        this.mapaActivity = mapaActivity;
+    public void setSpinnerPercorrido(SpinnerPercorrido spinnerPercorrido) {
+        this.spinnerPercorrido = spinnerPercorrido;
     }
-
 }

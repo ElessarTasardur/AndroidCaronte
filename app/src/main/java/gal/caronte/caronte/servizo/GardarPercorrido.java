@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.GardarPercorridoParam;
-import gal.caronte.caronte.mostrarmapa.MapaActivity;
+import gal.caronte.caronte.activity.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
 
 /**

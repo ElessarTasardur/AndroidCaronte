@@ -13,15 +13,4 @@
     android:orientation="vertical">
 
 
-    <android.support.v7.widget.AppCompatCheckBox
-        android:id="@+id/checkbox_mostrar_pois"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="@string/checkbox_mostrar_pois"
-        android:textColor="@color/branco" />
-
-
-
-
 </LinearLayout>
