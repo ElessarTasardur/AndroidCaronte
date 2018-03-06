@@ -10,10 +10,11 @@
     <string name="direccion_servidor">http://ec2-34-241-173-6.eu-west-1.compute.amazonaws.com:8080/sw/museo/</string>
     <string name="direccion_servizo_recuperar_contas">contas</string>
     <string name="direccion_servizo_comprobar_usuario_google">comprobarUsuarioGoogle</string>
-    <string name="direccion_servizo_gardar_percorrido">/percorrido/gardar</string>
-    <string name="direccion_servizo_recuperar_percorridos">/percorridosidexterno/{idEdificioExterno}</string>
+    <string name="direccion_servizo_gardar_percorrido">percorrido/gardar</string>
+    <string name="direccion_servizo_gardar_poi">poi/gardar</string>
+    <string name="direccion_servizo_recuperar_percorridos">percorridosidexterno/{idEdificioExterno}</string>
     <string name="direccion_servizo_recuperar_pois">pois/{idEdificioExterno}</string>
-    <string name="direccion_servizo_recuperar_puntos_interese_percorrido">/ppi/{idPercorrido}</string>
+    <string name="direccion_servizo_recuperar_puntos_interese_percorrido">ppi/{idPercorrido}</string>
 
     <!-- Identificador do token de Caronte para a autenticacion en Google -->
     <string name="id_token_google_caronte">448237493715-f8qnmr9mblorb5bqqaoc836sftm7jl6k.apps.googleusercontent.com</string>

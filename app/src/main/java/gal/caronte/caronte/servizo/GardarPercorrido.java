@@ -1,5 +1,6 @@
 package gal.caronte.caronte.servizo;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 
 import gal.caronte.caronte.R;
+import gal.caronte.caronte.activity.DetallePercorridoActivity;
 import gal.caronte.caronte.custom.sw.GardarPercorridoParam;
 import gal.caronte.caronte.activity.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
@@ -29,14 +31,14 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
 
     private static final String TAG = GardarPercorrido.class.getSimpleName();
 
-    private MapaActivity mapaActivity;
+    private DetallePercorridoActivity detallePercorridoActivity;
 
     @Override
     protected Short doInBackground(GardarPercorridoParam... params) {
         GardarPercorridoParam percorridoParam = params[0];
         Short idPercorrido = null;
         try {
-            final String url = StringUtil.creaString( this.mapaActivity.getString(R.string.direccion_servidor), this.mapaActivity.getString(R.string.direccion_servizo_gardar_percorrido));
+            final String url = StringUtil.creaString(this.detallePercorridoActivity.getString(R.string.direccion_servidor), this.detallePercorridoActivity.getString(R.string.direccion_servizo_gardar_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -62,10 +64,14 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
 
     @Override
     protected void onPostExecute(Short idPercorrido) {
-        this.mapaActivity.actualizarPercorrido(idPercorrido);
+        //TODO
+//        Intent intent = new Intent(this.detallePercorridoActivity, MapaActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        this.detallePercorridoActivity.actualizarPercorrido(idPercorrido);
+//        this.detallePercorridoActivity.startActivity(intent);
     }
 
-    public void setMapaActivity(MapaActivity mapaActivity) {
-        this.mapaActivity = mapaActivity;
+    public void setDetallePercorridoActivity(DetallePercorridoActivity detallePercorridoActivity) {
+        this.detallePercorridoActivity = detallePercorridoActivity;
     }
 }

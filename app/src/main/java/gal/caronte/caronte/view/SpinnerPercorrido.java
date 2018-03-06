@@ -37,7 +37,8 @@ public class SpinnerPercorrido  {
     private static final String ID_PERCORRIDO = "idPercorrido";
     private static final String NOME_PERCORRIDO = "nomePercorrido";
     private static final String DESCRICION_PERCORRIDO = "descricionPercorrido";
-    private static final String EDICION = "edicion";
+    private static final String ID_EDIFICIO = "idEdificio";
+    private static final String MODO = "modo";
 
     //Servizos
     private RecuperarPuntoInteresePercorrido recuperarPuntoInteresePercorrido;
@@ -120,7 +121,17 @@ public class SpinnerPercorrido  {
                 b.putInt(ID_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getIdPercorrido());
                 b.putString(NOME_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getNome());
                 b.putString(DESCRICION_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getDescricion());
-                b.putBoolean(EDICION, SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio()));
+                b.putInt(ID_EDIFICIO, SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio());
+
+                Short modo;
+                if (SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio())) {
+                    modo = Constantes.MODIFICACION;
+                }
+                else {
+                    modo = Constantes.CONSULTA;
+                }
+                b.putShort(MODO, modo);
+
                 intent.putExtras(b);
 
                 //Iniciamos a actividade do mapa
@@ -177,9 +188,15 @@ public class SpinnerPercorrido  {
                 //Engadimos a informacion da conta ao intent
                 Bundle b = new Bundle();
                 b.putParcelable(PUNTO_INTERESE, SpinnerPercorrido.this.poiSeleccionado);
-                boolean nha = SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio());
-                Log.i(TAG, StringUtil.creaString("Poi seleccionado ", SpinnerPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio(), ". Permiso: ", nha));
-                b.putBoolean(EDICION, nha);
+
+                Short modo;
+                if (SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio())) {
+                    modo = Constantes.MODIFICACION;
+                }
+                else {
+                    modo = Constantes.CONSULTA;
+                }
+                b.putShort(MODO, modo);
                 intent.putExtras(b);
 
                 //Iniciamos a actividade do mapa
