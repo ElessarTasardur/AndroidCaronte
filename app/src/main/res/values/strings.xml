@@ -56,4 +56,11 @@
     <string name="edicion_descricion">Descrición</string>
     <string name="boton_gardar">Gardar</string>
     <string name="title_activity_inicio">Selección conta</string>
+    <string name="sen_conta_google_selecionada">Sen conta Google selecionada</string>
+    <string name="conta_seleccionada">Conta seleccionada:</string>
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="situar_poi">Sitúe o POI</string>
+    <string name="novo_poi">Novo POI</string>
+    <string name="novo_percorrido">Novo percorrido</string>
 </resources>

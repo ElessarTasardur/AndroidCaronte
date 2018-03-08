@@ -64,12 +64,10 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
 
     @Override
     protected void onPostExecute(Short idPercorrido) {
-        //TODO
-//        Intent intent = new Intent(this.detallePercorridoActivity, MapaActivity.class);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        this.detallePercorridoActivity.actualizarPercorrido(idPercorrido);
-//        this.detallePercorridoActivity.startActivity(intent);
+//        this.detallePercorridoActivity.finish();
+        this.detallePercorridoActivity.onBackPressed();
     }
+
 
     public void setDetallePercorridoActivity(DetallePercorridoActivity detallePercorridoActivity) {
         this.detallePercorridoActivity = detallePercorridoActivity;

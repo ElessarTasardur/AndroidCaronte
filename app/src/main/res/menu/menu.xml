@@ -6,8 +6,9 @@
     <item
         android:id="@+id/accion_crear_poi"
         android:icon="@drawable/ic_add_location_black_24dp"
+        android:iconTint="@color/branco"
         android:title="@string/accion_crear_poi"
-        android:visibility="invisible"
+        android:visible="false"
         app:showAsAction="always" />
 
     <!-- Mostrar crear percorrido -->
@@ -15,37 +16,59 @@
         android:id="@+id/accion_crear_percorrido"
         android:icon="@drawable/ic_refresh_black_24dp"
         android:title="@string/accion_crear_percorrido"
-        android:visibility="invisible"
-        app:showAsAction="always" />
+        android:visible="false"
+        app:showAsAction="always"
+        android:iconTint="@color/branco" />
 
     <!-- Mostrar selector percorridos -->
     <item
         android:id="@+id/accion_selector_percorridos"
         android:icon="@drawable/ic_directions_walk_black_24dp"
         android:title="@string/accion_selector_percorridos"
-        android:visibility="invisible"
-        app:showAsAction="always" />
+        android:visible="false"
+        app:showAsAction="always"
+        android:iconTint="@color/branco" />
 
     <!-- Mostrar selector POIs -->
     <item
         android:id="@+id/accion_selector_pois"
         android:icon="@drawable/ic_location_on_black_24dp"
         android:title="@string/accion_selector_pois"
-        android:visibility="invisible"
-        app:showAsAction="always" />
+        android:visible="false"
+        app:showAsAction="always"
+        android:iconTint="@color/branco" />
 
     <!-- Todos os POIs -->
     <item
         android:id="@+id/accion_todos_pois"
         android:icon="@drawable/ic_visibility_black_24dp"
         android:title="@string/accion_todos_pois"
-        android:visibility="invisible"
-        app:showAsAction="always" />
+        android:visible="false"
+        app:showAsAction="always"
+        android:iconTint="@color/branco" />
+
+    <!-- Cancelar accion -->
+    <item
+        android:id="@+id/accion_cancelar"
+        android:icon="@drawable/ic_cancel_black_24dp"
+        android:title="@string/accion_cancelar"
+        android:visible="false"
+        app:showAsAction="always"
+        android:iconTint="@color/branco" />
+
+    <!-- Aceptar accion -->
+    <item
+        android:id="@+id/accion_aceptar"
+        android:icon="@drawable/ic_check_black_24dp"
+        android:title="@string/accion_aceptar"
+        android:visible="false"
+        app:showAsAction="always"
+        android:iconTint="@color/branco" />
 
     <!-- Opcions -->
-    <item
-        android:id="@+id/accion_opcions"
-        android:title="@string/accion_opcions"
-        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/accion_opcions"-->
+        <!--android:title="@string/accion_opcions"-->
+        <!--app:showAsAction="never" />-->
 
 </menu>

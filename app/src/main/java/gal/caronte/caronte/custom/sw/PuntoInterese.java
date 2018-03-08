@@ -28,7 +28,7 @@ public class PuntoInterese implements Parcelable {
     }
 
     public PuntoInterese(Integer idPuntoInterese, String nome, String descricion, Integer idEdificio, Integer idPlanta, Integer nivel,
-                         Float latitude, Float lonxitude) {
+                         Double latitude, Double lonxitude) {
         this(idPuntoInterese, nome, descricion);
         this.posicion = new Posicion(idEdificio, idPlanta, nivel, latitude, lonxitude);
     }

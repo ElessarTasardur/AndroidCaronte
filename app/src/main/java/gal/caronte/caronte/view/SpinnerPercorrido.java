@@ -24,6 +24,7 @@ import gal.caronte.caronte.custom.sw.PuntoInteresePosicion;
 import gal.caronte.caronte.servizo.RecuperarPercorrido;
 import gal.caronte.caronte.servizo.RecuperarPuntoInteresePercorrido;
 import gal.caronte.caronte.util.Constantes;
+import gal.caronte.caronte.util.EModoMapa;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
@@ -33,12 +34,6 @@ import gal.caronte.caronte.util.StringUtil;
 public class SpinnerPercorrido  {
 
     private static final String TAG = SpinnerPercorrido.class.getSimpleName();
-    private static final String PUNTO_INTERESE = "puntoInterese";
-    private static final String ID_PERCORRIDO = "idPercorrido";
-    private static final String NOME_PERCORRIDO = "nomePercorrido";
-    private static final String DESCRICION_PERCORRIDO = "descricionPercorrido";
-    private static final String ID_EDIFICIO = "idEdificio";
-    private static final String MODO = "modo";
 
     //Servizos
     private RecuperarPuntoInteresePercorrido recuperarPuntoInteresePercorrido;
@@ -118,19 +113,19 @@ public class SpinnerPercorrido  {
 
                 //Engadimos a informacion da conta ao intent
                 Bundle b = new Bundle();
-                b.putInt(ID_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getIdPercorrido());
-                b.putString(NOME_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getNome());
-                b.putString(DESCRICION_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getDescricion());
-                b.putInt(ID_EDIFICIO, SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio());
+                b.putInt(Constantes.ID_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getIdPercorrido());
+                b.putString(Constantes.NOME_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getNome());
+                b.putString(Constantes.DESCRICION_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getDescricion());
+                b.putInt(Constantes.ID_EDIFICIO, SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio());
 
-                Short modo;
+                EModoMapa modo;
                 if (SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio())) {
-                    modo = Constantes.MODIFICACION;
+                    modo = EModoMapa.EDICION;
                 }
                 else {
-                    modo = Constantes.CONSULTA;
+                    modo = EModoMapa.CONSULTA;
                 }
-                b.putShort(MODO, modo);
+                intent.putExtra(Constantes.MODO, modo);
 
                 intent.putExtras(b);
 
@@ -187,16 +182,17 @@ public class SpinnerPercorrido  {
 
                 //Engadimos a informacion da conta ao intent
                 Bundle b = new Bundle();
-                b.putParcelable(PUNTO_INTERESE, SpinnerPercorrido.this.poiSeleccionado);
+                b.putParcelable(Constantes.PUNTO_INTERESE, SpinnerPercorrido.this.poiSeleccionado);
 
-                Short modo;
+                EModoMapa modo;
                 if (SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio())) {
-                    modo = Constantes.MODIFICACION;
+                    modo = EModoMapa.EDICION;
                 }
                 else {
-                    modo = Constantes.CONSULTA;
+                    modo = EModoMapa.CONSULTA;
                 }
-                b.putShort(MODO, modo);
+                intent.putExtra(Constantes.MODO, modo);
+
                 intent.putExtras(b);
 
                 //Iniciamos a actividade do mapa
@@ -210,24 +206,29 @@ public class SpinnerPercorrido  {
             this.spinnerPercorrido.setVisibility(View.VISIBLE);
         }
         else {
-            this.spinnerPercorrido.setVisibility(View.INVISIBLE);
-            this.botonPercorrido.setVisibility(View.INVISIBLE);
+            ocultarSpinnerPercorrido();
         }
-        this.spinnerPoi.setVisibility(View.INVISIBLE);
-        this.botonPoi.setVisibility(View.INVISIBLE);
+        ocultarSpinnerPoi();
     }
-
 
     public void visualizarSpinnerPoi() {
         if (this.spinnerPoi.getVisibility() == View.INVISIBLE) {
             this.spinnerPoi.setVisibility(View.VISIBLE);
         }
         else {
-            this.spinnerPoi.setVisibility(View.INVISIBLE);
-            this.botonPoi.setVisibility(View.INVISIBLE);
+            ocultarSpinnerPoi();
         }
+        ocultarSpinnerPercorrido();
+    }
+
+    public void ocultarSpinnerPercorrido() {
         this.spinnerPercorrido.setVisibility(View.INVISIBLE);
         this.botonPercorrido.setVisibility(View.INVISIBLE);
+    }
+
+    public void ocultarSpinnerPoi() {
+        this.spinnerPoi.setVisibility(View.INVISIBLE);
+        this.botonPoi.setVisibility(View.INVISIBLE);
     }
 
     public void deseleccionarPercorrido() {
@@ -306,7 +307,7 @@ public class SpinnerPercorrido  {
             listaPoi.add(0, new PuntoInterese(Constantes.ID_FICTICIO, seleccionar, seleccionar));
             this.spinnerPoi.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPoi));
 
-            this.mapaActivity.activarBotonsNonEdicion(true);
+            this.mapaActivity.invalidateOptionsMenu();
         }
 
     }
@@ -319,7 +320,7 @@ public class SpinnerPercorrido  {
             listaPercorrido.add(0, new Percorrido(Constantes.ID_FICTICIO, seleccionar, seleccionar, null));
             this.spinnerPercorrido.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPercorrido));
 
-            this.mapaActivity.activarBotonsNonEdicion(true);
+            this.mapaActivity.invalidateOptionsMenu();
         }
 
     }

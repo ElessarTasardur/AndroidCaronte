@@ -14,14 +14,14 @@ public class Posicion implements Parcelable {
     private Integer idEdificio;
     private Integer idPlanta;
     private Integer nivel;
-    private Float latitude;
-    private Float lonxitude;
+    private Double latitude;
+    private Double lonxitude;
 
     public Posicion() {
         super();
     }
 
-    public Posicion(Integer idEdificio, Integer idPlanta, Integer nivel, Float latitude, Float lonxitude) {
+    public Posicion(Integer idEdificio, Integer idPlanta, Integer nivel, Double latitude, Double lonxitude) {
         super();
         this.idEdificio = idEdificio;
         this.idPlanta = idPlanta;
@@ -75,28 +75,28 @@ public class Posicion implements Parcelable {
     /**
      * @return the latitude
      */
-    public Float getLatitude() {
+    public Double getLatitude() {
         return this.latitude;
     }
 
     /**
      * @param latitude the latitude to set
      */
-    public void setLatitude(Float latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
     /**
      * @return the lonxitude
      */
-    public Float getLonxitude() {
+    public Double getLonxitude() {
         return this.lonxitude;
     }
 
     /**
      * @param lonxitude the lonxitude to set
      */
-    public void setLonxitude(Float lonxitude) {
+    public void setLonxitude(Double lonxitude) {
         this.lonxitude = lonxitude;
     }
 
@@ -125,8 +125,8 @@ public class Posicion implements Parcelable {
         this.idEdificio = in.readInt();
         this.idPlanta = in.readInt();
         this.nivel = in.readInt();
-        this.latitude = in.readFloat();
-        this.lonxitude = in.readFloat();
+        this.latitude = in.readDouble();
+        this.lonxitude = in.readDouble();
     }
 
     @Override
@@ -134,8 +134,8 @@ public class Posicion implements Parcelable {
         dest.writeInt(this.idEdificio);
         dest.writeInt(this.idPlanta);
         dest.writeInt(this.nivel);
-        dest.writeFloat(this.latitude);
-        dest.writeFloat(this.lonxitude);
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.lonxitude);
     }
 
     @Override

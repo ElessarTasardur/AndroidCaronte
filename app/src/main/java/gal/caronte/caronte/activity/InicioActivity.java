@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -35,6 +36,7 @@ import gal.caronte.caronte.custom.sw.EdificioCustom;
 import gal.caronte.caronte.servizo.ComprobarUsuarioGoogle;
 import gal.caronte.caronte.servizo.RecuperarConta;
 import gal.caronte.caronte.servizo.RecuperarEdificio;
+import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
@@ -44,16 +46,11 @@ import gal.caronte.caronte.util.StringUtil;
 public class InicioActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = InicioActivity.class.getSimpleName();
-    private static final String NOME_CONTA = "nomeConta";
-    private static final String CONTRASINAL_CONTA = "contrasinalConta";
-    private static final String USUARIO_EDIFICIO = "usuarioEdificio";
-    private static final String LISTA_EDIFICIO = "listaEdificio";
 
     private static final int RC_SIGN_IN = 123;
 
     //Servizos
     private RecuperarConta recuperarConta;
-    private ComprobarUsuarioGoogle comprobarUsuarioGoogle;
     private RecuperarEdificio recuperarEdificio;
 
     private GoogleApiClient apiClient;
@@ -66,6 +63,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
     private Button botonDesconectar;
     private Button botonAcceder;
     private Spinner spinnerContas;
+    private TextView tvGoogle;
+    private TextView tvNomeGoogle;
 
     private ProgressDialog progressDialog;
 
@@ -74,26 +73,19 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inicio);
 
-        //Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbarInicio);
-        setSupportActionBar(toolbar);
-
         GoogleSignInOptions gso =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(getString(R.string.id_token_google_caronte))
                         .requestEmail()
                         .build();
 
-        apiClient = new GoogleApiClient.Builder(this)
+        this.apiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        botonLogin = findViewById(R.id.boton_login);
-//        botonSignIn.setSize(SignInButton.SIZE_STANDARD);
-//        botonSignIn.setColorScheme(SignInButton.COLOR_LIGHT);
-//        botonSignIn.setScopes(gso.getScopeArray());
-        botonLogin.setOnClickListener(new View.OnClickListener() {
+        this.botonLogin = findViewById(R.id.boton_login);
+        this.botonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showProgressDialog();
@@ -102,9 +94,9 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             }
         });
 
-        botonLogout = findViewById(R.id.boton_logout);
-        botonLogout.setVisibility(View.GONE);
-        botonLogout.setOnClickListener(new View.OnClickListener() {
+        this.botonLogout = findViewById(R.id.boton_logout);
+        this.botonLogout.setVisibility(View.GONE);
+        this.botonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Auth.GoogleSignInApi.signOut(apiClient).setResultCallback(
@@ -117,9 +109,9 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             }
         });
 
-        botonDesconectar = findViewById(R.id.boton_desconectar);
-        botonDesconectar.setVisibility(View.GONE);
-        botonDesconectar.setOnClickListener(new View.OnClickListener() {
+        this.botonDesconectar = findViewById(R.id.boton_desconectar);
+        this.botonDesconectar.setVisibility(View.GONE);
+        this.botonDesconectar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Auth.GoogleSignInApi.revokeAccess(apiClient).setResultCallback(
@@ -132,9 +124,9 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             }
         });
 
-        botonAcceder = findViewById(R.id.boton_acceder);
-        botonAcceder.setEnabled(false);
-        botonAcceder.setOnClickListener(new View.OnClickListener() {
+        this.botonAcceder = findViewById(R.id.boton_acceder);
+        this.botonAcceder.setEnabled(false);
+        this.botonAcceder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Abrimos a nova actividade coa conta seleccionada no spinner
@@ -146,10 +138,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
                     //Engadimos a informacion da conta ao intent
                     Bundle b = new Bundle();
-                    b.putString(NOME_CONTA, contaSeleccionada.getContaUsuario());
-                    b.putString(CONTRASINAL_CONTA, contaSeleccionada.getContrasinal());
-                    b.putParcelable(USUARIO_EDIFICIO, InicioActivity.this.usuarioEdificio);
-                    b.putParcelable(LISTA_EDIFICIO, InicioActivity.this.listaEdificio);
+                    b.putString(Constantes.NOME_CONTA, contaSeleccionada.getContaUsuario());
+                    b.putString(Constantes.CONTRASINAL_CONTA, contaSeleccionada.getContrasinal());
+                    b.putParcelable(Constantes.USUARIO_EDIFICIO, InicioActivity.this.usuarioEdificio);
+                    b.putParcelable(Constantes.LISTA_EDIFICIO, InicioActivity.this.listaEdificio);
                     intent.putExtras(b);
 
                     //Iniciamos a actividade do mapa
@@ -157,6 +149,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                 }
             }
         });
+
+        this.tvGoogle = findViewById(R.id.textViewContaGoogle);
+        this.tvNomeGoogle = findViewById(R.id.textViewNomeContaGoogle);
+
     }
 
     @Override
@@ -172,10 +168,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     protected void onStop() {
-        if (recuperarConta != null) {
+        if (this.recuperarConta != null) {
             this.recuperarConta.cancel(true);
         }
-        if (recuperarEdificio != null) {
+        if (this.recuperarEdificio != null) {
             this.recuperarEdificio.cancel(true);
         }
         super.onStop();
@@ -187,23 +183,23 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             GoogleSignInAccount acct = result.getSignInAccount();
             if (acct != null) {
                 String idToken = acct.getIdToken();
-                Log.i(TAG, "Token: " + idToken);
-                Log.i(TAG, "Id: " + acct.getId());
                 this.nomeMostrar = acct.getDisplayName();
                 Log.i(TAG, "Display name: " + acct.getDisplayName());
                 Log.i(TAG, "Email: " + acct.getEmail());
                 Log.i(TAG, "Family name: " + acct.getFamilyName());
                 Log.i(TAG, "Given name: " + acct.getGivenName());
-                Log.i(TAG, "Auth code: " + acct.getServerAuthCode());
-                Log.i(TAG, "Photo URL: " + acct.getPhotoUrl());
 
-                this.comprobarUsuarioGoogle = new ComprobarUsuarioGoogle();
-                this.comprobarUsuarioGoogle.setInicioActivity(this);
-                this.comprobarUsuarioGoogle.execute(idToken);
+                this.tvGoogle.setText(acct.getEmail());
+                this.tvNomeGoogle.setText(this.nomeMostrar);
+
+                ComprobarUsuarioGoogle comprobarUsuarioGoogle = new ComprobarUsuarioGoogle();
+                comprobarUsuarioGoogle.setInicioActivity(this);
+                comprobarUsuarioGoogle.execute(idToken);
 
             }
             updateUI(true);
-        } else {
+        }
+        else {
             //Usuario non logueado --> Desconectado
             updateUI(false);
             hideProgressDialog();
@@ -212,13 +208,17 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     private void updateUI(boolean signedIn) {
         if (signedIn) {
-            botonLogin.setVisibility(View.GONE);
-            botonLogout.setVisibility(View.VISIBLE);
-            botonDesconectar.setVisibility(View.VISIBLE);
-        } else {
-            botonLogin.setVisibility(View.VISIBLE);
-            botonLogout.setVisibility(View.GONE);
-            botonDesconectar.setVisibility(View.GONE);
+            this.botonLogin.setVisibility(View.GONE);
+            this.botonLogout.setVisibility(View.VISIBLE);
+            this.botonDesconectar.setVisibility(View.VISIBLE);
+        }
+        else {
+            this.botonLogin.setVisibility(View.VISIBLE);
+            this.botonLogout.setVisibility(View.GONE);
+            this.botonDesconectar.setVisibility(View.GONE);
+
+            this.tvGoogle.setText(getString(R.string.sen_conta_google_selecionada));
+            this.tvNomeGoogle.setText("");
         }
     }
 
@@ -235,37 +235,21 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         recuperarListaConta();
         recuperarListaEdificio();
 
-//        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(apiClient);
-//        if (opr.isDone()) {
-//            GoogleSignInResult result = opr.get();
-//            handleSignInResult(result);
-//        }
-//        else {
-//            showProgressDialog();
-//            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
-//                @Override
-//                public void onResult(GoogleSignInResult googleSignInResult) {
-//                    Log.i(TAG, "onResult");
-//                    hideProgressDialog();
-//                    handleSignInResult(googleSignInResult);
-//                }
-//            });
-//        }
     }
 
     private void showProgressDialog() {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Comprobando credenciais");
-            progressDialog.setIndeterminate(true);
+        if (this.progressDialog == null) {
+            this.progressDialog = new ProgressDialog(this);
+            this.progressDialog.setMessage("Comprobando credenciais");
+            this.progressDialog.setIndeterminate(true);
         }
 
-        progressDialog.show();
+        this.progressDialog.show();
     }
 
     private void hideProgressDialog() {
-        if (progressDialog != null) {
-            progressDialog.hide();
+        if (this.progressDialog != null) {
+            this.progressDialog.hide();
         }
     }
 
@@ -283,10 +267,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     public void mostrarListaConta(List<Conta> listaConta) {
 
-        spinnerContas = findViewById(R.id.spinner_contas);
-        spinnerContas.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, listaConta));
+        this.spinnerContas = findViewById(R.id.spinner_contas);
+        this.spinnerContas.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, listaConta));
 
-        spinnerContas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        this.spinnerContas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 if (InicioActivity.this.listaEdificio != null) {
@@ -310,7 +294,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         if (usuarioCorrecto == null
                 || usuarioCorrecto.getIdUsuario() == null) {
             this.botonLogout.performClick();
-        } else {
+        }
+        else {
             this.usuarioEdificio = new UsuarioEdificioCustom(usuarioCorrecto.getIdUsuario(), this.nomeMostrar, usuarioCorrecto.getListaIdEdificioAdministrador());
         }
     }

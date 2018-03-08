@@ -1,6 +1,5 @@
 package gal.caronte.caronte.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -8,18 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import gal.caronte.caronte.R;
-import gal.caronte.caronte.custom.sw.GardarPercorridoParam;
-import gal.caronte.caronte.custom.sw.Percorrido;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
-import gal.caronte.caronte.servizo.GardarPercorrido;
 import gal.caronte.caronte.servizo.GardarPoi;
-import gal.caronte.caronte.servizo.RecuperarPoi;
 import gal.caronte.caronte.util.Constantes;
-import gal.caronte.caronte.view.SpinnerPercorrido;
+import gal.caronte.caronte.util.EModoMapa;
 
 /**
  * Created by ElessarTasardur on 04/03/2018.
@@ -28,12 +20,10 @@ import gal.caronte.caronte.view.SpinnerPercorrido;
 public class DetallePoiActivity extends AppCompatActivity {
 
     private static final String TAG = DetallePoiActivity.class.getSimpleName();
-    private static final String PUNTO_INTERESE = "puntoInterese";
-    private static final String MODO = "modo";
 
     private GardarPoi gardarPoi;
     private PuntoInterese poi;
-    private Short modo;
+    private EModoMapa modo;
 
     private EditText editTextNome;
     private EditText editTextDescricion;
@@ -49,9 +39,12 @@ public class DetallePoiActivity extends AppCompatActivity {
 
         //Recuperamos a informacion do intent
         Bundle bundle = getIntent().getExtras();
-        this.poi = bundle.getParcelable(PUNTO_INTERESE);
-        this.modo = bundle.getShort(MODO);
+        this.poi = bundle.getParcelable(Constantes.PUNTO_INTERESE);
+        this.modo = (EModoMapa) getIntent().getSerializableExtra(Constantes.MODO);
 
+        if (Constantes.ID_FICTICIO.equals(this.poi.getIdPuntoInterese())) {
+            this.poi.setIdPuntoInterese(null);
+        }
         //EditText
         this.editTextNome = this.findViewById(R.id.editTextNome);
         this.editTextNome.setText(poi.getNome());
@@ -68,7 +61,9 @@ public class DetallePoiActivity extends AppCompatActivity {
                 gardarInformacionPoi();
             }
         });
-        if (this.modo != null && Constantes.MODIFICACION.equals(this.modo)) {
+        if (this.modo != null
+                && (this.modo.equals(EModoMapa.EDICION)
+                        || this.modo.equals(EModoMapa.CREAR_POI))) {
             botonGardar.setVisibility(View.VISIBLE);
         }
         else {
@@ -78,7 +73,7 @@ public class DetallePoiActivity extends AppCompatActivity {
     }
 
     private void activarTexto(EditText editText) {
-        boolean activar = this.modo != null && (Constantes.CREACION.equals(this.modo) || Constantes.MODIFICACION.equals(this.modo));
+        boolean activar = this.modo != null && (this.modo.equals(EModoMapa.CREAR_POI) || this.modo.equals(EModoMapa.EDICION));
         editText.setEnabled(activar);
     }
 
@@ -87,15 +82,13 @@ public class DetallePoiActivity extends AppCompatActivity {
         this.gardarPoi = new GardarPoi();
 
         String novoNome = this.editTextNome.getText().toString();
-        if (novoNome != null
-                && !novoNome.isEmpty()
+        if (!novoNome.isEmpty()
                 && !this.poi.getNome().equals(novoNome)) {
             this.poi.setNome(novoNome);
         }
 
         String novaDescricion = this.editTextDescricion.getText().toString();
-        if (novaDescricion != null
-                && !novaDescricion.isEmpty()
+        if (!novaDescricion.isEmpty()
                 && !this.poi.getDescricion().equals(novaDescricion)) {
             this.poi.setDescricion(novaDescricion);
         }

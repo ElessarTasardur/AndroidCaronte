@@ -96,6 +96,7 @@ public class SelectorPiso {
 
     public void cambiarPisoSeleccionado(String idPlanta) {
 
+        this.idPlantaActual = idPlanta;
         for (Button boton : this.listaBotons) {
 //            if (String.valueOf(boton.getId()).equals(idPlanta)) {
 //                boton.setBackgroundColor();

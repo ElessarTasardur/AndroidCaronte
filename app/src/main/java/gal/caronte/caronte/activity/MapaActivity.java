@@ -1,16 +1,17 @@
 package gal.caronte.caronte.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,8 +66,6 @@ import gal.caronte.caronte.custom.MarcadorCustom;
 import gal.caronte.caronte.custom.Piso;
 import gal.caronte.caronte.custom.UsuarioEdificioCustom;
 import gal.caronte.caronte.custom.sw.EdificioCustom;
-import gal.caronte.caronte.custom.sw.GardarPercorridoParam;
-import gal.caronte.caronte.custom.sw.Percorrido;
 import gal.caronte.caronte.custom.sw.Posicion;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.servizo.GardarPercorrido;
@@ -74,6 +73,8 @@ import gal.caronte.caronte.servizo.RecuperarEdificioSitum;
 import gal.caronte.caronte.servizo.RecuperarMapa;
 import gal.caronte.caronte.servizo.RecuperarPoi;
 import gal.caronte.caronte.servizo.RecuperarRuta;
+import gal.caronte.caronte.util.Constantes;
+import gal.caronte.caronte.util.EModoMapa;
 import gal.caronte.caronte.util.PermisosUtil;
 import gal.caronte.caronte.util.StringUtil;
 import gal.caronte.caronte.view.InfoWindowAdapterGuiado;
@@ -93,10 +94,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
-    private static final String NOME_CONTA = "nomeConta";
-    private static final String CONTRASINAL_CONTA = "contrasinalConta";
-    private static final String USUARIO_EDIFICIO = "usuarioEdificio";
-    private static final String LISTA_EDIFICIO = "listaEdificio";
 
     private static final int CODIGO_SOLICITUDE_PERMISO_LOCALIZACION = 1;
 
@@ -111,12 +108,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RecuperarPoi recuperarPoi;
     private RecuperarRuta recuperarRuta;
 
-    private GardarPercorrido gardarPercorrido;
-
     //Variabeis globais
     private UsuarioEdificioCustom uec;
     private ListaEdificioCustom listaEdificio;
-    private boolean modoEdicion = false;
+    private EModoMapa modoMapa = EModoMapa.CONSULTA;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -138,10 +133,14 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Polyline marcaPercorrido;
 
     //Elementos visuais
-    private Toolbar toolbar;
     private SpinnerPercorrido seccionSpinner;
     private ImageButton botonEditar;
     private SelectorPiso selectorPiso;
+
+    //Variabeis creacion
+    private Marker marcadorNovoPoi;
+    private Posicion posicionNovoPoi;
+    private List<PuntoInterese> listaNovoPercorrido = new ArrayList<>();
 
     //Menu lateral
     private DrawerLayout mDrawerLayout;
@@ -154,10 +153,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Recuperamos a informacion do intent
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            String nomeConta = bundle.getString(NOME_CONTA);
-            String contrasinalConta = bundle.getString(CONTRASINAL_CONTA);
-            this.uec = bundle.getParcelable(USUARIO_EDIFICIO);
-            this.listaEdificio = bundle.getParcelable(LISTA_EDIFICIO);
+            String nomeConta = bundle.getString(Constantes.NOME_CONTA);
+            String contrasinalConta = bundle.getString(Constantes.CONTRASINAL_CONTA);
+            this.uec = bundle.getParcelable(Constantes.USUARIO_EDIFICIO);
+            this.listaEdificio = bundle.getParcelable(Constantes.LISTA_EDIFICIO);
 
             //Inicializamos Situm
             SitumSdk.init(this);
@@ -182,8 +181,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.mDrawerLayout = findViewById(R.id.drawer_layout);
 
             //Toolbar
-            this.toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(this.toolbar);
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
             this.seccionSpinner = new SpinnerPercorrido(this);
 
@@ -191,7 +190,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.botonEditar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (!MapaActivity.this.modoEdicion) {
+                    if (MapaActivity.this.modoMapa.equals(EModoMapa.CONSULTA)) {
                         activarModoEdicion();
                     }
                     else {
@@ -212,28 +211,47 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
 
-    public void activarBotonsNonEdicion(boolean activar) {
+        boolean modoConsulta = this.modoMapa.equals(EModoMapa.CONSULTA);
+        boolean modoEdicion = this.modoMapa.equals(EModoMapa.EDICION);
+        boolean modoCrearPoi = this.modoMapa.equals(EModoMapa.CREAR_POI);
+        boolean modoCrearPercorrido = this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO);
+
+        //Se esta activo o modo edicion, mostramos o boton
+        MenuItem botonCrearPercorrido = menu.findItem(R.id.accion_crear_percorrido);
+        botonCrearPercorrido.setVisible(modoEdicion);
+
+        //Se esta activo o modo edicion, mostramos o boton
+        MenuItem botonCrearPoi = menu.findItem(R.id.accion_crear_poi);
+        botonCrearPoi.setVisible(modoEdicion);
 
         //Se existe algun percorrido, mostramos o boton
-        if (this.seccionSpinner.tenPercorrido()) {
-            ActionMenuItemView selectorPercorridos = findViewById(R.id.accion_selector_percorridos);
-            selectorPercorridos.setVisibility(View.VISIBLE);
-        }
+        MenuItem botonSeleccionPercorrido = menu.findItem(R.id.accion_selector_percorridos);
+        boolean verSeleccionPercorrido = this.seccionSpinner.tenPercorrido()
+                && (modoEdicion || modoConsulta);
+        botonSeleccionPercorrido.setVisible(verSeleccionPercorrido);
 
         //Se existe algun poi, mostramos o boton
-        if (this.seccionSpinner.tenPoi()) {
-            ActionMenuItemView selectorPois = findViewById(R.id.accion_selector_pois);
-            selectorPois.setVisibility(View.VISIBLE);
+        boolean verBotonPoi = this.seccionSpinner.tenPoi()
+                && (modoEdicion || modoConsulta);
+        MenuItem botonSeleccionPoi = menu.findItem(R.id.accion_selector_pois);
+        botonSeleccionPoi.setVisible(verBotonPoi);
 
-            ActionMenuItemView amosarPois = findViewById(R.id.accion_todos_pois);
-            amosarPois.setVisibility(View.VISIBLE);
-        }
+        //Se existe algun poi, mostramos o boton
+        MenuItem botonTodosPois = menu.findItem(R.id.accion_todos_pois);
+        botonTodosPois.setVisible(verBotonPoi);
 
-        invalidateOptionsMenu();
+        //Boton aceptar
+        MenuItem botonAceptar = menu.findItem(R.id.accion_aceptar);
+        boolean mostrarBotonAceptar = (modoCrearPoi && this.posicionNovoPoi != null)
+                || (modoCrearPercorrido && this.listaNovoPercorrido.size() > 2);
+        botonAceptar.setVisible(mostrarBotonAceptar);
 
+        //Boton cancelar
+        MenuItem botonCancelar = menu.findItem(R.id.accion_cancelar);
+        botonCancelar.setVisible(modoCrearPoi || modoCrearPercorrido);
+
+        return true;
     }
 
     @Override
@@ -260,10 +278,131 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 return true;
 
+            case R.id.accion_crear_poi:
+                modoCrearPoi();
+                return true;
+
+            case R.id.accion_crear_percorrido:
+                modoCrearPercorrido();
+                return true;
+
+            case R.id.accion_aceptar:
+                //Abrimos a activity para o detalle de poi
+                if (this.modoMapa.equals(EModoMapa.CREAR_POI)) {
+                    Intent intent = new Intent(this, DetallePoiActivity.class);
+
+                    //Engadimos a informacion do poi ao intent
+                    Bundle b = new Bundle();
+                    PuntoInterese poi = new PuntoInterese();
+                    poi.setIdPuntoInterese(Constantes.ID_FICTICIO);
+                    poi.setNome("");
+                    poi.setDescricion("");
+                    poi.setPosicion(this.posicionNovoPoi);
+                    b.putParcelable(Constantes.PUNTO_INTERESE, poi);
+                    intent.putExtras(b);
+
+                    intent.putExtra(Constantes.MODO, this.modoMapa);
+
+                    //Iniciamos a actividade do mapa
+                    startActivity(intent);
+                }
+                else if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                    Intent intent = new Intent(this, DetallePercorridoActivity.class);
+
+                    //Engadimos a informacion do percorrido ao intent
+                    Bundle b = new Bundle();
+                    b.putInt(Constantes.ID_EDIFICIO, this.idEdificio);
+                    b.putParcelableArrayList(Constantes.LISTA_PUNTO_INTERESE, (ArrayList<? extends Parcelable>) this.listaNovoPercorrido);
+
+                    PuntoInterese poi = new PuntoInterese();
+                    poi.setIdPuntoInterese(Constantes.ID_FICTICIO);
+                    poi.setNome("");
+                    poi.setDescricion("");
+                    poi.setPosicion(this.posicionNovoPoi);
+                    b.putParcelable(Constantes.PUNTO_INTERESE, poi);
+
+                    intent.putExtras(b);
+
+                    intent.putExtra(Constantes.MODO, this.modoMapa);
+
+                    //Iniciamos a actividade do mapa
+                    startActivity(intent);
+
+                }
+                return true;
+
+            case R.id.accion_cancelar:
+
+                //Botamos atras o novo POI
+                if (this.posicionNovoPoi != null) {
+                    this.posicionNovoPoi = null;
+                    this.marcadorNovoPoi.remove();
+                }
+
+                //Botamos atras o novo percorrido
+                if (!this.listaNovoPercorrido.isEmpty()) {
+                    //TODO eliminar as unions entre POIs que se fixeron para mostrar o percorrido
+
+                    this.listaNovoPercorrido.clear();
+                }
+
+                cambiarTituloActividade();
+
+                this.modoMapa = EModoMapa.EDICION;
+                invalidateOptionsMenu();
+
+                return true;
+
             default:
                 // En caso de que non identifiquemos a accion
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void modoCrearPoi() {
+
+        //Estamos a crear un POI
+        this.modoMapa = EModoMapa.CREAR_POI;
+
+        //Mostramos os botons precisos
+        invalidateOptionsMenu();
+
+        //Cambiar o titulo da actividade
+        setTitle(getString(R.string.situar_poi));
+
+        //Ocultamos os spinner
+        this.seccionSpinner.deseleccionarPercorrido();
+        this.seccionSpinner.deseleccionarPoi();
+        this.seccionSpinner.ocultarSpinnerPercorrido();
+        this.seccionSpinner.ocultarSpinnerPoi();
+        ocultarPercorrido();
+
+        //Amosamos os POIs do piso seleccionado (ocultando o resto)
+        amosarPoiPiso();
+
+    }
+
+    private void modoCrearPercorrido() {
+
+        //Estamos a crear un percorrido
+        this.modoMapa = EModoMapa.CREAR_PERCORRIDO;
+
+        //Mostramos os botons precisos
+        invalidateOptionsMenu();
+
+        //Cambiar o titulo da actividade
+        setTitle(getString(R.string.novo_percorrido));
+
+        //Ocultamos os spinner
+        this.seccionSpinner.deseleccionarPercorrido();
+        this.seccionSpinner.deseleccionarPoi();
+        this.seccionSpinner.ocultarSpinnerPercorrido();
+        this.seccionSpinner.ocultarSpinnerPoi();
+        ocultarPercorrido();
+
+        //Amosamos os POIs do piso seleccionado (ocultando o resto)
+        amosarPoiPiso();
+
     }
 
     //Inicio e localizacion
@@ -286,23 +425,36 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-//        this.map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-//
-//            @Override
-//            public void onMapClick(LatLng latLng) {
-//                boolean modoEdicion = true;
-//                if (modoEdicion) {
-//                    //TODO comprobar que estamos na creacion dun POI ou percorrido
-////                    if () {
-////
-////                    }
-//                }
-//                else {
-//                    //TODO mostrar posibilidade de guiar ao punto
-//                }
-//
-//            }
-//        });
+        this.map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (MapaActivity.this.modoMapa.equals(EModoMapa.CREAR_POI)) {
+
+                    //Se hai outro previo, borramolo
+                    if (MapaActivity.this.marcadorNovoPoi != null) {
+                        MapaActivity.this.marcadorNovoPoi.remove();
+                    }
+
+                    int nivel = MapaActivity.this.edificioSitumCustom.getFloor(MapaActivity.this.idPlantaVisibel).getLevel();
+                    MapaActivity.this.posicionNovoPoi = new Posicion(MapaActivity.this.idEdificio, Integer.valueOf(MapaActivity.this.idPlantaVisibel), nivel, latLng.latitude, latLng.longitude);
+                    Float cor = MapaActivity.this.mapaCorMarcador.get(nivel);
+                    MapaActivity.this.marcadorNovoPoi = MapaActivity.this.map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(MapaActivity.this.getString(R.string.novo_poi))
+                            .icon(BitmapDescriptorFactory.defaultMarker(cor)));
+
+//TODO ao voltar da outra actividade:                    marcadorPoi.remove(); e recuperar poi
+
+                    invalidateOptionsMenu();
+
+                }
+                else {
+                    //TODO amosar posibilidade de guiar ao punto
+                }
+
+            }
+        });
 
         //Comprobamos o permiso de localizacion para activar a localizacion
         boolean permisoConcedido = PermisosUtil.comprobarPermisos(this, Manifest.permission.ACCESS_FINE_LOCATION, CODIGO_SOLICITUDE_PERMISO_LOCALIZACION, true);
@@ -563,9 +715,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (recuperarRuta != null) {
             this.recuperarRuta.cancel();
         }
-        if (gardarPercorrido != null) {
-            this.gardarPercorrido.cancel(true);
-        }
     }
 
     @Override
@@ -721,7 +870,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.todosPoisVisibeis = true;
     }
 
-
+    private void amosarPoiPiso() {
+        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
+            marcadorCustom.getMarcadorGoogle().setVisible(marcadorCustom.getIdPlanta().toString().equals(this.idPlantaVisibel));
+        }
+        this.todosPoisVisibeis = false;
+    }
 
     //Percorrido
     public void ocultarPercorrido() {
@@ -879,32 +1033,38 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Modo edicion
     private void activarModoEdicion() {
-        this.modoEdicion = true;
 
-        ActionMenuItemView crearPercorrido = findViewById(R.id.accion_crear_percorrido);
-        crearPercorrido.setVisibility(View.VISIBLE);
+        if (this.modoMapa.equals(EModoMapa.CONSULTA)) {
+            this.modoMapa = EModoMapa.EDICION;
 
-        ActionMenuItemView crearPoi = findViewById(R.id.accion_crear_poi);
-        crearPoi.setVisibility(View.VISIBLE);
+            cambiarTituloActividade();
 
-        invalidateOptionsMenu();
+            invalidateOptionsMenu();
 
-        //TODO
-        Toast.makeText(this, "Activouse o modo edicion", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Activouse o modo edicion", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void desactivarModoEdicion() {
-        this.modoEdicion = false;
-        //TODO
-        ActionMenuItemView crearPercorrido = findViewById(R.id.accion_crear_percorrido);
-        crearPercorrido.setVisibility(View.INVISIBLE);
 
-        ActionMenuItemView crearPoi = findViewById(R.id.accion_crear_poi);
-        crearPoi.setVisibility(View.INVISIBLE);
+        if (!this.modoMapa.equals(EModoMapa.CONSULTA)) {
+            this.modoMapa = EModoMapa.CONSULTA;
 
-        invalidateOptionsMenu();
+            cambiarTituloActividade();
 
-        Toast.makeText(this, "Desactivouse o modo edicion", Toast.LENGTH_SHORT).show();
+            invalidateOptionsMenu();
+
+            Toast.makeText(this, "Desactivouse o modo edicion", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void cambiarTituloActividade() {
+        if (this.edificioSitumCustom != null) {
+            setTitle(this.edificioSitumCustom.getEdificio().getName());
+        }
+        else {
+            setTitle(getString(R.string.app_name));
+        }
     }
 
 }

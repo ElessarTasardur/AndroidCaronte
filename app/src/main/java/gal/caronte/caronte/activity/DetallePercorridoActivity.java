@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.GardarPercorridoParam;
@@ -15,6 +16,7 @@ import gal.caronte.caronte.custom.sw.Percorrido;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.servizo.GardarPercorrido;
 import gal.caronte.caronte.util.Constantes;
+import gal.caronte.caronte.util.EModoMapa;
 
 /**
  * Created by ElessarTasardur on 04/03/2018.
@@ -23,17 +25,13 @@ import gal.caronte.caronte.util.Constantes;
 public class DetallePercorridoActivity extends AppCompatActivity {
 
     private static final String TAG = DetallePercorridoActivity.class.getSimpleName();
-    private static final String ID_PERCORRIDO = "idPercorrido";
-    private static final String NOME_PERCORRIDO = "nomePercorrido";
-    private static final String DESCRICION_PERCORRIDO = "descricionPercorrido";
-    private static final String ID_EDIFICIO = "idEdificio";
-    private static final String MODO = "modo";
 
     private Integer idPercorrido;
     private String nomePercorrido;
     private String descricionPercorrido;
     private Integer idEdificio;
-    private Short modo;
+    private List<PuntoInterese> listaPuntoInterese;
+    private EModoMapa modo;
 
     private EditText editTextNome;
     private EditText editTextDescricion;
@@ -51,11 +49,12 @@ public class DetallePercorridoActivity extends AppCompatActivity {
 
         //Recuperamos a informacion do intent
         Bundle bundle = getIntent().getExtras();
-        this.idPercorrido = bundle.getInt(ID_PERCORRIDO);
-        this.nomePercorrido = bundle.getString(NOME_PERCORRIDO);
-        this.descricionPercorrido = bundle.getString(DESCRICION_PERCORRIDO);
-        this.idEdificio = bundle.getInt(ID_EDIFICIO);
-        this.modo = bundle.getShort(MODO);
+        this.idPercorrido = bundle.getInt(Constantes.ID_PERCORRIDO);
+        this.nomePercorrido = bundle.getString(Constantes.NOME_PERCORRIDO);
+        this.descricionPercorrido = bundle.getString(Constantes.DESCRICION_PERCORRIDO);
+        this.idEdificio = bundle.getInt(Constantes.ID_EDIFICIO);
+        this.idEdificio = bundle.getInt(Constantes.ID_EDIFICIO);
+        this.modo = (EModoMapa) getIntent().getSerializableExtra(Constantes.MODO);
 
         //EditText
         this.editTextNome = this.findViewById(R.id.editTextNome);
@@ -73,7 +72,9 @@ public class DetallePercorridoActivity extends AppCompatActivity {
                 gardarInformacionPercorrido();
             }
         });
-        if (this.modo != null && Constantes.MODIFICACION.equals(this.modo)) {
+        if (this.modo != null
+                && (this.modo.equals(EModoMapa.EDICION)
+                        || this.modo.equals(EModoMapa.CREAR_PERCORRIDO))) {
             botonGardar.setVisibility(View.VISIBLE);
         }
         else {
@@ -82,7 +83,7 @@ public class DetallePercorridoActivity extends AppCompatActivity {
     }
 
     private void activarTexto(EditText editText) {
-        boolean activar = this.modo != null && (Constantes.CREACION.equals(this.modo) || Constantes.MODIFICACION.equals(this.modo));
+        boolean activar = this.modo != null && (this.modo.equals(EModoMapa.CREAR_PERCORRIDO) || this.modo.equals(EModoMapa.EDICION));
         editText.setEnabled(activar);
     }
 
@@ -93,16 +94,14 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         Percorrido percorrido = new Percorrido(this.idPercorrido, this.nomePercorrido, this.descricionPercorrido, this.idEdificio);
 
         String novoNome = this.editTextNome.getText().toString();
-        if (novoNome != null
-                && !novoNome.isEmpty()
+        if (!novoNome.isEmpty()
                 && !this.nomePercorrido.equals(novoNome)) {
             percorrido.setNome(novoNome);
             cambio = true;
         }
 
         String novaDescricion = this.editTextDescricion.getText().toString();
-        if (novaDescricion != null
-                && !novaDescricion.isEmpty()
+        if (!novaDescricion.isEmpty()
                 && !this.descricionPercorrido.equals(novaDescricion)) {
             percorrido.setDescricion(novaDescricion);
             cambio = true;
@@ -112,7 +111,7 @@ public class DetallePercorridoActivity extends AppCompatActivity {
             this.gardarPercorrido.setDetallePercorridoActivity(this);
             GardarPercorridoParam gpp = new GardarPercorridoParam();
             gpp.setPercorrido(percorrido);
-            gpp.setListaPoi(new ArrayList<PuntoInterese>(1));
+            gpp.setListaPoi(this.listaPuntoInterese);
             this.gardarPercorrido.execute(gpp);
         }
     }

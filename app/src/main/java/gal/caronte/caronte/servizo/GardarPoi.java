@@ -65,11 +65,8 @@ public class GardarPoi extends AsyncTask<PuntoInterese, Void, Short> {
 
     @Override
     protected void onPostExecute(Short idPoi) {
-        //TODO
-//        Intent intent = new Intent(this.detallePoiActivity, MapaActivity.class);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        this.mapaActivity.actualizarPoi(idPoi);
-//        this.detallePoiActivity.startActivity(intent);
+//        this.detallePoiActivity.finish();
+        this.detallePoiActivity.onBackPressed();
     }
 
     public void setDetallePoiActivity(DetallePoiActivity detallePoiActivity) {

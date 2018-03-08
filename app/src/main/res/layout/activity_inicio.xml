@@ -3,59 +3,124 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="gal.caronte.caronte.activity.InicioActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbarInicio"
+    <TextView
+        android:id="@+id/textViewCaronte"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"
-        android:theme="@style/ToolBar"
-        app:theme="@style/ToolBar"/>
-
-    <LinearLayout android:id="@+id/lytBotons"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@+id/toolbarInicio">
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="@string/app_name"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/colorAccent"
+        android:textSize="44sp"
+        tools:text="@string/app_name" />
+
+    <RelativeLayout
+        android:id="@+id/lytBotons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewCaronte"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="26dp"
+        android:orientation="horizontal">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/boton_login"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
 
-        <Button
-            android:id="@+id/boton_logout"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/logout"
-            android:textColor="@color/colorPrimary" />
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/boton_desconectar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/desconectar"
-            android:textColor="@color/colorPrimary" />
+            <Button
+                android:id="@+id/boton_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/logout"
+                android:textColor="@color/colorPrimary" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/boton_desconectar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/desconectar"
+                android:textColor="@color/colorPrimary" />
 
-    <Spinner
-        android:id="@+id/spinner_contas"
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textViewContaGoogle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lytBotons"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="13dp"
+        android:text="@string/sen_conta_google_selecionada"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18sp"
+        tools:text="@string/sen_conta_google_selecionada" />
+
+    <TextView
+        android:id="@+id/textViewNomeContaGoogle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewContaGoogle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="13dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18sp"
+        tools:text="@string/sen_conta_google_selecionada" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutSitum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|start"
-        android:layout_below="@+id/lytBotons"
-        android:textColor="@color/branco" />
+        android:layout_below="@+id/textViewNomeContaGoogle"
+        android:layout_marginTop="50dp">
+
+        <TextView
+            android:id="@+id/textViewContaSitum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:text="@string/conta_seleccionada"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            tools:text="@string/conta_seleccionada" />
+
+        <Spinner
+            android:id="@+id/spinner_contas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/textViewContaSitum"
+            android:textColor="@color/branco" />
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/boton_acceder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/spinner_contas"
-        android:layout_gravity="bottom|center"
+        android:layout_below="@+id/relativeLayoutSitum"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
         android:text="@string/acceder"
-        android:textColor="@color/colorPrimary" />
+        android:textColor="@color/colorPrimary"
+        android:layout_marginTop="40dp" />
 
 </RelativeLayout>

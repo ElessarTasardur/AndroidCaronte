@@ -25,7 +25,7 @@ public class MarcadorCustom {
     }
 
     public Marker getMarcadorGoogle() {
-        return marcadorGoogle;
+        return this.marcadorGoogle;
     }
 
     public void setMarcadorGoogle(Marker marcadorGoogle) {
@@ -33,7 +33,7 @@ public class MarcadorCustom {
     }
 
     public Integer getIdPoi() {
-        return idPoi;
+        return this.idPoi;
     }
 
     public void setIdPoi(Integer idPoi) {
@@ -41,7 +41,7 @@ public class MarcadorCustom {
     }
 
     public Integer getIdPlanta() {
-        return idPlanta;
+        return this.idPlanta;
     }
 
     public void setIdPlanta(Integer idPlanta) {
@@ -53,11 +53,11 @@ public class MarcadorCustom {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MarcadorCustom that = (MarcadorCustom) o;
-        return Objects.equals(idPoi, that.idPoi);
+        return Objects.equals(this.idPoi, that.idPoi);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idPoi);
+        return Objects.hash(this.idPoi);
     }
 }
