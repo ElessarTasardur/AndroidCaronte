@@ -121,6 +121,18 @@ public class Posicion implements Parcelable {
         return Objects.hash(idEdificio, idPlanta, nivel, latitude, lonxitude);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Posicion{");
+        sb.append("idEdificio=").append(idEdificio);
+        sb.append(", idPlanta=").append(idPlanta);
+        sb.append(", nivel=").append(nivel);
+        sb.append(", latitude=").append(latitude);
+        sb.append(", lonxitude=").append(lonxitude);
+        sb.append('}');
+        return sb.toString();
+    }
+
     protected Posicion(Parcel in) {
         this.idEdificio = in.readInt();
         this.idPlanta = in.readInt();

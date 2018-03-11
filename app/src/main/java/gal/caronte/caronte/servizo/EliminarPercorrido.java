@@ -1,8 +1,8 @@
 package gal.caronte.caronte.servizo;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,52 +19,59 @@ import java.util.Arrays;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.activity.DetallePercorridoActivity;
-import gal.caronte.caronte.custom.sw.GardarPercorridoParam;
-import gal.caronte.caronte.activity.MapaActivity;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
- * Created by ElessarTasardur on 12/01/2018.
+ * Created by ElessarTasardur on 10/03/2018.
  */
 
-public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Short> {
+public class EliminarPercorrido extends AsyncTask<Integer, Void, Boolean> {
 
-    private static final String TAG = GardarPercorrido.class.getSimpleName();
+    private static final String TAG = EliminarPercorrido.class.getSimpleName();
 
     private DetallePercorridoActivity detallePercorridoActivity;
 
     @Override
-    protected Short doInBackground(GardarPercorridoParam... params) {
-        GardarPercorridoParam percorridoParam = params[0];
-        Short idPercorrido = null;
+    protected Boolean doInBackground(Integer... params) {
+        Integer idPercorrido = params[0];
+        Log.i(TAG, String.valueOf(idPercorrido));
+        Boolean retorno = null;
         try {
-            final String url = StringUtil.creaString(this.detallePercorridoActivity.getString(R.string.direccion_servidor), this.detallePercorridoActivity.getString(R.string.direccion_servizo_gardar_percorrido));
+            final String url = StringUtil.creaString(this.detallePercorridoActivity.getString(R.string.direccion_servidor), this.detallePercorridoActivity.getString(R.string.direccion_servizo_eliminar_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<GardarPercorridoParam> entity = new HttpEntity<>(percorridoParam, headers);
+            HttpEntity<Integer> entity = new HttpEntity<>(idPercorrido, headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
-            idPercorrido = mapper.convertValue(resource, new TypeReference<Short>() { });
+            retorno = mapper.convertValue(resource, new TypeReference<Boolean>() { });
 
         }
         catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        Log.i(TAG, StringUtil.creaString("PercorridoParam gardado con identificador ", idPercorrido));
+        Log.i(TAG, StringUtil.creaString("Percorrido eliminado ", retorno));
 
-        return idPercorrido;
+        return retorno;
     }
 
     @Override
-    protected void onPostExecute(Short idPercorrido) {
-//        this.detallePercorridoActivity.finish();
+    protected void onPostExecute(Boolean correcto) {
+        String mensaxe;
+        if (correcto == null
+                || !correcto) {
+            mensaxe = this.detallePercorridoActivity.getString(R.string.eliminar_percorrido_erro);
+        }
+        else {
+            mensaxe = this.detallePercorridoActivity.getString(R.string.eliminar_percorrido_correcto);
+        }
+        Toast.makeText(this.detallePercorridoActivity, mensaxe, Toast.LENGTH_SHORT).show();
         this.detallePercorridoActivity.onBackPressed();
     }
 

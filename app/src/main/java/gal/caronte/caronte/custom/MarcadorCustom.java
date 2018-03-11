@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.Marker;
 
 import java.util.Objects;
 
+import gal.caronte.caronte.custom.sw.PuntoInterese;
+
 /**
  * Created by ElessarTasardur on 16/11/2017.
  */
@@ -11,6 +13,7 @@ import java.util.Objects;
 public class MarcadorCustom {
 
     private Marker marcadorGoogle;
+    private PuntoInterese poi;
     private Integer idPoi;
     private Integer idPlanta;
 
@@ -18,10 +21,11 @@ public class MarcadorCustom {
         super();
     }
 
-    public MarcadorCustom(Integer idPoi, Integer idPlanta) {
+    public MarcadorCustom(Integer idPoi, Integer idPlanta, PuntoInterese poi) {
         super();
         this.idPoi = idPoi;
         this.idPlanta = idPlanta;
+        this.poi = poi;
     }
 
     public Marker getMarcadorGoogle() {
@@ -30,6 +34,14 @@ public class MarcadorCustom {
 
     public void setMarcadorGoogle(Marker marcadorGoogle) {
         this.marcadorGoogle = marcadorGoogle;
+    }
+
+    public PuntoInterese getPoi() {
+        return this.poi;
+    }
+
+    public void setPoi(PuntoInterese poi) {
+        this.poi = poi;
     }
 
     public Integer getIdPoi() {

@@ -19,9 +19,7 @@ import java.util.List;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.activity.InicioActivity;
-import gal.caronte.caronte.activity.MapaActivity;
 import gal.caronte.caronte.custom.sw.EdificioCustom;
-import gal.caronte.caronte.custom.sw.Percorrido;
 import gal.caronte.caronte.util.StringUtil;
 
 /**

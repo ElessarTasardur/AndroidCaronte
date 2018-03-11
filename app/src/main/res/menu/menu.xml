@@ -11,7 +11,7 @@
         android:visible="false"
         app:showAsAction="always" />
 
-    <!-- Mostrar crear percorrido -->
+    <!-- Mostrar crpercorridoParamrido -->
     <item
         android:id="@+id/accion_crear_percorrido"
         android:icon="@drawable/ic_refresh_black_24dp"

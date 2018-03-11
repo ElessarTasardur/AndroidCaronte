@@ -57,6 +57,16 @@
         tools:text="@string/edicion_descricion" />
 
     <Button
+        android:id="@+id/buttonEliminar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/buttonGardar"
+        android:text="@string/boton_eliminar"
+        android:textColor="@color/colorPrimary"
+        tools:text="@string/boton_eliminar" />
+
+    <Button
         android:id="@+id/buttonGardar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

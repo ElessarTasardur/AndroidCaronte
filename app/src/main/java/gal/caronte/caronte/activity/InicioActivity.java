@@ -36,6 +36,7 @@ import gal.caronte.caronte.custom.sw.EdificioCustom;
 import gal.caronte.caronte.servizo.ComprobarUsuarioGoogle;
 import gal.caronte.caronte.servizo.RecuperarConta;
 import gal.caronte.caronte.servizo.RecuperarEdificio;
+import gal.caronte.caronte.servizo.RecuperarPuntoInteresePercorrido;
 import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.StringUtil;
 
@@ -67,6 +68,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
     private TextView tvNomeGoogle;
 
     private ProgressDialog progressDialog;
+
+    private List<Conta> listaContaPublica;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +106,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                         new ResultCallback<Status>() {
                             @Override
                             public void onResult(@NonNull Status status) {
-                                updateUI(false);
+                                actualizarVista(false);
                             }
                         });
             }
@@ -118,7 +121,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                         new ResultCallback<Status>() {
                             @Override
                             public void onResult(@NonNull Status status) {
-                                updateUI(false);
+                                actualizarVista(false);
                             }
                         });
             }
@@ -148,6 +151,22 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                     startActivity(intent);
                 }
             }
+        });
+
+        this.spinnerContas = findViewById(R.id.spinner_contas);
+        this.spinnerContas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (InicioActivity.this.listaEdificio != null) {
+                    botonAcceder.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                //Non se fai nada
+            }
+
         });
 
         this.tvGoogle = findViewById(R.id.textViewContaGoogle);
@@ -197,17 +216,17 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
                 comprobarUsuarioGoogle.execute(idToken);
 
             }
-            updateUI(true);
+            actualizarVista(true);
         }
         else {
             //Usuario non logueado --> Desconectado
-            updateUI(false);
+            actualizarVista(false);
             hideProgressDialog();
         }
     }
 
-    private void updateUI(boolean signedIn) {
-        if (signedIn) {
+    private void actualizarVista(boolean loginCorrecto) {
+        if (loginCorrecto) {
             this.botonLogin.setVisibility(View.GONE);
             this.botonLogout.setVisibility(View.VISIBLE);
             this.botonDesconectar.setVisibility(View.VISIBLE);
@@ -216,6 +235,9 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             this.botonLogin.setVisibility(View.VISIBLE);
             this.botonLogout.setVisibility(View.GONE);
             this.botonDesconectar.setVisibility(View.GONE);
+
+            this.usuarioEdificio = null;
+            amosarListaConta(this.listaContaPublica);
 
             this.tvGoogle.setText(getString(R.string.sen_conta_google_selecionada));
             this.tvNomeGoogle.setText("");
@@ -232,7 +254,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
     protected void onStart() {
         super.onStart();
 
-        recuperarListaConta();
+        actualizarVista(false);
+        recuperarListaConta(null);
         recuperarListaEdificio();
 
     }
@@ -253,10 +276,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         }
     }
 
-    private void recuperarListaConta() {
+    private void recuperarListaConta(String idUsuario) {
         this.recuperarConta = new RecuperarConta();
         this.recuperarConta.setInicioActivity(this);
-        this.recuperarConta.execute();
+        this.recuperarConta.execute(idUsuario);
     }
 
     private void recuperarListaEdificio() {
@@ -265,26 +288,16 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         this.recuperarEdificio.execute();
     }
 
-    public void mostrarListaConta(List<Conta> listaConta) {
+    public void amosarListaConta(List<Conta> listaConta) {
 
-        this.spinnerContas = findViewById(R.id.spinner_contas);
-        this.spinnerContas.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, listaConta));
+        if (this.listaContaPublica == null
+                && this.usuarioEdificio == null) {
+            this.listaContaPublica = listaConta;
+        }
 
-        this.spinnerContas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (InicioActivity.this.listaEdificio != null) {
-                    botonAcceder.setEnabled(true);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                //Non se fai nada
-            }
-
-        });
-
+        if (listaConta != null) {
+            this.spinnerContas.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, listaConta));
+        }
     }
 
     public void setUsuarioCorrecto(ComprobarLoginGoogleCustom usuarioCorrecto) {
@@ -293,10 +306,13 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         //Se o obxecto devolto e nulo ou o usuario non e correcto, facemos logout
         if (usuarioCorrecto == null
                 || usuarioCorrecto.getIdUsuario() == null) {
+            this.usuarioEdificio = null;
+            amosarListaConta(this.listaContaPublica);
             this.botonLogout.performClick();
         }
         else {
             this.usuarioEdificio = new UsuarioEdificioCustom(usuarioCorrecto.getIdUsuario(), this.nomeMostrar, usuarioCorrecto.getListaIdEdificioAdministrador());
+            recuperarListaConta(usuarioCorrecto.getIdUsuario().toString());
         }
     }
 

@@ -116,9 +116,15 @@ public class PuntoInterese implements Parcelable {
                 && Objects.equals(this.posicion, other.posicion);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public String toString() {
+//        return this.nome;
+//    }
+
+
     @Override
     public String toString() {
         return this.nome;

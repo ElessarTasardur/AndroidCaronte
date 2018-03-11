@@ -2,6 +2,7 @@ package gal.caronte.caronte.servizo;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,51 +19,61 @@ import java.util.Arrays;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.activity.DetallePoiActivity;
-import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
- * Created by ElessarTasardur on 05/03/2018.
+ * Created by ElessarTasardur on 10/03/2018.
  */
 
-public class GardarPoi extends AsyncTask<PuntoInterese, Void, Short> {
+public class EliminarPoi extends AsyncTask<Integer, Void, Boolean> {
 
-    private static final String TAG = GardarPoi.class.getSimpleName();
+    private static final String TAG = EliminarPoi.class.getSimpleName();
 
     private DetallePoiActivity detallePoiActivity;
 
     @Override
-    protected Short doInBackground(PuntoInterese... params) {
-        PuntoInterese poiParam = params[0];
-        Short idPoi = null;
+    protected Boolean doInBackground(Integer... params) {
+        Integer idPoi = params[0];
+        Log.i(TAG, String.valueOf(idPoi));
+        Boolean retorno = null;
         try {
-            final String url = StringUtil.creaString(this.detallePoiActivity.getString(R.string.direccion_servidor), this.detallePoiActivity.getString(R.string.direccion_servizo_gardar_poi));
+            final String url = StringUtil.creaString(this.detallePoiActivity.getString(R.string.direccion_servidor), this.detallePoiActivity.getString(R.string.direccion_servizo_eliminar_poi));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<PuntoInterese> entity = new HttpEntity<>(poiParam, headers);
+            HttpEntity<Integer> entity = new HttpEntity<>(idPoi, headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
-            idPoi = mapper.convertValue(resource, new TypeReference<Short>() { });
+            retorno = mapper.convertValue(resource, new TypeReference<Boolean>() { });
 
         }
         catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        Log.i(TAG, StringUtil.creaString("Poi gardado con identificador ", idPoi));
+        Log.i(TAG, StringUtil.creaString("Eliminado POI con identificador ", idPoi));
 
-        return idPoi;
+        return retorno;
     }
 
     @Override
-    protected void onPostExecute(Short idPoi) {
-//        this.detallePoiActivity.finish();
+    protected void onPostExecute(Boolean correcto) {
+        String mensaxe;
+        if (correcto == null) {
+            mensaxe = this.detallePoiActivity.getString(R.string.eliminar_poi_erro);
+        }
+        else if (correcto) {
+            mensaxe = this.detallePoiActivity.getString(R.string.eliminar_poi_correcto);
+        }
+        else {
+            mensaxe = this.detallePoiActivity.getString(R.string.eliminar_poi_en_percorrido);
+        }
+        Toast.makeText(this.detallePoiActivity, mensaxe, Toast.LENGTH_SHORT).show();
         this.detallePoiActivity.onBackPressed();
     }
 

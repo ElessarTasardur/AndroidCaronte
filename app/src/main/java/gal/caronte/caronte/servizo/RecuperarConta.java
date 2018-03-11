@@ -35,9 +35,14 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
     @Override
     protected List<Conta> doInBackground(String... params) {
 
+        String idUsuario = null;
+        if (params != null
+                && params.length == 1) {
+            idUsuario = params[0];
+        }
+
         List<Conta> listaContas = null;
         try {
-            final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_contas));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -45,7 +50,17 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+            ResponseEntity<Object> response;
+            if (idUsuario != null) {
+                Log.d(TAG, StringUtil.creaString("Recuperando contas para o idUsuario ", idUsuario));
+                final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_contas_usuario));
+                response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idUsuario);
+            }
+            else {
+                Log.d(TAG, "Recuperando contas publicas");
+                final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_contas));
+                response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+            }
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
@@ -62,7 +77,7 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
     @Override
     protected void onPostExecute(List<Conta> listaContas) {
         Log.i(TAG, String.valueOf(listaContas));
-        this.inicioActivity.mostrarListaConta(listaContas);
+        this.inicioActivity.amosarListaConta(listaContas);
     }
 
     public void setInicioActivity(InicioActivity inicioActivity) {

@@ -1,4 +1,4 @@
-package gal.caronte.caronte.custom.sw;
+package gal.caronte.caronte.custom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import gal.caronte.caronte.custom.MarcadorCustom;
  * Created by ElessarTasardur on 10/01/2018.
  */
 
-public class Percorrido {
+public class PercorridoCustom {
 
     private Integer idPercorrido;
     private String nome;
@@ -17,11 +17,11 @@ public class Percorrido {
     private Integer idEdificio;
     private List<MarcadorCustom> listaPIP = new ArrayList<>();
 
-    public Percorrido() {
+    public PercorridoCustom() {
         super();
     }
 
-    public Percorrido(Integer idPercorrido, String nome, String descricion, Integer idEdificio) {
+    public PercorridoCustom(Integer idPercorrido, String nome, String descricion, Integer idEdificio) {
         super();
         this.idPercorrido = idPercorrido;
         this.nome = nome;
@@ -103,4 +103,5 @@ public class Percorrido {
     public String toString() {
         return this.nome;
     }
+
 }

@@ -20,7 +20,7 @@ import java.util.List;
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.PuntoInteresePosicion;
 import gal.caronte.caronte.util.StringUtil;
-import gal.caronte.caronte.view.SpinnerPercorrido;
+import gal.caronte.caronte.view.SelectorPoiPercorrido;
 
 /**
  * Created by ElessarTasardur on 10/01/2018.
@@ -30,7 +30,7 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
     private static final String TAG = RecuperarPuntoInteresePercorrido.class.getSimpleName();
 
-    private SpinnerPercorrido spinnerPercorrido;
+    private SelectorPoiPercorrido selectorPoiPercorrido;
 
     @Override
     protected List<PuntoInteresePosicion> doInBackground(String... params) {
@@ -38,7 +38,7 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
         List<PuntoInteresePosicion> listaPIP = null;
         try {
-            final String url = StringUtil.creaString( this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servidor), this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servizo_recuperar_puntos_interese_percorrido));
+            final String url = StringUtil.creaString(this.selectorPoiPercorrido.getMapaActivity().getString(R.string.direccion_servidor), this.selectorPoiPercorrido.getMapaActivity().getString(R.string.direccion_servizo_recuperar_puntos_interese_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -64,10 +64,10 @@ public class RecuperarPuntoInteresePercorrido extends AsyncTask<String, Void, Li
 
     @Override
     protected void onPostExecute(List<PuntoInteresePosicion> listaPIP) {
-        this.spinnerPercorrido.asociarPuntosPercorrido(listaPIP);
+        this.selectorPoiPercorrido.asociarPuntosPercorrido(listaPIP);
     }
 
-    public void setSpinnerPercorrido(SpinnerPercorrido spinnerPercorrido) {
-        this.spinnerPercorrido = spinnerPercorrido;
+    public void setSelectorPoiPercorrido(SelectorPoiPercorrido selectorPoiPercorrido) {
+        this.selectorPoiPercorrido = selectorPoiPercorrido;
     }
 }

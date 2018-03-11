@@ -9,6 +9,8 @@ import android.widget.EditText;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
+import gal.caronte.caronte.servizo.EliminarPercorrido;
+import gal.caronte.caronte.servizo.EliminarPoi;
 import gal.caronte.caronte.servizo.GardarPoi;
 import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.EModoMapa;
@@ -61,15 +63,38 @@ public class DetallePoiActivity extends AppCompatActivity {
                 gardarInformacionPoi();
             }
         });
+
+        Button botonEliminar = this.findViewById(R.id.buttonEliminar);
+        botonEliminar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eliminarPoi();
+            }
+        });
+
         if (this.modo != null
-                && (this.modo.equals(EModoMapa.EDICION)
-                        || this.modo.equals(EModoMapa.CREAR_POI))) {
+                && this.modo.equals(EModoMapa.EDICION)) {
             botonGardar.setVisibility(View.VISIBLE);
+            if (this.poi.getIdPuntoInterese() != null) {
+                botonEliminar.setVisibility(View.VISIBLE);
+            }
+        }
+        else if (this.modo != null
+                && this.modo.equals(EModoMapa.CREAR_POI)) {
+            botonGardar.setVisibility(View.VISIBLE);
+            botonEliminar.setVisibility(View.INVISIBLE);
         }
         else {
             botonGardar.setVisibility(View.INVISIBLE);
+            botonEliminar.setVisibility(View.INVISIBLE);
         }
 
+    }
+
+    private void eliminarPoi() {
+        EliminarPoi eliminarPoi = new EliminarPoi();
+        eliminarPoi.setDetallePoiActivity(this);
+        eliminarPoi.execute(this.poi.getIdPuntoInterese());
     }
 
     private void activarTexto(EditText editText) {

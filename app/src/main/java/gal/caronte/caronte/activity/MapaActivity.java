@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
@@ -68,7 +70,6 @@ import gal.caronte.caronte.custom.UsuarioEdificioCustom;
 import gal.caronte.caronte.custom.sw.EdificioCustom;
 import gal.caronte.caronte.custom.sw.Posicion;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
-import gal.caronte.caronte.servizo.GardarPercorrido;
 import gal.caronte.caronte.servizo.RecuperarEdificioSitum;
 import gal.caronte.caronte.servizo.RecuperarMapa;
 import gal.caronte.caronte.servizo.RecuperarPoi;
@@ -78,7 +79,7 @@ import gal.caronte.caronte.util.EModoMapa;
 import gal.caronte.caronte.util.PermisosUtil;
 import gal.caronte.caronte.util.StringUtil;
 import gal.caronte.caronte.view.InfoWindowAdapterGuiado;
-import gal.caronte.caronte.view.SpinnerPercorrido;
+import gal.caronte.caronte.view.SelectorPoiPercorrido;
 
 /**
  * Created by ElessarTasardur on 08/10/2017.
@@ -115,7 +116,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private Circle circle;
+//    private Circle circle;
+    private GroundOverlay imaxePosicion;
+    private GroundOverlayOptions gooPosicion;
 
     private EdificioSitumCustom edificioSitumCustom;
     private String idEdificioExterno;
@@ -133,14 +136,16 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Polyline marcaPercorrido;
 
     //Elementos visuais
-    private SpinnerPercorrido seccionSpinner;
+    private SelectorPoiPercorrido seccionSpinner;
     private ImageButton botonEditar;
+    private ImageButton botonCentrarPosicion;
     private SelectorPiso selectorPiso;
 
     //Variabeis creacion
     private Marker marcadorNovoPoi;
     private Posicion posicionNovoPoi;
-    private List<PuntoInterese> listaNovoPercorrido = new ArrayList<>();
+    private List<MarcadorCustom> listaNovoPercorrido = new ArrayList<>();
+    private List<Integer> listaIdNovoPercorrido = new ArrayList<>();
 
     //Menu lateral
     private DrawerLayout mDrawerLayout;
@@ -184,7 +189,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
-            this.seccionSpinner = new SpinnerPercorrido(this);
+            this.seccionSpinner = new SelectorPoiPercorrido(this);
 
             this.botonEditar = findViewById(R.id.image_button_editar);
             this.botonEditar.setOnClickListener(new View.OnClickListener() {
@@ -198,6 +203,17 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
             });
+
+            this.botonCentrarPosicion = findViewById(R.id.image_button_centrar);
+            this.botonCentrarPosicion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    centrarMapaEnPosicion();
+                }
+            });
+
+            this.gooPosicion = new GroundOverlayOptions()
+                    .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa));
         }
 
     }
@@ -312,14 +328,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //Engadimos a informacion do percorrido ao intent
                     Bundle b = new Bundle();
                     b.putInt(Constantes.ID_EDIFICIO, this.idEdificio);
-                    b.putParcelableArrayList(Constantes.LISTA_PUNTO_INTERESE, (ArrayList<? extends Parcelable>) this.listaNovoPercorrido);
 
-                    PuntoInterese poi = new PuntoInterese();
-                    poi.setIdPuntoInterese(Constantes.ID_FICTICIO);
-                    poi.setNome("");
-                    poi.setDescricion("");
-                    poi.setPosicion(this.posicionNovoPoi);
-                    b.putParcelable(Constantes.PUNTO_INTERESE, poi);
+                    List<PuntoInterese> listaPoi = new ArrayList<>(this.listaNovoPercorrido.size());
+                    for (MarcadorCustom mc : this.listaNovoPercorrido) {
+                        listaPoi.add(mc.getPoi());
+                    }
+                    b.putParcelableArrayList(Constantes.LISTA_PUNTO_INTERESE, (ArrayList<? extends Parcelable>) listaPoi);
 
                     intent.putExtras(b);
 
@@ -341,9 +355,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 //Botamos atras o novo percorrido
                 if (!this.listaNovoPercorrido.isEmpty()) {
-                    //TODO eliminar as unions entre POIs que se fixeron para mostrar o percorrido
-
+                    ocultarPercorrido();
                     this.listaNovoPercorrido.clear();
+                    this.listaIdNovoPercorrido.clear();
                 }
 
                 cambiarTituloActividade();
@@ -421,6 +435,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             public boolean onMarkerClick(Marker marker) {
                 marker.showInfoWindow();
                 MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 250, null);
+                
+                if (MapaActivity.this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                    engadirPoiPercorrido(marker);
+                }
+                
                 return true;
             }
         });
@@ -465,6 +484,40 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private void engadirPoiPercorrido(Marker marker) {
+
+        MarcadorCustom mcElixido = null;
+        for (MarcadorCustom mc : this.listaMarcadores) {
+            if (mc.getMarcadorGoogle().equals(marker)) {
+                mcElixido = mc;
+                break;
+            }
+        }
+
+        if (mcElixido != null) {
+            int tamanhoLista = this.listaNovoPercorrido.size();
+
+            if (tamanhoLista > 0) {
+                MarcadorCustom mcPrevio = this.listaNovoPercorrido.get(this.listaNovoPercorrido.size() - 1);
+                if (mcPrevio.equals(mcElixido)) {
+                    //Non se pode escoller duas veces consecutivas o mesmo POI
+                    Toast.makeText(this, getString(R.string.poi_consecutivo_percorrido), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+            }
+            //Engadense as listas o poi e o seu identificador
+            this.listaNovoPercorrido.add(mcElixido);
+            this.listaIdNovoPercorrido.add(mcElixido.getIdPoi());
+
+            //Amosar percorrido
+            amosarLinhaPercorrido(this.listaNovoPercorrido);
+
+            invalidateOptionsMenu();
+        }
+
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permisos, @NonNull int[] resultados) {
         if (requestCode != CODIGO_SOLICITUDE_PERMISO_LOCALIZACION) {
@@ -493,6 +546,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.map.setMyLocationEnabled(activar);
 
             if (activar) {
+
+                //Ocultar o boton de centrar posicion
+                this.botonCentrarPosicion.setVisibility(View.INVISIBLE);
+
                 if (this.mfusedLocationProviderclient == null) {
                     this.mfusedLocationProviderclient = LocationServices.getFusedLocationProviderClient(this);
                 }
@@ -506,6 +563,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }
                 });
+            }
+            else {
+                //Mostrar o boton de centrar posicion
+                this.botonCentrarPosicion.setVisibility(View.VISIBLE);
             }
 
         }
@@ -594,32 +655,54 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     else if (MapaActivity.this.idPlanta.equals(MapaActivity.this.idPlantaVisibel)
                             && !MapaActivity.this.idPlanta.equals(location.getFloorIdentifier())) {
                         Log.i(TAG, "Cambiamos o piso");
-                        if (imaxeOverlay != null) {
-                            imaxeOverlay.remove();
-                        }
+//                        if (imaxeOverlay != null) {
+//                            imaxeOverlay.remove();
+//                        }
                         recuperarMapa(MapaActivity.this.idPlanta);
                         MapaActivity.this.selectorPiso.cambiarPisoSeleccionado(location.getFloorIdentifier());
                     }
 
+//                    //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
+//                    if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibel)) {
+//                        if (circle == null) {
+//                            Log.i(TAG, "Pintamos novo circulo en " + latLng);
+//                            circle = MapaActivity.this.map.addCircle(new CircleOptions()
+//                                    .center(latLng)
+//                                    .radius(0.5d)
+//                                    .strokeWidth(0f)
+//                                    .fillColor(Color.BLUE)
+//                                    .zIndex(10));
+//                        }
+//                        else {
+//                            Log.i(TAG, "Pintamos circulo xa creado en " + latLng);
+//                            circle.setCenter(latLng);
+//                        }
+//                    }
+//                    else if (circle != null) {
+//                        circle.remove();
+//                        circle = null;
+//                    }
                     //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
                     if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibel)) {
-                        if (circle == null) {
+                        if (MapaActivity.this.imaxePosicion == null) {
                             Log.i(TAG, "Pintamos novo circulo en " + latLng);
-                            circle = MapaActivity.this.map.addCircle(new CircleOptions()
-                                    .center(latLng)
-                                    .radius(0.5d)
-                                    .strokeWidth(0f)
-                                    .fillColor(Color.BLUE)
-                                    .zIndex(10));
+
+                            MapaActivity.this.gooPosicion.bearing((float) location.getBearing().degrees())
+                                    .position(latLng, 1);
+
+                            MapaActivity.this.imaxePosicion = MapaActivity.this.map.addGroundOverlay(MapaActivity.this.gooPosicion);
                         }
                         else {
                             Log.i(TAG, "Pintamos circulo xa creado en " + latLng);
-                            circle.setCenter(latLng);
+                            MapaActivity.this.gooPosicion.bearing((float) location.getBearing().degrees())
+                                    .position(latLng, 1);
+                            MapaActivity.this.imaxePosicion.remove();
+                            MapaActivity.this.imaxePosicion = MapaActivity.this.map.addGroundOverlay(MapaActivity.this.gooPosicion);
                         }
                     }
-                    else if (circle != null) {
-                        circle.remove();
-                        circle = null;
+                    else if (MapaActivity.this.imaxePosicion != null) {
+                        MapaActivity.this.imaxePosicion.remove();
+                        MapaActivity.this.imaxePosicion = null;
                     }
 
                     MapaActivity.this.idPlanta = location.getFloorIdentifier();
@@ -637,9 +720,13 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (!MapaActivity.this.googleActivado) {
                         Toast.makeText(MapaActivity.this, getString(R.string.mensaxe_abandonar_edificio), Toast.LENGTH_LONG).show();
                         activarLocalizacionGoogle(true);
-                        if (circle != null) {
-                            circle.remove();
-                            circle = null;
+//                        if (circle != null) {
+//                            circle.remove();
+//                            circle = null;
+//                        }
+                        if (MapaActivity.this.imaxePosicion != null) {
+                            MapaActivity.this.imaxePosicion.remove();
+                            MapaActivity.this.imaxePosicion = null;
                         }
                     }
                 }
@@ -719,8 +806,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onStop() {
-//        deterLocalizacion();
-//        activarLocalizacionGoogle(false);
+        deterLocalizacion();
+        activarLocalizacionGoogle(false);
         super.onStop();
     }
 
@@ -774,12 +861,21 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Agrega a superposición ao mapa e conserva un controlador para o obxecto GroundOverlay.
         this.imaxeOverlay = this.map.addGroundOverlay(gooMapa);
 
+
 //        amosarTodosPoiPlanta();
     }
 
     private void amosarMapaPlanta(Bitmap mapa) {
         this.imaxeOverlay.setImage(BitmapDescriptorFactory.fromBitmap(mapa));
 //        amosarTodosPoiPlanta();
+    }
+
+    private void centrarMapaEnPosicion() {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(this.posicionActual.getPosition().getCoordinate().getLatitude(), this.posicionActual.getPosition().getCoordinate().getLongitude()))
+                .zoom(this.map.getCameraPosition().zoom)
+                .build();
+        this.map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     //POI
@@ -820,7 +916,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             for (PuntoInterese poi : listaPoi) {
                 Posicion posicion = poi.getPosicion();
                 //Se non conten o poi debemos crear o marcador
-                marcadorCustom = new MarcadorCustom(poi.getIdPuntoInterese(), posicion.getIdPlanta());
+                marcadorCustom = new MarcadorCustom(poi.getIdPuntoInterese(), posicion.getIdPlanta(), poi);
                 if (!this.listaMarcadores.contains(marcadorCustom)) {
                     latLng = new LatLng(posicion.getLatitude(), posicion.getLonxitude());
                     Float cor = this.mapaCorMarcador.get(posicion.getNivel());
@@ -870,14 +966,22 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.todosPoisVisibeis = true;
     }
 
-    private void amosarPoiPiso() {
+    public void amosarPoiPiso() {
         for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
-            marcadorCustom.getMarcadorGoogle().setVisible(marcadorCustom.getIdPlanta().toString().equals(this.idPlantaVisibel));
+            boolean amosarPoi = false;
+            //Se estamos a crear un percorrido miramos se o marcador esta entre os seleccionados para non borralo
+            if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                amosarPoi = this.listaIdNovoPercorrido.contains(marcadorCustom.getIdPoi());
+            }
+            if (!amosarPoi) {
+                amosarPoi = marcadorCustom.getIdPlanta().toString().equals(this.idPlantaVisibel);
+            }
+            marcadorCustom.getMarcadorGoogle().setVisible(amosarPoi);
         }
         this.todosPoisVisibeis = false;
     }
 
-    //Percorrido
+    //PercorridoParam
     public void ocultarPercorrido() {
         //Ocultar as posibeis marcas
         if (MapaActivity.this.marcaPercorrido != null) {
@@ -889,7 +993,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void amosarPercorrido(List<MarcadorCustom> listaPIP) {
 
         List<MarcadorCustom> listaAmosar = new ArrayList<>(listaPIP.size());
-        //Mostramos os marcadores
+        //Amosamos os marcadores
         for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
             boolean amosar = listaPIP.contains(marcadorCustom);
             marcadorCustom.getMarcadorGoogle().setVisible(amosar);
@@ -898,14 +1002,17 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        //Mostramos o percorrido
+        amosarLinhaPercorrido(listaAmosar);
+
+    }
+
+    private void amosarLinhaPercorrido(List<MarcadorCustom> listaAmosar) {
+        //Amosamos o percorrido
         PolylineOptions polyLineOptions = new PolylineOptions().color(Color.GREEN).width(4f);
         for (MarcadorCustom mc : listaAmosar) {
             polyLineOptions.add(new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude));
         }
-
         this.marcaPercorrido = this.map.addPolyline(polyLineOptions);
-
     }
 
     public void actualizarPercorrido(Short idPercorrido) {
@@ -921,24 +1028,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.recuperarPoi = new RecuperarPoi();
         this.recuperarPoi.setMapaActivity(this);
         this.recuperarPoi.execute(idEdificioExterno);
-    }
-
-    private void gardarPercorrido() {
-//        this.gardarPercorrido = new GardarPercorrido();
-//
-//        //TODO probas
-//        GardarPercorridoParam gpp = new GardarPercorridoParam();
-//        gpp.setPercorrido(new Percorrido(null, "proba1", "proba1",  2));
-//
-//        List<PuntoInterese> listaPoi = new ArrayList<>(2);
-//        PuntoInterese poi1 = new PuntoInterese(7, null, null, 2, 3506,1, 43.28966F, -8.39335F);
-//        PuntoInterese poi2 = new PuntoInterese(12, null, null, 2, 3506,1, 43.28962F, -8.39331F);
-//        listaPoi.add(poi1);
-//        listaPoi.add(poi2);
-//        gpp.setListaPoi(listaPoi);
-//
-//        this.gardarPercorrido.setDetallePercorridoActivity(this);
-//        this.gardarPercorrido.execute(gpp);
     }
 
     public void guiar(Marker marcador) {
@@ -1067,4 +1156,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    public EModoMapa getModoMapa() {
+        return this.modoMapa;
+    }
 }

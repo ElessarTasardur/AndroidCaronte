@@ -18,7 +18,8 @@ import gal.caronte.caronte.activity.DetallePercorridoActivity;
 import gal.caronte.caronte.activity.DetallePoiActivity;
 import gal.caronte.caronte.activity.MapaActivity;
 import gal.caronte.caronte.custom.MarcadorCustom;
-import gal.caronte.caronte.custom.sw.Percorrido;
+import gal.caronte.caronte.custom.PercorridoCustom;
+import gal.caronte.caronte.custom.sw.PercorridoParam;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.custom.sw.PuntoInteresePosicion;
 import gal.caronte.caronte.servizo.RecuperarPercorrido;
@@ -31,9 +32,9 @@ import gal.caronte.caronte.util.StringUtil;
  * Created by ElessarTasardur on 23/02/2018.
  */
 
-public class SpinnerPercorrido  {
+public class SelectorPoiPercorrido {
 
-    private static final String TAG = SpinnerPercorrido.class.getSimpleName();
+    private static final String TAG = SelectorPoiPercorrido.class.getSimpleName();
 
     //Servizos
     private RecuperarPuntoInteresePercorrido recuperarPuntoInteresePercorrido;
@@ -45,12 +46,12 @@ public class SpinnerPercorrido  {
     private Spinner spinnerPoi;
     private ImageButton botonPoi;
 
-    private Percorrido percorridoSeleccionado;
+    private PercorridoCustom percorridoSeleccionado;
     private PuntoInterese poiSeleccionado;
 
     private MapaActivity mapaActivity;
 
-    public SpinnerPercorrido(MapaActivity mapaActivity) {
+    public SelectorPoiPercorrido(MapaActivity mapaActivity) {
         super();
         this.mapaActivity = mapaActivity;
 
@@ -68,31 +69,31 @@ public class SpinnerPercorrido  {
         this.spinnerPercorrido.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                SpinnerPercorrido.this.percorridoSeleccionado = (Percorrido) SpinnerPercorrido.this.spinnerPercorrido.getSelectedItem();
+                SelectorPoiPercorrido.this.percorridoSeleccionado = (PercorridoCustom) SelectorPoiPercorrido.this.spinnerPercorrido.getSelectedItem();
                 Log.i(TAG, StringUtil.creaString("Seleccionado o percorrido: ", percorridoSeleccionado));
 
-                SpinnerPercorrido.this.mapaActivity.ocultarTodosPoi();
-                SpinnerPercorrido.this.mapaActivity.ocultarPercorrido();
-                if (!Constantes.ID_FICTICIO.equals(SpinnerPercorrido.this.percorridoSeleccionado.getIdPercorrido())) {
-                    if (SpinnerPercorrido.this.percorridoSeleccionado.getListaPIP().isEmpty()) {
-                        recuperarPuntoPercorrido(SpinnerPercorrido.this.percorridoSeleccionado.getIdPercorrido());
+                SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
+                SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
+                if (!Constantes.ID_FICTICIO.equals(SelectorPoiPercorrido.this.percorridoSeleccionado.getIdPercorrido())) {
+                    if (SelectorPoiPercorrido.this.percorridoSeleccionado.getListaPIP().isEmpty()) {
+                        recuperarPuntoPercorrido(SelectorPoiPercorrido.this.percorridoSeleccionado.getIdPercorrido());
                     }
                     else {
-                        SpinnerPercorrido.this.mapaActivity.amosarPercorrido(SpinnerPercorrido.this.percorridoSeleccionado.getListaPIP());
+                        SelectorPoiPercorrido.this.mapaActivity.amosarPercorrido(SelectorPoiPercorrido.this.percorridoSeleccionado.getListaPIP());
                     }
 
                     //Se hai POIs no spinner seleccionamos o primeiro
-                    if (SpinnerPercorrido.this.spinnerPoi.getAdapter() != null
-                            && SpinnerPercorrido.this.spinnerPoi.getAdapter().getCount() > 0) {
-                        SpinnerPercorrido.this.spinnerPoi.setSelection(0);
+                    if (SelectorPoiPercorrido.this.spinnerPoi.getAdapter() != null
+                            && SelectorPoiPercorrido.this.spinnerPoi.getAdapter().getCount() > 0) {
+                        SelectorPoiPercorrido.this.spinnerPoi.setSelection(0);
                     }
 
                     //Mostramos o boton para abrir o detalle
-                    SpinnerPercorrido.this.botonPercorrido.setVisibility(View.VISIBLE);
+                    SelectorPoiPercorrido.this.botonPercorrido.setVisibility(View.VISIBLE);
                 }
                 else {
                     //Ocultamos o boton para abrir o detalle
-                    SpinnerPercorrido.this.botonPercorrido.setVisibility(View.INVISIBLE);
+                    SelectorPoiPercorrido.this.botonPercorrido.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -109,17 +110,17 @@ public class SpinnerPercorrido  {
         this.botonPercorrido.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SpinnerPercorrido.this.mapaActivity, DetallePercorridoActivity.class);
+                Intent intent = new Intent(SelectorPoiPercorrido.this.mapaActivity, DetallePercorridoActivity.class);
 
                 //Engadimos a informacion da conta ao intent
                 Bundle b = new Bundle();
-                b.putInt(Constantes.ID_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getIdPercorrido());
-                b.putString(Constantes.NOME_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getNome());
-                b.putString(Constantes.DESCRICION_PERCORRIDO, SpinnerPercorrido.this.percorridoSeleccionado.getDescricion());
-                b.putInt(Constantes.ID_EDIFICIO, SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio());
+                b.putInt(Constantes.ID_PERCORRIDO, SelectorPoiPercorrido.this.percorridoSeleccionado.getIdPercorrido());
+                b.putString(Constantes.NOME_PERCORRIDO, SelectorPoiPercorrido.this.percorridoSeleccionado.getNome());
+                b.putString(Constantes.DESCRICION_PERCORRIDO, SelectorPoiPercorrido.this.percorridoSeleccionado.getDescricion());
+                b.putInt(Constantes.ID_EDIFICIO, SelectorPoiPercorrido.this.percorridoSeleccionado.getIdEdificio());
 
                 EModoMapa modo;
-                if (SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.percorridoSeleccionado.getIdEdificio())) {
+                if (SelectorPoiPercorrido.this.mapaActivity.comprobarPermisoEdificio(SelectorPoiPercorrido.this.percorridoSeleccionado.getIdEdificio())) {
                     modo = EModoMapa.EDICION;
                 }
                 else {
@@ -130,7 +131,7 @@ public class SpinnerPercorrido  {
                 intent.putExtras(b);
 
                 //Iniciamos a actividade do mapa
-                SpinnerPercorrido.this.mapaActivity.startActivity(intent);
+                SelectorPoiPercorrido.this.mapaActivity.startActivity(intent);
             }
         });
     }
@@ -141,27 +142,27 @@ public class SpinnerPercorrido  {
         this.spinnerPoi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                SpinnerPercorrido.this.poiSeleccionado = (PuntoInterese) SpinnerPercorrido.this.spinnerPoi.getSelectedItem();
-                Log.i(TAG, StringUtil.creaString("Seleccionado o poi: ", SpinnerPercorrido.this.poiSeleccionado));
+                SelectorPoiPercorrido.this.poiSeleccionado = (PuntoInterese) SelectorPoiPercorrido.this.spinnerPoi.getSelectedItem();
+                Log.i(TAG, StringUtil.creaString("Seleccionado o poi: ", SelectorPoiPercorrido.this.poiSeleccionado));
 
-                if (!Constantes.ID_FICTICIO.equals(SpinnerPercorrido.this.poiSeleccionado.getIdPuntoInterese())) {
-                    SpinnerPercorrido.this.mapaActivity.ocultarTodosPoi();
-                    SpinnerPercorrido.this.mapaActivity.ocultarPercorrido();
-                    SpinnerPercorrido.this.mapaActivity.amosarPoi(SpinnerPercorrido.this.poiSeleccionado.getIdPuntoInterese());
+                if (!Constantes.ID_FICTICIO.equals(SelectorPoiPercorrido.this.poiSeleccionado.getIdPuntoInterese())) {
+                    SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
+                    SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
+                    SelectorPoiPercorrido.this.mapaActivity.amosarPoi(SelectorPoiPercorrido.this.poiSeleccionado.getIdPuntoInterese());
 
                     //Se os percorridos estan visibeis seleccionamos o primeiro
-                    if (SpinnerPercorrido.this.spinnerPercorrido.getAdapter() != null
-                            && SpinnerPercorrido.this.spinnerPercorrido.getAdapter().getCount() > 0) {
-                        SpinnerPercorrido.this.spinnerPercorrido.setSelection(0);
+                    if (SelectorPoiPercorrido.this.spinnerPercorrido.getAdapter() != null
+                            && SelectorPoiPercorrido.this.spinnerPercorrido.getAdapter().getCount() > 0) {
+                        SelectorPoiPercorrido.this.spinnerPercorrido.setSelection(0);
                     }
 
                     //Mostramos o boton para abrir o detalle
-                    SpinnerPercorrido.this.botonPoi.setVisibility(View.VISIBLE);
+                    SelectorPoiPercorrido.this.botonPoi.setVisibility(View.VISIBLE);
 
                 }
                 else {
                     //Ocultamos o boton para abrir o detalle
-                    SpinnerPercorrido.this.botonPoi.setVisibility(View.INVISIBLE);
+                    SelectorPoiPercorrido.this.botonPoi.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -178,14 +179,14 @@ public class SpinnerPercorrido  {
         this.botonPoi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SpinnerPercorrido.this.mapaActivity, DetallePoiActivity.class);
+                Intent intent = new Intent(SelectorPoiPercorrido.this.mapaActivity, DetallePoiActivity.class);
 
                 //Engadimos a informacion da conta ao intent
                 Bundle b = new Bundle();
-                b.putParcelable(Constantes.PUNTO_INTERESE, SpinnerPercorrido.this.poiSeleccionado);
+                b.putParcelable(Constantes.PUNTO_INTERESE, SelectorPoiPercorrido.this.poiSeleccionado);
 
                 EModoMapa modo;
-                if (SpinnerPercorrido.this.mapaActivity.comprobarPermisoEdificio(SpinnerPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio())) {
+                if (SelectorPoiPercorrido.this.mapaActivity.comprobarPermisoEdificio(SelectorPoiPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio())) {
                     modo = EModoMapa.EDICION;
                 }
                 else {
@@ -196,7 +197,7 @@ public class SpinnerPercorrido  {
                 intent.putExtras(b);
 
                 //Iniciamos a actividade do mapa
-                SpinnerPercorrido.this.mapaActivity.startActivity(intent);
+                SelectorPoiPercorrido.this.mapaActivity.startActivity(intent);
             }
         });
     }
@@ -272,10 +273,10 @@ public class SpinnerPercorrido  {
             Integer idPercorrido = listaPIP.get(0).getIdPercorrido();
             Adapter adapter = this.spinnerPercorrido.getAdapter();
 
-            Percorrido percorrido = null;
+            PercorridoCustom percorrido = null;
             int n = adapter.getCount();
             for (int i = 0; i < n; i++) {
-                percorrido = (Percorrido) adapter.getItem(i);
+                percorrido = (PercorridoCustom) adapter.getItem(i);
                 if (idPercorrido.equals(percorrido.getIdPercorrido())) {
                     break;
                 }
@@ -289,7 +290,7 @@ public class SpinnerPercorrido  {
                 List<MarcadorCustom> listaMarcadorPIP = new ArrayList<>(listaPIP.size() + 1);
 
                 for (PuntoInteresePosicion pip : listaPIP) {
-                    listaMarcadorPIP.add(new MarcadorCustom(pip.getIdPuntoInterese(), null));
+                    listaMarcadorPIP.add(new MarcadorCustom(pip.getIdPuntoInterese(), null, null));
                 }
 
                 percorrido.setListaPIP(listaMarcadorPIP);
@@ -312,13 +313,18 @@ public class SpinnerPercorrido  {
 
     }
 
-    public void amosarListaPercorrido(List<Percorrido> listaPercorrido) {
+    public void amosarListaPercorrido(List<PercorridoParam> listaPercorrido) {
 
         if (listaPercorrido != null
                 && !listaPercorrido.isEmpty()) {
+            List<PercorridoCustom> listaPercorridoCustom = new ArrayList<>(listaPercorrido.size());
+            for (PercorridoParam percorridoParam : listaPercorrido) {
+                listaPercorridoCustom.add(new PercorridoCustom(percorridoParam.getIdPercorrido(), percorridoParam.getNome(), percorridoParam.getDescricion(), percorridoParam.getIdEdificio()));
+            }
+
             String seleccionar = this.mapaActivity.getString(R.string.seleccionar_percorrido);
-            listaPercorrido.add(0, new Percorrido(Constantes.ID_FICTICIO, seleccionar, seleccionar, null));
-            this.spinnerPercorrido.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPercorrido));
+            listaPercorridoCustom.add(0, new PercorridoCustom(Constantes.ID_FICTICIO, seleccionar, seleccionar, null));
+            this.spinnerPercorrido.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPercorridoCustom));
 
             this.mapaActivity.invalidateOptionsMenu();
         }
@@ -328,13 +334,13 @@ public class SpinnerPercorrido  {
     //Servizos
     private void recuperarPuntoPercorrido(Integer idPercorrido) {
         this.recuperarPuntoInteresePercorrido = new RecuperarPuntoInteresePercorrido();
-        this.recuperarPuntoInteresePercorrido.setSpinnerPercorrido(this);
+        this.recuperarPuntoInteresePercorrido.setSelectorPoiPercorrido(this);
         this.recuperarPuntoInteresePercorrido.execute(idPercorrido.toString());
     }
 
     public void recuperarListaPercorrido(String idEdificioExterno) {
         this.recuperarPercorrido = new RecuperarPercorrido();
-        this.recuperarPercorrido.setSpinnerPercorrido(this);
+        this.recuperarPercorrido.setSelectorPoiPercorrido(this);
         this.recuperarPercorrido.execute(idEdificioExterno);
     }
 

@@ -8,14 +8,14 @@ import java.util.List;
 
 public class GardarPercorridoParam {
 
-    private Percorrido percorrido;
+    private PercorridoParam percorrido;
     private List<PuntoInterese> listaPoi;
 
     public GardarPercorridoParam() {
         super();
     }
 
-    public GardarPercorridoParam(Percorrido percorrido, List<PuntoInterese> poi) {
+    public GardarPercorridoParam(PercorridoParam percorrido, List<PuntoInterese> poi) {
         super();
         this.percorrido = percorrido;
         this.listaPoi = poi;
@@ -24,14 +24,14 @@ public class GardarPercorridoParam {
     /**
      * @return the percorrido
      */
-    public Percorrido getPercorrido() {
+    public PercorridoParam getPercorrido() {
         return this.percorrido;
     }
 
     /**
      * @param percorrido the percorrido to set
      */
-    public void setPercorrido(Percorrido percorrido) {
+    public void setPercorrido(PercorridoParam percorrido) {
         this.percorrido = percorrido;
     }
 
@@ -47,5 +47,14 @@ public class GardarPercorridoParam {
      */
     public void setListaPoi(List<PuntoInterese> listaPoi) {
         this.listaPoi = listaPoi;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("GardarPercorridoParam{");
+        sb.append("percorrido=").append(percorrido);
+        sb.append(", listaPoi=").append(listaPoi);
+        sb.append('}');
+        return sb.toString();
     }
 }

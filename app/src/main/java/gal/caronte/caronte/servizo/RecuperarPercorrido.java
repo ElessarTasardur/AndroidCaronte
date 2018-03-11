@@ -18,28 +18,27 @@ import java.util.Arrays;
 import java.util.List;
 
 import gal.caronte.caronte.R;
-import gal.caronte.caronte.custom.sw.Percorrido;
-import gal.caronte.caronte.activity.MapaActivity;
+import gal.caronte.caronte.custom.sw.PercorridoParam;
 import gal.caronte.caronte.util.StringUtil;
-import gal.caronte.caronte.view.SpinnerPercorrido;
+import gal.caronte.caronte.view.SelectorPoiPercorrido;
 
 /**
  * Created by ElessarTasardur on 10/01/2018.
  */
 
-public class RecuperarPercorrido extends AsyncTask<String, Void, List<Percorrido>> {
+public class RecuperarPercorrido extends AsyncTask<String, Void, List<PercorridoParam>> {
 
     private static final String TAG = RecuperarPercorrido.class.getSimpleName();
 
-    private SpinnerPercorrido spinnerPercorrido;
+    private SelectorPoiPercorrido selectorPoiPercorrido;
 
     @Override
-    protected List<Percorrido> doInBackground(String... params) {
+    protected List<PercorridoParam> doInBackground(String... params) {
         String idEdificioExterno = params[0];
 
-        List<Percorrido> listaPercorrido = null;
+        List<PercorridoParam> listaPercorridoParam = null;
         try {
-            final String url = StringUtil.creaString( this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servidor), this.spinnerPercorrido.getMapaActivity().getString(R.string.direccion_servizo_recuperar_percorridos));
+            final String url = StringUtil.creaString( this.selectorPoiPercorrido.getMapaActivity().getString(R.string.direccion_servidor), this.selectorPoiPercorrido.getMapaActivity().getString(R.string.direccion_servizo_recuperar_percorridos));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -51,24 +50,24 @@ public class RecuperarPercorrido extends AsyncTask<String, Void, List<Percorrido
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
-            listaPercorrido = mapper.convertValue(resource, new TypeReference<List<Percorrido>>() { });
+            listaPercorridoParam = mapper.convertValue(resource, new TypeReference<List<PercorridoParam>>() { });
 
         }
         catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        Log.i(TAG, StringUtil.creaString("Lista de percorridos recuperados para o edificio con id externo ", idEdificioExterno, ": ", listaPercorrido));
+        Log.i(TAG, StringUtil.creaString("Lista de percorridos recuperados para o edificio con id externo ", idEdificioExterno, ": ", listaPercorridoParam));
 
-        return listaPercorrido;
+        return listaPercorridoParam;
     }
 
     @Override
-    protected void onPostExecute(List<Percorrido> listaPercorrido) {
-        this.spinnerPercorrido.amosarListaPercorrido(listaPercorrido);
+    protected void onPostExecute(List<PercorridoParam> listaPercorridoParam) {
+        this.selectorPoiPercorrido.amosarListaPercorrido(listaPercorridoParam);
     }
 
-    public void setSpinnerPercorrido(SpinnerPercorrido spinnerPercorrido) {
-        this.spinnerPercorrido = spinnerPercorrido;
+    public void setSelectorPoiPercorrido(SelectorPoiPercorrido selectorPoiPercorrido) {
+        this.selectorPoiPercorrido = selectorPoiPercorrido;
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import gal.caronte.caronte.custom.Piso;
+import gal.caronte.caronte.util.EModoMapa;
 
 /**
  * Created by dpan on 29/12/2017.
@@ -97,6 +98,11 @@ public class SelectorPiso {
     public void cambiarPisoSeleccionado(String idPlanta) {
 
         this.idPlantaActual = idPlanta;
+
+        if (this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_POI)) {
+            this.mapaActivity.amosarPoiPiso();
+        }
+
         for (Button boton : this.listaBotons) {
 //            if (String.valueOf(boton.getId()).equals(idPlanta)) {
 //                boton.setBackgroundColor();

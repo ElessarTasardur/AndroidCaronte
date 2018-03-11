@@ -10,23 +10,35 @@ import gal.caronte.caronte.util.StringUtil;
 
 public class Conta {
 
+    private Integer idContaSitum;
     private String contaUsuario;
     private String nome;
     private String contrasinal;
+    private Boolean publica;
 
     public Conta() {
         super();
     }
 
-    public Conta(String contaUsuario, String nome, String contrasinal) {
+    public Conta(Integer idContaSitum, String contaUsuario, String nome, String contrasinal, Boolean publica) {
         super();
+        this.idContaSitum = idContaSitum;
         this.contaUsuario = contaUsuario;
         this.nome = nome;
         this.contrasinal = contrasinal;
+        this.publica = publica;
+    }
+
+    public Integer getIdContaSitum() {
+        return this.idContaSitum;
+    }
+
+    public void setIdContaSitum(Integer idContaSitum) {
+        this.idContaSitum = idContaSitum;
     }
 
     public String getContaUsuario() {
-        return contaUsuario;
+        return this.contaUsuario;
     }
 
     public void setContaUsuario(String contaUsuario) {
@@ -34,7 +46,7 @@ public class Conta {
     }
 
     public String getNome() {
-        return nome;
+        return this.nome;
     }
 
     public void setNome(String nome) {
@@ -42,11 +54,19 @@ public class Conta {
     }
 
     public String getContrasinal() {
-        return contrasinal;
+        return this.contrasinal;
     }
 
     public void setContrasinal(String contrasinal) {
         this.contrasinal = contrasinal;
+    }
+
+    public Boolean getPublica() {
+        return this.publica;
+    }
+
+    public void setPublica(Boolean publica) {
+        this.publica = publica;
     }
 
     /**
@@ -54,7 +74,7 @@ public class Conta {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.contaUsuario, this.nome);
+        return Objects.hash(this.idContaSitum);
     }
 
     /**
@@ -72,8 +92,7 @@ public class Conta {
             return false;
         }
         final Conta other = (Conta) obj;
-        return Objects.equals(this.contaUsuario, other.contaUsuario)
-                && Objects.equals(this.nome, other.nome);
+        return Objects.equals(this.idContaSitum, other.idContaSitum);
     }
 
     /**
