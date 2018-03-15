@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.http.HttpBasicAuthentication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -43,6 +44,7 @@ public class EliminarPercorrido extends AsyncTask<Integer, Void, Boolean> {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            headers.setAuthorization(new HttpBasicAuthentication(this.detallePercorridoActivity.getString(R.string.usuario_sw), this.detallePercorridoActivity.getString(R.string.contrasinal_sw)));
             HttpEntity<Integer> entity = new HttpEntity<>(idPercorrido, headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);

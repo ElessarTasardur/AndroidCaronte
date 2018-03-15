@@ -6,11 +6,15 @@ import android.util.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.http.HttpAuthentication;
+import org.springframework.http.HttpBasicAuthentication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,15 +50,23 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
+//            restTemplate.setMessageConverters(Arrays.asList(
+//                    new MappingJackson2HttpMessageConverter(),
+//                    new FormHttpMessageConverter(),
+//                    new StringHttpMessageConverter()
+//            ));
+
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            headers.setAuthorization(new HttpBasicAuthentication(this.inicioActivity.getString(R.string.usuario_sw), this.inicioActivity.getString(R.string.contrasinal_sw)));
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<Object> response;
             if (idUsuario != null) {
                 Log.d(TAG, StringUtil.creaString("Recuperando contas para o idUsuario ", idUsuario));
-                final String url = StringUtil.creaString( this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_contas_usuario));
+                final String url = StringUtil.creaString(this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_contas_usuario));
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idUsuario);
+
             }
             else {
                 Log.d(TAG, "Recuperando contas publicas");

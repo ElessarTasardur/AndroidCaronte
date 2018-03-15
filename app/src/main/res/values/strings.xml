@@ -19,6 +19,9 @@
     <string name="direccion_servizo_eliminar_poi">poi/eliminar</string>
     <string name="direccion_servizo_eliminar_percorrido">percorrido/eliminar</string>
 
+    <string name="usuario_sw">CaronteSW</string>
+    <string name="contrasinal_sw">aplicacion</string>
+
     <!-- Identificador do token de Caronte para a autenticacion en Google -->
     <string name="id_token_google_caronte">448237493715-f8qnmr9mblorb5bqqaoc836sftm7jl6k.apps.googleusercontent.com</string>
 

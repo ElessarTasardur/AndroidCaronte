@@ -7,6 +7,7 @@ import android.util.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.http.HttpBasicAuthentication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,6 +45,7 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            headers.setAuthorization(new HttpBasicAuthentication(this.detallePercorridoActivity.getString(R.string.usuario_sw), this.detallePercorridoActivity.getString(R.string.contrasinal_sw)));
             HttpEntity<GardarPercorridoParam> entity = new HttpEntity<>(percorridoParam, headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
