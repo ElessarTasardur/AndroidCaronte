@@ -255,11 +255,14 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         //Se estivemos no detalle de percorrido, actualizamos a lista de percorridos
         if (this.detallePercorrido) {
+            ocultarTodosPoi();
+            ocultarPercorrido();
             this.seccionSpinner.borrarPercorridos();
             this.seccionSpinner.recuperarListaPercorrido(this.idEdificioExternoActivo);
         }
         //Se estivemos no detalle de POI, actualizamos a lista de POIs
         if (this.detallePoi) {
+            ocultarTodosPoi();
             this.seccionSpinner.borrarPois();
             recuperarListaPoi(this.idEdificioExternoActivo);
         }
@@ -526,7 +529,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .title(MapaActivity.this.getString(R.string.novo_poi))
                                 .icon(BitmapDescriptorFactory.defaultMarker(cor)));
 
-                        //TODO ao voltar da outra actividade: marcadorPoi.remove(); e recuperar poi
+                        //TODO ao voltar da outra actividade: marcadorPoi.remove()
 
                         invalidateOptionsMenu();
 
@@ -914,10 +917,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void deterLocalizacionSitum() {
         //Reiniciamos variabeis
-        //TODO isto teremolo que facer? Igual non e preciso
-//        if (this.map != null) {
-//            this.map.clear();
-//        }
         this.edificioSitumCustomLocalizado = null;
         this.idEdificioExternoLocalizado = null;
         this.idPlantaLocalizada = null;
