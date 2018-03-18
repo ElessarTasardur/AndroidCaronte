@@ -1,5 +1,6 @@
 package gal.caronte.caronte.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
@@ -143,6 +144,13 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         EliminarPercorrido eliminarPercorrido = new EliminarPercorrido();
         eliminarPercorrido.setDetallePercorridoActivity(this);
         eliminarPercorrido.execute(this.idPercorrido);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        setResult(RESULT_CANCELED, intent);
+        finish();
     }
 
 }

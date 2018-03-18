@@ -84,7 +84,7 @@ public class SelectorPiso {
                 this.layoutNiveis.addView(botonPiso);
                 botonPiso.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
-                        SelectorPiso.this.mapaActivity.recuperarMapa(idPlantaBoton);
+                        SelectorPiso.this.mapaActivity.recuperarMapa(idPlantaBoton, true);
                         cambiarPisoSeleccionado(idPlantaBoton);
                     }
                 });
@@ -99,7 +99,8 @@ public class SelectorPiso {
 
         this.idPlantaActual = idPlanta;
 
-        if (this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_POI)) {
+        if (this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_POI)
+                || this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_PERCORRIDO)) {
             this.mapaActivity.amosarPoiPiso();
         }
 

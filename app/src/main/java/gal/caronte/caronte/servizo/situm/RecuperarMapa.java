@@ -1,4 +1,4 @@
-package gal.caronte.caronte.servizo;
+package gal.caronte.caronte.servizo.situm;
 
 import android.graphics.Bitmap;
 import android.util.Log;

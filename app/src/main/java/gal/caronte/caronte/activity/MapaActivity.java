@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -32,8 +31,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -70,10 +67,11 @@ import gal.caronte.caronte.custom.UsuarioEdificioCustom;
 import gal.caronte.caronte.custom.sw.EdificioCustom;
 import gal.caronte.caronte.custom.sw.Posicion;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
-import gal.caronte.caronte.servizo.RecuperarEdificioSitum;
-import gal.caronte.caronte.servizo.RecuperarMapa;
+import gal.caronte.caronte.servizo.situm.RecuperarMapa;
 import gal.caronte.caronte.servizo.RecuperarPoi;
-import gal.caronte.caronte.servizo.RecuperarRuta;
+import gal.caronte.caronte.servizo.situm.RecuperarEdificioSitum;
+import gal.caronte.caronte.servizo.situm.RecuperarListaEdificioSitum;
+import gal.caronte.caronte.servizo.situm.RecuperarRuta;
 import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.EModoMapa;
 import gal.caronte.caronte.util.PermisosUtil;
@@ -86,12 +84,8 @@ import gal.caronte.caronte.view.SelectorPoiPercorrido;
  */
 
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
-//        GoogleMap.OnMyLocationButtonClickListener,
-//        GoogleApiClient.ConnectionCallbacks,
 //        com.google.android.gms.location.LocationListener,
-//        GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnInfoWindowClickListener,
-        GoogleMap.OnInfoWindowLongClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
@@ -104,6 +98,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean googleActivado = false;
 
     //Servizos
+    private RecuperarListaEdificioSitum recuperarListaEdificioSitum;
     private RecuperarEdificioSitum recuperarEdificioSitum;
     private RecuperarMapa recuperarMapa;
     private RecuperarPoi recuperarPoi;
@@ -114,21 +109,31 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ListaEdificioCustom listaEdificio;
     private EModoMapa modoMapa = EModoMapa.CONSULTA;
 
+    //Variabeis de situacion da aplicacion
+    private boolean detallePoi = false;
+    private boolean detallePercorrido = false;
+
+    //Posicionamento
     private LocationManager locationManager;
     private LocationListener locationListener;
-//    private Circle circle;
     private GroundOverlay imaxePosicion;
     private GroundOverlayOptions gooPosicion;
 
-    private EdificioSitumCustom edificioSitumCustom;
-    private String idEdificioExterno;
-    private Integer idEdificio;
-    private String idPlanta;
-    private String idPlantaVisibel;
-    private GroundOverlay imaxeOverlay;
+    //Variabeis Situm+Caronte
+    private Map<String, EdificioSitumCustom> mapaEdificioSitumCustom;
+    private EdificioSitumCustom edificioSitumCustomLocalizado;
+    private EdificioSitumCustom edificioSitumCustomActivo;
+    private String idEdificioExternoLocalizado;
+    private String idEdificioExternoActivo;
+    private Integer idEdificioActivo;
+    private String idPlantaLocalizada;
+    private String idPlantaActiva;
+    private String idPlantaVisibelLocalizada;
+    private GroundOverlay imaxeOverlayEdificioActivo;
+    private GroundOverlay imaxeOverlayEdificioLocalizado;
     private Location posicionActual;
-    //Lista cos marcadores creados na aplicacion, visibeis ou invisibeis.
-    private List<MarcadorCustom> listaMarcadores = new ArrayList<>();
+    //Mapa cos marcadores creados na aplicacion, visibeis ou invisibeis, por edificio
+    private Map<String, List<MarcadorCustom>> mapaMarcador = new HashMap<>();
     private boolean todosPoisVisibeis = false;
 
     private Map<Integer, Float> mapaCorMarcador = new HashMap<>();
@@ -167,6 +172,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             SitumSdk.init(this);
             SitumSdk.configuration().setUserPass(nomeConta, contrasinalConta);
             this.locationManager = SitumSdk.locationManager();
+
+            recuperarEdificios();
 
             crearListaCor();
 
@@ -212,15 +219,58 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
 
-            this.gooPosicion = new GroundOverlayOptions()
-                    .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa));
+            this.gooPosicion = new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa));
         }
+
+    }
+
+    private void recuperarEdificios() {
+
+        this.recuperarListaEdificioSitum = new RecuperarListaEdificioSitum();
+        this.recuperarListaEdificioSitum.get(new RecuperarListaEdificioSitum.Callback() {
+            @Override
+            public void onSuccess(Map<String, EdificioSitumCustom> mapaEdificioSitumCustom) {
+                Log.i(TAG, StringUtil.creaString("Recuperada o mapa de edificioSitumCustom: ", mapaEdificioSitumCustom));
+                MapaActivity.this.mapaEdificioSitumCustom = mapaEdificioSitumCustom;
+            }
+
+            @Override
+            public void onError(Error error) {
+                Toast.makeText(MapaActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+        });
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        //Se ao volver atopamonos que estaba creando un POI ou un percorrido volvemos ao modo edicion
+        if (this.modoMapa.equals(EModoMapa.CREAR_POI)
+                || this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+            this.modoMapa = EModoMapa.EDICION;
+            cambiarTituloActividade();
+        }
+        //Se estivemos no detalle de percorrido, actualizamos a lista de percorridos
+        if (this.detallePercorrido) {
+            this.seccionSpinner.borrarPercorridos();
+            this.seccionSpinner.recuperarListaPercorrido(this.idEdificioExternoActivo);
+        }
+        //Se estivemos no detalle de POI, actualizamos a lista de POIs
+        if (this.detallePoi) {
+            this.seccionSpinner.borrarPois();
+            recuperarListaPoi(this.idEdificioExternoActivo);
+        }
+        if (this.detallePercorrido
+                || this.detallePoi) {
+            invalidateOptionsMenu();
+        }
+
+        //Inicializamos de novo
+        this.detallePercorrido = false;
+        this.detallePoi = false;
     }
 
     //Toolbar
@@ -305,6 +355,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.accion_aceptar:
                 //Abrimos a activity para o detalle de poi
                 if (this.modoMapa.equals(EModoMapa.CREAR_POI)) {
+                    this.detallePoi = true;
                     Intent intent = new Intent(this, DetallePoiActivity.class);
 
                     //Engadimos a informacion do poi ao intent
@@ -320,14 +371,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     intent.putExtra(Constantes.MODO, this.modoMapa);
 
                     //Iniciamos a actividade do mapa
-                    startActivity(intent);
+                    startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_POI);
                 }
                 else if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                    this.detallePercorrido = true;
                     Intent intent = new Intent(this, DetallePercorridoActivity.class);
 
                     //Engadimos a informacion do percorrido ao intent
                     Bundle b = new Bundle();
-                    b.putInt(Constantes.ID_EDIFICIO, this.idEdificio);
+                    b.putInt(Constantes.ID_EDIFICIO, this.idEdificioActivo);
 
                     List<PuntoInterese> listaPoi = new ArrayList<>(this.listaNovoPercorrido.size());
                     for (MarcadorCustom mc : this.listaNovoPercorrido) {
@@ -340,7 +392,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     intent.putExtra(Constantes.MODO, this.modoMapa);
 
                     //Iniciamos a actividade do mapa
-                    startActivity(intent);
+                    startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_PERCORRIDO);
 
                 }
                 return true;
@@ -448,28 +500,40 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onMapClick(LatLng latLng) {
-                if (MapaActivity.this.modoMapa.equals(EModoMapa.CREAR_POI)) {
 
-                    //Se hai outro previo, borramolo
-                    if (MapaActivity.this.marcadorNovoPoi != null) {
-                        MapaActivity.this.marcadorNovoPoi.remove();
+                //Identificar edificio ao pinchar
+                String idEdificioExterno = localizarEdificio(latLng);
+                if (idEdificioExterno != null) {
+                    if (MapaActivity.this.idEdificioExternoActivo != null
+                            && !MapaActivity.this.idEdificioExternoActivo.equals(idEdificioExterno)) {
+
+                        //Recuperamos os datos e activamos o edificio
+                        activarEdificio(idEdificioExterno, latLng, null);
                     }
+                    //Crear POI
+                    else if (MapaActivity.this.modoMapa.equals(EModoMapa.CREAR_POI)) {
 
-                    int nivel = MapaActivity.this.edificioSitumCustom.getFloor(MapaActivity.this.idPlantaVisibel).getLevel();
-                    MapaActivity.this.posicionNovoPoi = new Posicion(MapaActivity.this.idEdificio, Integer.valueOf(MapaActivity.this.idPlantaVisibel), nivel, latLng.latitude, latLng.longitude);
-                    Float cor = MapaActivity.this.mapaCorMarcador.get(nivel);
-                    MapaActivity.this.marcadorNovoPoi = MapaActivity.this.map.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(MapaActivity.this.getString(R.string.novo_poi))
-                            .icon(BitmapDescriptorFactory.defaultMarker(cor)));
+                        //Se hai outro previo, borramolo
+                        if (MapaActivity.this.marcadorNovoPoi != null) {
+                            MapaActivity.this.marcadorNovoPoi.remove();
+                        }
 
-//TODO ao voltar da outra actividade:                    marcadorPoi.remove(); e recuperar poi
+                        int nivel = MapaActivity.this.edificioSitumCustomActivo.getFloor(MapaActivity.this.idPlantaActiva).getLevel();
+                        MapaActivity.this.posicionNovoPoi = new Posicion(MapaActivity.this.idEdificioActivo, Integer.valueOf(MapaActivity.this.idPlantaActiva), nivel, latLng.latitude, latLng.longitude);
+                        Float cor = MapaActivity.this.mapaCorMarcador.get(nivel);
+                        MapaActivity.this.marcadorNovoPoi = MapaActivity.this.map.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(MapaActivity.this.getString(R.string.novo_poi))
+                                .icon(BitmapDescriptorFactory.defaultMarker(cor)));
 
-                    invalidateOptionsMenu();
+                        //TODO ao voltar da outra actividade: marcadorPoi.remove(); e recuperar poi
 
-                }
-                else {
-                    //TODO amosar posibilidade de guiar ao punto
+                        invalidateOptionsMenu();
+
+                    }
+                    else {
+                        //TODO amosar posibilidade de guiar ao punto
+                    }
                 }
 
             }
@@ -484,12 +548,27 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private String localizarEdificio(LatLng latLng) {
+
+        String idEdificioExterno = null;
+        if (this.mapaEdificioSitumCustom != null) {
+            for (EdificioSitumCustom esc : this.mapaEdificioSitumCustom.values()) {
+                if (esc.pertenceCoordenada(latLng.latitude, latLng.longitude)) {
+                    idEdificioExterno = esc.getEdificio().getIdentifier();
+                    break;
+                }
+            }
+        }
+        return idEdificioExterno;
+    }
+
     private void engadirPoiPercorrido(Marker marker) {
 
         MarcadorCustom mcElixido = null;
-        for (MarcadorCustom mc : this.listaMarcadores) {
-            if (mc.getMarcadorGoogle().equals(marker)) {
-                mcElixido = mc;
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+            if (marcadorCustom.getMarcadorGoogle().equals(marker)) {
+                mcElixido = marcadorCustom;
                 break;
             }
         }
@@ -601,7 +680,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onLocationChanged(@NonNull final Location location) {
 
-                Log.i(TAG, "Localizacion: " + location);
+                Log.i(TAG, StringUtil.creaString("Localizacion: ", location));
                 MapaActivity.this.posicionActual = location;
 
                 //Atopamonos dentro dun edificioSitumCustom de Situm, desactivase Google
@@ -612,80 +691,42 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
 
                     LatLng latLng = new LatLng(location.getCoordinate().getLatitude(), location.getCoordinate().getLongitude());
-                    //Se o edificioSitumCustom e novo cargamos o seu mapa
-                    if (MapaActivity.this.idEdificioExterno == null
-                            || !location.getBuildingIdentifier().equals(MapaActivity.this.idEdificioExterno)) {
-                        Log.i(TAG, "EdificioSitumCustom novo. Preparamos a carga do mesmo");
-                        MapaActivity.this.idEdificioExterno = location.getBuildingIdentifier();
-                        MapaActivity.this.idEdificio = localizarIdEdificio(MapaActivity.this.idEdificioExterno);
-                        MapaActivity.this.seccionSpinner.recuperarListaPercorrido(MapaActivity.this.idEdificioExterno);
+                    //Se non hai edificio seleccionado cargamos o actual
+                    if (MapaActivity.this.idEdificioExternoActivo == null) {
+                        Log.i(TAG, "Edificio localizado novo sen outro activo. Preparamos a carga do mesmo");
+                        MapaActivity.this.idEdificioExternoLocalizado = location.getBuildingIdentifier();
+                        MapaActivity.this.idPlantaVisibelLocalizada = location.getFloorIdentifier();
 
-                        //Comprobamos se debemos visualizar o boton de edicion
-                        comprobarVisibilidadeBotonEdicion();
-
-                        MapaActivity.this.recuperarEdificioSitum = new RecuperarEdificioSitum();
-                        MapaActivity.this.recuperarEdificioSitum.get(new RecuperarEdificioSitum.Callback() {
-                            @Override
-                            public void onSuccess(EdificioSitumCustom edificioSitumCustom) {
-
-                                Log.i(TAG, StringUtil.creaString("Recuperado o edificioSitumCustom: ", edificioSitumCustom));
-                                MapaActivity.this.edificioSitumCustom = edificioSitumCustom;
-
-                                setTitle(edificioSitumCustom.getEdificio().getName());
-
-                                recuperarMapa(location.getFloorIdentifier());
-                                establecerCorPiso(edificioSitumCustom.getPisos());
-                                recuperarListaPoi(edificioSitumCustom.getEdificio().getIdentifier());
-
-                                MapaActivity.this.selectorPiso.amosarSelectorPiso(MapaActivity.this.edificioSitumCustom.getPisos(), location.getFloorIdentifier(), MapaActivity.this.mapaCorMarcador);
-
-                            }
-
-                            @Override
-                            public void onError(Error error) {
-                                Toast.makeText(MapaActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-
-                        }, idEdificioExterno);
-
-                        MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
+                        //Recuperamos os datos e activamos o edificio
+                        activarEdificio(location.getBuildingIdentifier(), latLng, location.getFloorIdentifier());
 
                     }
-                    //Se a planta visibel e a planta previa son iguais e non coinciden coa actual, debemos ocultar o mapa actual e amosar o novo
-                    else if (MapaActivity.this.idPlanta.equals(MapaActivity.this.idPlantaVisibel)
-                            && !MapaActivity.this.idPlanta.equals(location.getFloorIdentifier())) {
+                    else if (MapaActivity.this.idEdificioExternoLocalizado == null) {
+                        Log.i(TAG, "Edificio localizado novo. Preparamos a carga do mesmo");
+                        MapaActivity.this.idEdificioExternoLocalizado = location.getBuildingIdentifier();
+                        MapaActivity.this.idPlantaVisibelLocalizada = location.getFloorIdentifier();
+
+                        //Unicamente recuperamos os datos do edificio
+                        recuperarDatosEdificio(location.getFloorIdentifier(), false);
+
+                    }
+                    //Se a planta visibel localizada, a planta localizada e a planta activa son iguais e non coinciden coa nova, debemos ocultar o mapa actual e amosar o novo
+                    else if (MapaActivity.this.idPlantaLocalizada.equals(MapaActivity.this.idPlantaVisibelLocalizada)
+                            && MapaActivity.this.idPlantaLocalizada.equals(MapaActivity.this.idPlantaActiva)
+                            && !MapaActivity.this.idPlantaLocalizada.equals(location.getFloorIdentifier())) {
                         Log.i(TAG, "Cambiamos o piso");
-//                        if (imaxeOverlay != null) {
-//                            imaxeOverlay.remove();
-//                        }
-                        recuperarMapa(MapaActivity.this.idPlanta);
+                        recuperarMapa(location.getFloorIdentifier(), true);
                         MapaActivity.this.selectorPiso.cambiarPisoSeleccionado(location.getFloorIdentifier());
+
+                        //Cambiamos a planta activa e a visibel localizada pola nova
+                        MapaActivity.this.idPlantaVisibelLocalizada = location.getFloorIdentifier();
+                        MapaActivity.this.idPlantaActiva = location.getFloorIdentifier();
                     }
 
-//                    //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
-//                    if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibel)) {
-//                        if (circle == null) {
-//                            Log.i(TAG, "Pintamos novo circulo en " + latLng);
-//                            circle = MapaActivity.this.map.addCircle(new CircleOptions()
-//                                    .center(latLng)
-//                                    .radius(0.5d)
-//                                    .strokeWidth(0f)
-//                                    .fillColor(Color.BLUE)
-//                                    .zIndex(10));
-//                        }
-//                        else {
-//                            Log.i(TAG, "Pintamos circulo xa creado en " + latLng);
-//                            circle.setCenter(latLng);
-//                        }
-//                    }
-//                    else if (circle != null) {
-//                        circle.remove();
-//                        circle = null;
-//                    }
                     //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
-                    if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibel)) {
+                    if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibelLocalizada)) {
                         if (MapaActivity.this.imaxePosicion == null) {
-                            Log.i(TAG, "Pintamos novo circulo en " + latLng);
+                            Log.i(TAG, StringUtil.creaString("Mostramos icono en ", latLng));
 
                             MapaActivity.this.gooPosicion.bearing((float) location.getBearing().degrees())
                                     .position(latLng, 1);
@@ -693,7 +734,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                             MapaActivity.this.imaxePosicion = MapaActivity.this.map.addGroundOverlay(MapaActivity.this.gooPosicion);
                         }
                         else {
-                            Log.i(TAG, "Pintamos circulo xa creado en " + latLng);
+                            Log.i(TAG, StringUtil.creaString("Mostramos icono xa creado en ", latLng));
                             MapaActivity.this.gooPosicion.bearing((float) location.getBearing().degrees())
                                     .position(latLng, 1);
                             MapaActivity.this.imaxePosicion.remove();
@@ -705,29 +746,33 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                         MapaActivity.this.imaxePosicion = null;
                     }
 
-                    MapaActivity.this.idPlanta = location.getFloorIdentifier();
+                    MapaActivity.this.idPlantaLocalizada = location.getFloorIdentifier();
 
                 }
-                //Se estamos fora dun edificioSitumCustom de Situm
-                else {
-                    //Establecemos o nome da aplicacion na barra de ferramentas
-                    setTitle(getString(R.string.app_name));
+                //Se saimos do edificio debemos actualizar as variabeis de localizacion e activar a localizacion de Google Maps
+                else if (MapaActivity.this.idEdificioExternoLocalizado != null) {
 
-                    //Ocultamos o boton de edicion
-                    MapaActivity.this.botonEditar.setVisibility(View.INVISIBLE);
+                    //Se o edificio activo tamen e o localizado, "reiniciamos" o mapa
+                    if (MapaActivity.this.idEdificioExternoLocalizado.equals(MapaActivity.this.idEdificioExternoActivo)) {
+                        //Establecemos o nome da aplicacion na barra de ferramentas
+                        setTitle(getString(R.string.app_name));
+
+                        //Ocultamos o boton de edicion
+                        MapaActivity.this.botonEditar.setVisibility(View.INVISIBLE);
+                    }
+
+                    MapaActivity.this.idEdificioExternoLocalizado = null;
+                    MapaActivity.this.idPlantaVisibelLocalizada = null;
+                    MapaActivity.this.idPlantaLocalizada = null;
 
                     //Activamos a localizacion de Google se non o estaba xa
                     if (!MapaActivity.this.googleActivado) {
-                        Toast.makeText(MapaActivity.this, getString(R.string.mensaxe_abandonar_edificio), Toast.LENGTH_LONG).show();
                         activarLocalizacionGoogle(true);
-//                        if (circle != null) {
-//                            circle.remove();
-//                            circle = null;
-//                        }
-                        if (MapaActivity.this.imaxePosicion != null) {
-                            MapaActivity.this.imaxePosicion.remove();
-                            MapaActivity.this.imaxePosicion = null;
-                        }
+                    }
+                    //Ocultamos a imaxe que indica a posicion de Situm
+                    if (MapaActivity.this.imaxePosicion != null) {
+                        MapaActivity.this.imaxePosicion.remove();
+                        MapaActivity.this.imaxePosicion = null;
                     }
                 }
             }
@@ -743,6 +788,104 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
     }
+
+    private void activarEdificio(String idEdificioExternoActivar, LatLng latLng, final String idPlanta) {
+
+        this.idEdificioExternoActivo = idEdificioExternoActivar;
+        this.idEdificioActivo = localizarIdEdificio(this.idEdificioExternoActivo);
+        this.idPlantaActiva = idPlanta;
+        this.seccionSpinner.recuperarListaPercorrido(this.idEdificioExternoActivo);
+
+        //Comprobamos se debemos visualizar o boton de edicion
+        comprobarVisibilidadeBotonEdicion();
+
+        //Localizamos o edificio na lista
+        this.edificioSitumCustomActivo = this.mapaEdificioSitumCustom.get(this.idEdificioExternoActivo);
+        setTitle(this.edificioSitumCustomActivo.getEdificio().getName());
+
+        //Recuperamos os datos do edificio se non os temos xa
+        if (this.edificioSitumCustomActivo.getPisos() == null) {
+            recuperarDatosEdificio(idPlanta, true);
+        }
+        else {
+            String idPlantaAmosar;
+            if (idPlanta == null) {
+                idPlantaAmosar = this.edificioSitumCustomActivo.getPisos().iterator().next().getPiso().getIdentifier();
+            }
+            else {
+                idPlantaAmosar = idPlanta;
+            }
+
+            //Amosamos o selector de piso
+            Collection<Piso> listaPisoCaronte = this.edificioSitumCustomActivo.getPisos();
+            establecerCorPiso(listaPisoCaronte);
+            MapaActivity.this.selectorPiso.amosarSelectorPiso(listaPisoCaronte, idPlantaAmosar, MapaActivity.this.mapaCorMarcador);
+
+            //Mostro o mapa
+            recuperarMapa(idPlantaAmosar, true);
+        }
+
+        this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
+    }
+
+    private void recuperarDatosEdificio(final String idPlanta, final boolean edificioActivo) {
+        final String idEdificioConsulta;
+        final EdificioSitumCustom edificio;
+        if (edificioActivo) {
+            idEdificioConsulta = this.idEdificioExternoActivo;
+            edificio = this.edificioSitumCustomActivo;
+        }
+        else {
+            idEdificioConsulta = this.idEdificioExternoLocalizado;
+            edificio = this.edificioSitumCustomLocalizado;
+        }
+
+        //Recuperamos os POIs
+        recuperarListaPoi(idEdificioConsulta);
+
+        if (edificio.getPisos() == null) {
+            //Recuperamos os pisos do edificio
+            this.recuperarEdificioSitum = new RecuperarEdificioSitum();
+            this.recuperarEdificioSitum.get(new RecuperarEdificioSitum.Callback() {
+                @Override
+                public void onSuccess(Collection<Floor> listaPiso) {
+                    Log.i(TAG, String.valueOf(listaPiso));
+                    MapaActivity.this.mapaEdificioSitumCustom.get(edificio.getEdificio().getIdentifier()).setPisos(listaPiso);
+
+                    String idPlantaMostrar;
+                    if (idPlanta == null) {
+                        idPlantaMostrar = listaPiso.iterator().next().getIdentifier();
+                    }
+                    else {
+                        idPlantaMostrar = idPlanta;
+                    }
+
+                    //Se e o edificio activo amosamos o selector de piso
+                    if (edificioActivo) {
+                        MapaActivity.this.edificioSitumCustomActivo.setPisos(listaPiso);
+                        Collection<Piso> listaPisoCaronte = MapaActivity.this.mapaEdificioSitumCustom.get(edificio.getEdificio().getIdentifier()).getPisos();
+                        establecerCorPiso(listaPisoCaronte);
+                        MapaActivity.this.selectorPiso.amosarSelectorPiso(listaPisoCaronte, idPlantaMostrar, MapaActivity.this.mapaCorMarcador);
+                    }
+                    else {
+                        MapaActivity.this.edificioSitumCustomLocalizado.setPisos(listaPiso);
+                    }
+
+                    //Mostro o mapa
+                    recuperarMapa(idPlantaMostrar, edificioActivo);
+
+                }
+
+                @Override
+                public void onError(Error error) {
+                    Toast.makeText(MapaActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+
+            }, edificio.getEdificio());
+        }
+
+    }
+
 
     private Integer localizarIdEdificio(String idEdificioExterno) {
         Integer idEdificioInt = null;
@@ -771,14 +914,14 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void deterLocalizacionSitum() {
         //Reiniciamos variabeis
-        if (this.map != null) {
-            this.map.clear();
-        }
-        this.edificioSitumCustom = null;
-        this.idEdificio = null;
-        this.idEdificioExterno = null;
-        this.idPlanta = null;
-        this.listaMarcadores.clear();
+        //TODO isto teremolo que facer? Igual non e preciso
+//        if (this.map != null) {
+//            this.map.clear();
+//        }
+        this.edificioSitumCustomLocalizado = null;
+        this.idEdificioExternoLocalizado = null;
+        this.idPlantaLocalizada = null;
+        this.idPlantaVisibelLocalizada = null;
 
         if (this.locationManager != null) {
             if (!this.locationManager.isRunning()) {
@@ -790,8 +933,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void deterChamadas() {
         this.seccionSpinner.deterChamadas();
-        if (recuperarEdificioSitum != null) {
-            this.recuperarEdificioSitum.cancel();
+        if (recuperarListaEdificioSitum != null) {
+            this.recuperarListaEdificioSitum.cancel();
         }
         if (recuperarMapa != null) {
             this.recuperarMapa.cancel();
@@ -806,27 +949,36 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onStop() {
-        deterLocalizacion();
-        activarLocalizacionGoogle(false);
+
+        if (!this.detallePercorrido
+                && !this.detallePoi) {
+            deterLocalizacion();
+            activarLocalizacionGoogle(false);
+        }
         super.onStop();
     }
 
     //Mapa
-    public void recuperarMapa(final String idPlantaMapa) {
+    public void recuperarMapa(final String idPlantaMapa, final boolean edificioActivo) {
 
-        this.idPlantaVisibel = idPlantaMapa;
-
+        final EdificioSitumCustom edificio;
+        if (edificioActivo) {
+            edificio = this.edificioSitumCustomActivo;
+        }
+        else {
+            edificio = this.edificioSitumCustomLocalizado;
+        }
         //Se ainda non temos o mapa, recuperamolo
-        Bitmap mapa = this.edificioSitumCustom.getMapa(idPlantaMapa);
+        Bitmap mapa = edificio.getMapa(idPlantaMapa);
         if (mapa == null) {
 
-            Floor floor = this.edificioSitumCustom.getFloor(idPlantaMapa);
+            Floor floor = edificio.getFloor(idPlantaMapa);
             this.recuperarMapa = new RecuperarMapa();
             this.recuperarMapa.get(new RecuperarMapa.Callback() {
                 @Override
                 public void onSuccess(Bitmap mapa) {
-                    MapaActivity.this.edificioSitumCustom.setMapa(idPlantaMapa, mapa);
-                    posicionarEdificio(mapa);
+                    edificio.setMapa(idPlantaMapa, mapa);
+                    posicionarEdificio(mapa, edificioActivo);
                 }
 
                 @Override
@@ -838,13 +990,19 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         //Se xa o temos, mostramolo
         else {
-            amosarMapaPlanta(mapa);
+            amosarMapaPlanta(mapa, edificioActivo);
         }
     }
 
-    private void posicionarEdificio(Bitmap mapa) {
+    private void posicionarEdificio(Bitmap mapa, boolean edificioActivo) {
 
-        Building building = this.edificioSitumCustom.getEdificio();
+        Building building;
+        if (edificioActivo) {
+            building = this.edificioSitumCustomActivo.getEdificio();
+        }
+        else {
+            building = this.edificioSitumCustomLocalizado.getEdificio();
+        }
 
         Bounds drawBounds = building.getBounds();
         Coordinate coordinateNE = drawBounds.getNorthEast();
@@ -858,16 +1016,22 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .bearing((float) building.getRotation().degrees())
                 .positionFromBounds(latLngBounds);
 
-        //Agrega a superposición ao mapa e conserva un controlador para o obxecto GroundOverlay.
-        this.imaxeOverlay = this.map.addGroundOverlay(gooMapa);
-
-
-//        amosarTodosPoiPlanta();
+        //Agrega a superposicion ao mapa e conserva un controlador para o obxecto GroundOverlay.
+        if (edificioActivo) {
+            this.imaxeOverlayEdificioActivo = this.map.addGroundOverlay(gooMapa);
+        }
+        else {
+            this.imaxeOverlayEdificioLocalizado = this.map.addGroundOverlay(gooMapa);
+        }
     }
 
-    private void amosarMapaPlanta(Bitmap mapa) {
-        this.imaxeOverlay.setImage(BitmapDescriptorFactory.fromBitmap(mapa));
-//        amosarTodosPoiPlanta();
+    private void amosarMapaPlanta(Bitmap mapa, boolean edificioActivo) {
+        if (edificioActivo) {
+            this.imaxeOverlayEdificioActivo.setImage(BitmapDescriptorFactory.fromBitmap(mapa));
+        }
+        else {
+            this.imaxeOverlayEdificioLocalizado.setImage(BitmapDescriptorFactory.fromBitmap(mapa));
+        }
     }
 
     private void centrarMapaEnPosicion() {
@@ -907,8 +1071,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void crearListaPoi(List<PuntoInterese> listaPoi) {
+    public void crearListaPoi(String idEdificioExterno, List<PuntoInterese> listaPoi) {
 
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(idEdificioExterno);
+        if (listaMarcadorEdificio == null) {
+            listaMarcadorEdificio = new ArrayList<>();
+        }
+        else {
+            listaMarcadorEdificio.clear();
+        }
         if (listaPoi != null) {
             LatLng latLng;
             MarcadorCustom marcadorCustom;
@@ -917,21 +1088,24 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Posicion posicion = poi.getPosicion();
                 //Se non conten o poi debemos crear o marcador
                 marcadorCustom = new MarcadorCustom(poi.getIdPuntoInterese(), posicion.getIdPlanta(), poi);
-                if (!this.listaMarcadores.contains(marcadorCustom)) {
-                    latLng = new LatLng(posicion.getLatitude(), posicion.getLonxitude());
-                    Float cor = this.mapaCorMarcador.get(posicion.getNivel());
-                    Marker marcadorPoi = this.map.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(poi.getNome())
-                            .icon(BitmapDescriptorFactory.defaultMarker(cor)));
-                    marcadorCustom.setMarcadorGoogle(marcadorPoi);
-                    this.listaMarcadores.add(marcadorCustom);
-                }
+                latLng = new LatLng(posicion.getLatitude(), posicion.getLonxitude());
+                Float cor = this.mapaCorMarcador.get(posicion.getNivel());
+                Marker marcadorPoi = this.map.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(poi.getNome())
+                        .icon(BitmapDescriptorFactory.defaultMarker(cor)));
+                marcadorCustom.setMarcadorGoogle(marcadorPoi);
+                listaMarcadorEdificio.add(marcadorCustom);
 
             }
             ocultarTodosPoi();
-            this.seccionSpinner.amosarListaPoi(listaPoi);
+
+            if (this.idEdificioExternoActivo != null
+                    && this.idEdificioExternoActivo.equals(idEdificioExterno)) {
+                this.seccionSpinner.amosarListaPoi(listaPoi);
+            }
         }
+        this.mapaMarcador.put(idEdificioExterno, listaMarcadorEdificio);
     }
 
 //    private void amosarTodosPoiPlanta() {
@@ -943,40 +1117,52 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 //    }
 
     public void amosarPoi(Integer idPoi) {
-        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
-            if (marcadorCustom.getIdPoi().equals(idPoi)) {
-                marcadorCustom.getMarcadorGoogle().setVisible(true);
-                break;
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        if (listaMarcadorEdificio != null) {
+            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                if (marcadorCustom.getIdPoi().equals(idPoi)) {
+                    marcadorCustom.getMarcadorGoogle().setVisible(true);
+                    break;
+                }
             }
         }
         this.todosPoisVisibeis = false;
     }
 
     public void ocultarTodosPoi() {
-        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
-            marcadorCustom.getMarcadorGoogle().setVisible(false);
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        if (listaMarcadorEdificio != null) {
+            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                marcadorCustom.getMarcadorGoogle().setVisible(false);
+            }
         }
         this.todosPoisVisibeis = false;
     }
 
     private void amosarTodosPoi() {
-        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
-            marcadorCustom.getMarcadorGoogle().setVisible(true);
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        if (listaMarcadorEdificio != null) {
+            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                marcadorCustom.getMarcadorGoogle().setVisible(true);
+            }
+            this.todosPoisVisibeis = true;
         }
-        this.todosPoisVisibeis = true;
     }
 
     public void amosarPoiPiso() {
-        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
-            boolean amosarPoi = false;
-            //Se estamos a crear un percorrido miramos se o marcador esta entre os seleccionados para non borralo
-            if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
-                amosarPoi = this.listaIdNovoPercorrido.contains(marcadorCustom.getIdPoi());
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        if (listaMarcadorEdificio != null) {
+            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                boolean amosarPoi = false;
+                //Se estamos a crear un percorrido miramos se o marcador esta entre os seleccionados para non borralo
+                if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                    amosarPoi = this.listaIdNovoPercorrido.contains(marcadorCustom.getIdPoi());
+                }
+                if (!amosarPoi) {
+                    amosarPoi = marcadorCustom.getIdPlanta().toString().equals(this.idPlantaActiva);
+                }
+                marcadorCustom.getMarcadorGoogle().setVisible(amosarPoi);
             }
-            if (!amosarPoi) {
-                amosarPoi = marcadorCustom.getIdPlanta().toString().equals(this.idPlantaVisibel);
-            }
-            marcadorCustom.getMarcadorGoogle().setVisible(amosarPoi);
         }
         this.todosPoisVisibeis = false;
     }
@@ -994,15 +1180,18 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         List<MarcadorCustom> listaAmosar = new ArrayList<>(listaPIP.size());
         //Amosamos os marcadores
-        for (MarcadorCustom marcadorCustom : this.listaMarcadores) {
-            boolean amosar = listaPIP.contains(marcadorCustom);
-            marcadorCustom.getMarcadorGoogle().setVisible(amosar);
-            if (amosar) {
-                listaAmosar.add(marcadorCustom);
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        if (listaMarcadorEdificio != null) {
+            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                boolean amosar = listaPIP.contains(marcadorCustom);
+                marcadorCustom.getMarcadorGoogle().setVisible(amosar);
+                if (amosar) {
+                    listaAmosar.add(marcadorCustom);
+                }
             }
-        }
 
-        amosarLinhaPercorrido(listaAmosar);
+            amosarLinhaPercorrido(listaAmosar);
+        }
 
     }
 
@@ -1015,14 +1204,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.marcaPercorrido = this.map.addPolyline(polyLineOptions);
     }
 
-    public void actualizarPercorrido(Short idPercorrido) {
-        //TODO
-    }
-
-    public void actualizarPoi(Short idPoi) {
-        //TODO
-    }
-
     //Servizos
     private void recuperarListaPoi(String idEdificioExterno) {
         this.recuperarPoi = new RecuperarPoi();
@@ -1032,40 +1213,44 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void guiar(Marker marcador) {
 
-        MarcadorCustom posicionGuiar = null;
-        for (MarcadorCustom mc : this.listaMarcadores) {
-            if (mc.getMarcadorGoogle().equals(marcador)) {
-                posicionGuiar = mc;
-                break;
+        //Se o edificio activo e o mesmo edificio no que estamos, ofrecemos o guiado
+        if (this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
+            MarcadorCustom posicionGuiar = null;
+            List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                if (marcadorCustom.getMarcadorGoogle().equals(marcador)) {
+                    posicionGuiar = marcadorCustom;
+                    break;
+                }
             }
-        }
 
-        if (posicionGuiar != null) {
-            this.recuperarRuta = new RecuperarRuta();
-            this.recuperarRuta.get(this.idEdificioExterno, this.posicionActual, posicionGuiar, new RecuperarRuta.Callback() {
-                @Override
-                public void onSuccess(PolylineOptions listaLinhas, LatLngBounds.Builder limite) {
-                    if (listaLinhas != null) {
-                        ocultarPercorrido();
-                        MapaActivity.this.marcaPercorrido = map.addPolyline(listaLinhas);
-                    }
+            if (posicionGuiar != null) {
+                this.recuperarRuta = new RecuperarRuta();
+                this.recuperarRuta.get(this.idEdificioExternoLocalizado, this.posicionActual, posicionGuiar, new RecuperarRuta.Callback() {
+                    @Override
+                    public void onSuccess(PolylineOptions listaLinhas, LatLngBounds.Builder limite) {
+                        if (listaLinhas != null) {
+                            ocultarPercorrido();
+                            MapaActivity.this.marcaPercorrido = map.addPolyline(listaLinhas);
+                        }
 //                debuxarRuta(mapa);
-                    MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLngBounds(limite.build(), 100));
+                        MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLngBounds(limite.build(), 100));
 
 //                hideProgress();
 //                startNav(route);
-                }
+                    }
 
-                @Override
-                public void onError(Error error) {
-                    Toast.makeText(MapaActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                }
+                    @Override
+                    public void onError(Error error) {
+                        Toast.makeText(MapaActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
 
-            });
-        }
-        else {
-            Log.e(TAG, "Non se localizou o marcador seleccionado");
-            Toast.makeText(this, R.string.marcador_non_localizado, Toast.LENGTH_SHORT).show();
+                });
+            }
+            else {
+                Log.e(TAG, "Non se localizou o marcador seleccionado");
+                Toast.makeText(this, R.string.marcador_non_localizado, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -1073,12 +1258,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onInfoWindowClick(Marker marker) {
         Toast.makeText(this, "Pinchouse sobre a venta de informacion dun marcador. Solicitase o guiado", Toast.LENGTH_SHORT).show();
         guiar(marker);
-    }
-
-    @Override
-    public void onInfoWindowLongClick(Marker marker) {
-        Toast.makeText(this, "Pinchouse sobre a venta de informacion dun marcador durante dous segundos. Solicitase a informacion do marcador", Toast.LENGTH_SHORT).show();
-//        guiar(marker);
     }
 
 //    @Override
@@ -1092,7 +1271,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         int visibilidade;
 
-        if (comprobarPermisoEdificio(this.idEdificio)) {
+        if (comprobarPermisoEdificio(this.idEdificioActivo)) {
             visibilidade = View.VISIBLE;
         }
         else {
@@ -1148,8 +1327,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void cambiarTituloActividade() {
-        if (this.edificioSitumCustom != null) {
-            setTitle(this.edificioSitumCustom.getEdificio().getName());
+        if (this.edificioSitumCustomActivo != null) {
+            setTitle(this.edificioSitumCustomActivo.getEdificio().getName());
+        }
+        else if (this.edificioSitumCustomLocalizado != null) {
+            setTitle(this.edificioSitumCustomLocalizado.getEdificio().getName());
         }
         else {
             setTitle(getString(R.string.app_name));
@@ -1158,5 +1340,35 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public EModoMapa getModoMapa() {
         return this.modoMapa;
+    }
+
+    public void setDetallePoi(boolean detallePoi) {
+        this.detallePoi = detallePoi;
+    }
+
+    public void setDetallePercorrido(boolean detallePercorrido) {
+        this.detallePercorrido = detallePercorrido;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_CANCELED) {
+            if (requestCode == Constantes.ACTIVIDADE_DETALLE_POI) {
+                this.detallePoi = true;
+            }
+            else if (requestCode == Constantes.ACTIVIDADE_DETALLE_PERCORRIDO) {
+                this.detallePercorrido = true;
+            }
+
+            //Deseleccionamos os spinners
+            this.seccionSpinner.deseleccionarPercorrido();
+            this.seccionSpinner.deseleccionarPoi();
+            ocultarPercorrido();
+            ocultarTodosPoi();
+        }
+        else {
+            this.detallePoi = false;
+            this.detallePercorrido = false;
+        }
     }
 }

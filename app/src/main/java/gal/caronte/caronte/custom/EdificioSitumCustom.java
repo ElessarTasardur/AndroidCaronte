@@ -9,6 +9,8 @@ import java.util.Objects;
 import es.situm.sdk.model.cartography.Building;
 import es.situm.sdk.model.cartography.Floor;
 import es.situm.sdk.model.cartography.Poi;
+import es.situm.sdk.model.location.Bounds;
+import es.situm.sdk.model.location.Coordinate;
 
 /**
  * Created by ElessarTasardur on 15/10/2017.
@@ -46,9 +48,11 @@ public class EdificioSitumCustom {
 
     public Bitmap getMapa(String idPiso) {
         Bitmap retorno = null;
-        for (Piso piso : this.pisos) {
-            if (piso.getPiso().getIdentifier().equals(idPiso)) {
-                retorno = piso.getMapa();
+        if (this.pisos != null) {
+            for (Piso piso : this.pisos) {
+                if (piso.getPiso().getIdentifier().equals(idPiso)) {
+                    retorno = piso.getMapa();
+                }
             }
         }
         return retorno;
@@ -83,20 +87,39 @@ public class EdificioSitumCustom {
             return false;
         }
         EdificioSitumCustom edificioEquals = (EdificioSitumCustom) o;
-        return Objects.equals(edificio, edificioEquals.edificio);
+        return Objects.equals(this.edificio, edificioEquals.edificio);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(edificio);
+        return Objects.hash(this.edificio);
     }
 
-
     public Collection<Poi> getListaPoi() {
-        return listaPoi;
+        return this.listaPoi;
     }
 
     public void setListaPoi(Collection<Poi> listaPoi) {
         this.listaPoi = listaPoi;
+    }
+
+    public boolean pertenceCoordenada(double latitude, double lonxitude) {
+
+        Bounds bounds = this.edificio.getBounds();
+
+        double maxLatitude = Math.max(bounds.getNorthEast().getLatitude(), bounds.getNorthWest().getLatitude());
+        double minLatitude = Math.max(bounds.getSouthEast().getLatitude(), bounds.getSouthWest().getLatitude());
+        double maxLonxitude = Math.max(bounds.getNorthEast().getLongitude(), bounds.getSouthEast().getLongitude());
+        double minLonxitude = Math.max(bounds.getNorthWest().getLongitude(), bounds.getSouthWest().getLongitude());
+
+        boolean retorno = false;
+        if (maxLatitude > latitude
+                && minLatitude < latitude
+                && maxLonxitude > lonxitude
+                && minLonxitude < lonxitude) {
+            retorno = true;
+        }
+
+        return retorno;
     }
 }

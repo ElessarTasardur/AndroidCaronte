@@ -1,5 +1,6 @@
 package gal.caronte.caronte.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,7 +10,6 @@ import android.widget.EditText;
 
 import gal.caronte.caronte.R;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
-import gal.caronte.caronte.servizo.EliminarPercorrido;
 import gal.caronte.caronte.servizo.EliminarPoi;
 import gal.caronte.caronte.servizo.GardarPoi;
 import gal.caronte.caronte.util.Constantes;
@@ -122,4 +122,10 @@ public class DetallePoiActivity extends AppCompatActivity {
         this.gardarPoi.execute(this.poi);
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        setResult(RESULT_CANCELED, intent);
+        finish();
+    }
 }

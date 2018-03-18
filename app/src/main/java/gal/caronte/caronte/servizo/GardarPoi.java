@@ -1,5 +1,7 @@
 package gal.caronte.caronte.servizo;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -64,8 +66,9 @@ public class GardarPoi extends AsyncTask<PuntoInterese, Void, Short> {
 
     @Override
     protected void onPostExecute(Short idPoi) {
-//        this.detallePoiActivity.finish();
-        this.detallePoiActivity.onBackPressed();
+        Intent intent = new Intent();
+        this.detallePoiActivity.setResult(Activity.RESULT_OK, intent);
+        this.detallePoiActivity.finish();
     }
 
     public void setDetallePoiActivity(DetallePoiActivity detallePoiActivity) {

@@ -32,11 +32,12 @@ public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
     private static final String TAG = RecuperarPoi.class.getSimpleName();
 
     private MapaActivity mapaActivity;
+    private String idEdificioExterno;
 
     @Override
     protected List<PuntoInterese> doInBackground(String... params) {
 
-        String idEdificioExterno = params[0];
+        this.idEdificioExterno = params[0];
 
         List<PuntoInterese> listaPoi = null;
         try {
@@ -67,7 +68,7 @@ public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
 
     @Override
     protected void onPostExecute(List<PuntoInterese> listaPoi) {
-        this.mapaActivity.crearListaPoi(listaPoi);
+        this.mapaActivity.crearListaPoi(this.idEdificioExterno, listaPoi);
     }
 
     public void setMapaActivity(MapaActivity mapaActivity) {

@@ -110,6 +110,10 @@ public class SelectorPoiPercorrido {
         this.botonPercorrido.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //Establecemos a posicion na actividade principal
+                SelectorPoiPercorrido.this.mapaActivity.setDetallePercorrido(true);
+
                 Intent intent = new Intent(SelectorPoiPercorrido.this.mapaActivity, DetallePercorridoActivity.class);
 
                 //Engadimos a informacion da conta ao intent
@@ -130,8 +134,8 @@ public class SelectorPoiPercorrido {
 
                 intent.putExtras(b);
 
-                //Iniciamos a actividade do mapa
-                SelectorPoiPercorrido.this.mapaActivity.startActivity(intent);
+                //Iniciamos a actividade do detalle do percorrido
+                SelectorPoiPercorrido.this.mapaActivity.startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_PERCORRIDO);
             }
         });
     }
@@ -179,6 +183,10 @@ public class SelectorPoiPercorrido {
         this.botonPoi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //Establecemos a posicion na actividade principal
+                SelectorPoiPercorrido.this.mapaActivity.setDetallePoi(true);
+
                 Intent intent = new Intent(SelectorPoiPercorrido.this.mapaActivity, DetallePoiActivity.class);
 
                 //Engadimos a informacion da conta ao intent
@@ -197,7 +205,7 @@ public class SelectorPoiPercorrido {
                 intent.putExtras(b);
 
                 //Iniciamos a actividade do mapa
-                SelectorPoiPercorrido.this.mapaActivity.startActivity(intent);
+                SelectorPoiPercorrido.this.mapaActivity.startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_POI);
             }
         });
     }
@@ -205,6 +213,10 @@ public class SelectorPoiPercorrido {
     public void visualizarSpinnerPercorrido() {
         if (this.spinnerPercorrido.getVisibility() == View.INVISIBLE) {
             this.spinnerPercorrido.setVisibility(View.VISIBLE);
+            //Se o elemento seleccionado non e o primeiro, mostramos o boton
+            if (!this.spinnerPercorrido.getSelectedItem().equals(this.spinnerPercorrido.getAdapter().getItem(0))) {
+                this.botonPercorrido.setVisibility(View.VISIBLE);
+            }
         }
         else {
             ocultarSpinnerPercorrido();
@@ -215,6 +227,10 @@ public class SelectorPoiPercorrido {
     public void visualizarSpinnerPoi() {
         if (this.spinnerPoi.getVisibility() == View.INVISIBLE) {
             this.spinnerPoi.setVisibility(View.VISIBLE);
+            //Se o elemento seleccionado non e o primeiro, mostramos o boton
+            if (!this.spinnerPoi.getSelectedItem().equals(this.spinnerPoi.getAdapter().getItem(0))) {
+                this.botonPoi.setVisibility(View.VISIBLE);
+            }
         }
         else {
             ocultarSpinnerPoi();
@@ -254,6 +270,16 @@ public class SelectorPoiPercorrido {
     public boolean tenPoi() {
         return this.spinnerPoi.getAdapter() != null
                 && this.spinnerPoi.getAdapter().getCount() > 0;
+    }
+
+    public void borrarPois() {
+        this.spinnerPoi.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, new ArrayList<PuntoInterese>()));
+//        notifyDataSetChanged();
+    }
+
+    public void borrarPercorridos() {
+        this.spinnerPercorrido.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, new ArrayList<PercorridoCustom>()));
+//        this.spinnerPercorrido.getAdapter().notifyDataSetChanged();
     }
 
     public void deterChamadas() {
@@ -306,7 +332,9 @@ public class SelectorPoiPercorrido {
                 && !listaPoi.isEmpty()) {
             String seleccionar = this.mapaActivity.getString(R.string.seleccionar_poi);
             listaPoi.add(0, new PuntoInterese(Constantes.ID_FICTICIO, seleccionar, seleccionar));
-            this.spinnerPoi.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPoi));
+            ArrayAdapter<PuntoInterese> adapter = new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPoi);
+            this.spinnerPoi.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
 
             this.mapaActivity.invalidateOptionsMenu();
         }
@@ -324,7 +352,9 @@ public class SelectorPoiPercorrido {
 
             String seleccionar = this.mapaActivity.getString(R.string.seleccionar_percorrido);
             listaPercorridoCustom.add(0, new PercorridoCustom(Constantes.ID_FICTICIO, seleccionar, seleccionar, null));
-            this.spinnerPercorrido.setAdapter(new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPercorridoCustom));
+            ArrayAdapter<PercorridoCustom> adapter = new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPercorridoCustom);
+            this.spinnerPercorrido.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
 
             this.mapaActivity.invalidateOptionsMenu();
         }

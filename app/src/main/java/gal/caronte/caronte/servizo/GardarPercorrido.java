@@ -1,5 +1,6 @@
 package gal.caronte.caronte.servizo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -66,8 +67,9 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
 
     @Override
     protected void onPostExecute(Short idPercorrido) {
-//        this.detallePercorridoActivity.finish();
-        this.detallePercorridoActivity.onBackPressed();
+        Intent intent = new Intent();
+        this.detallePercorridoActivity.setResult(Activity.RESULT_OK, intent);
+        this.detallePercorridoActivity.finish();
     }
 
     public void setDetallePercorridoActivity(DetallePercorridoActivity detallePercorridoActivity) {

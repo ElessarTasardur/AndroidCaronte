@@ -1,4 +1,4 @@
-package gal.caronte.caronte.servizo;
+package gal.caronte.caronte.servizo.situm;
 
 import android.graphics.Color;
 import android.util.Log;
@@ -7,7 +7,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import es.situm.sdk.SitumSdk;
