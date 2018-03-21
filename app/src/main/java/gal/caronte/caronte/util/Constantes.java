@@ -1,5 +1,7 @@
 package gal.caronte.caronte.util;
 
+import android.graphics.Color;
+
 /**
  * Created by ElessarTasardur on 11/01/2018.
  */
@@ -24,4 +26,10 @@ public class Constantes {
     public static final String USUARIO_EDIFICIO = "usuarioEdificio";
     public static final String LISTA_EDIFICIO = "listaEdificio";
     public static final String LISTA_PUNTO_INTERESE = "listaPuntoInterese";
+
+    //Percorrido
+    public static final int COR_PERCORRIDO = Color.BLUE;
+    public static final int COR_GUIADO = Color.CYAN;
+    public static final float GROSOR_PERCORRIDO = 15f;
+
 }

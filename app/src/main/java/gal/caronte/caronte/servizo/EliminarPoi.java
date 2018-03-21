@@ -1,5 +1,7 @@
 package gal.caronte.caronte.servizo;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -58,7 +60,7 @@ public class EliminarPoi extends AsyncTask<Integer, Void, Boolean> {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        Log.i(TAG, StringUtil.creaString("Eliminado POI con identificador ", idPoi));
+        Log.i(TAG, StringUtil.creaString("Rematada a chamada para eliminar POI con identificador ", idPoi));
 
         return retorno;
     }
@@ -75,8 +77,11 @@ public class EliminarPoi extends AsyncTask<Integer, Void, Boolean> {
         else {
             mensaxe = this.detallePoiActivity.getString(R.string.eliminar_poi_en_percorrido);
         }
+        Log.i(TAG, mensaxe);
         Toast.makeText(this.detallePoiActivity, mensaxe, Toast.LENGTH_SHORT).show();
-        this.detallePoiActivity.onBackPressed();
+        Intent intent = new Intent();
+        this.detallePoiActivity.setResult(Activity.RESULT_OK, intent);
+        this.detallePoiActivity.finish();
     }
 
     public void setDetallePoiActivity(DetallePoiActivity detallePoiActivity) {

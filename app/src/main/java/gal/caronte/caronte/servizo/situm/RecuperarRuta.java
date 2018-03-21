@@ -18,6 +18,7 @@ import es.situm.sdk.model.location.Coordinate;
 import es.situm.sdk.model.location.Location;
 import es.situm.sdk.utils.Handler;
 import gal.caronte.caronte.custom.MarcadorCustom;
+import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.StringUtil;
 
 /**
@@ -72,7 +73,7 @@ public class RecuperarRuta {
             @Override
             public void onSuccess(Route route) {
                 Log.d(TAG, StringUtil.creaString("Exito solicitando ruta: ", route));
-                PolylineOptions polyLineOptions = new PolylineOptions().color(Color.GREEN).width(4f);
+                PolylineOptions polyLineOptions = new PolylineOptions().color(Constantes.COR_GUIADO).width(Constantes.GROSOR_PERCORRIDO);
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                 List<Point> routePoints = route.getPoints();
                 LatLng latLng;

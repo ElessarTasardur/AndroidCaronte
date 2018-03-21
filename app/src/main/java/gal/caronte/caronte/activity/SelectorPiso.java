@@ -26,7 +26,7 @@ public class SelectorPiso {
     private LinearLayout layoutNiveis;
     private String idPlantaActual;
     private List<Button> listaBotons = new ArrayList<>();
-    private Map<Integer, Integer> mapaCor = new HashMap<>();
+    private List<Integer> listaCor = new ArrayList<>();
 
     public SelectorPiso(MapaActivity mapaActivity, LinearLayout layoutNiveis) {
         super();
@@ -34,35 +34,21 @@ public class SelectorPiso {
         this.layoutNiveis = layoutNiveis;
     }
 
-//    private void crearListaCor() {
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_GREEN);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_YELLOW);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_MAGENTA);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_CYAN);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_ORANGE);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_ROSE);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_BLUE);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_RED);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_VIOLET);
-//        this.listaCor.add(BitmapDescriptorFactory.HUE_AZURE);
-//    }
-
     public void ocultarBotons() {
         this.layoutNiveis.removeAllViewsInLayout();
     }
 
-    public void amosarSelectorPiso(Collection<Piso> listaPiso, String idPlantaActual, Map<Integer, Float> mapaCorMarcador) {
+    public void amosarSelectorPiso(Collection<Piso> listaPiso, String idPlantaActual, List<Float> listaCor) {
 
         this.idPlantaActual = idPlantaActual;
         this.listaBotons.clear();
 
-        this.mapaCor.clear();
-        if (mapaCorMarcador != null) {
-            for (Integer chave : mapaCorMarcador.keySet()) {
-                Float valor = mapaCorMarcador.get(chave);
+        this.listaCor.clear();
+        if (listaCor != null) {
+            for (Float valor : listaCor) {
                 float[] hsv = {valor, 1F, 1F};
                 int cor = Color.HSVToColor(hsv);
-                this.mapaCor.put(chave, cor);
+                this.listaCor.add(cor);
             }
         }
 
@@ -79,7 +65,7 @@ public class SelectorPiso {
                 botonPiso.setTextSize(12F);
                 botonPiso.setWidth(TAMANHO_BOTON);
                 botonPiso.setHeight(TAMANHO_BOTON);
-                Integer cor = this.mapaCor.get(piso.getPiso().getLevel());
+                Integer cor = this.listaCor.get(piso.getPiso().getLevel() % this.listaCor.size());
                 botonPiso.setTextColor(cor);
                 this.layoutNiveis.addView(botonPiso);
                 botonPiso.setOnClickListener(new View.OnClickListener() {

@@ -1,5 +1,7 @@
 package gal.caronte.caronte.servizo;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -74,7 +76,9 @@ public class EliminarPercorrido extends AsyncTask<Integer, Void, Boolean> {
             mensaxe = this.detallePercorridoActivity.getString(R.string.eliminar_percorrido_correcto);
         }
         Toast.makeText(this.detallePercorridoActivity, mensaxe, Toast.LENGTH_SHORT).show();
-        this.detallePercorridoActivity.onBackPressed();
+        Intent intent = new Intent();
+        this.detallePercorridoActivity.setResult(Activity.RESULT_OK, intent);
+        this.detallePercorridoActivity.finish();
     }
 
     public void setDetallePercorridoActivity(DetallePercorridoActivity detallePercorridoActivity) {

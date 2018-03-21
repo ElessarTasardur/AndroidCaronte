@@ -91,7 +91,6 @@ import gal.caronte.caronte.view.SelectorPoiPercorrido;
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
 //        com.google.android.gms.location.LocationListener,
         GoogleMap.OnInfoWindowClickListener,
-        GoogleMap.OnPolylineClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
@@ -100,7 +99,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Patrons polilinhas
     private static final PatternItem DOT = new Dot();
-    private static final PatternItem GAP = new Gap(4);
+    private static final PatternItem GAP = new Gap(15);
     //Patron composto
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
 
@@ -148,9 +147,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Map<String, List<MarcadorCustom>> mapaMarcador = new HashMap<>();
     private boolean todosPoisVisibeis = false;
 
-    private Map<Integer, Float> mapaCorMarcador = new HashMap<>();
     private List<Float> listaCor = new ArrayList<>();
-    private Polyline marcaPercorrido;
+    private List<Polyline> listaMarcaPercorrido = new ArrayList<>();
 
     //Elementos visuais
     private SelectorPoiPercorrido seccionSpinner;
@@ -519,8 +517,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //Identificar edificio ao pinchar
                 String idEdificioExterno = localizarEdificio(latLng);
                 if (idEdificioExterno != null) {
-                    if (MapaActivity.this.idEdificioExternoActivo != null
-                            && !MapaActivity.this.idEdificioExternoActivo.equals(idEdificioExterno)) {
+                    if (MapaActivity.this.idEdificioExternoActivo == null
+                            || !MapaActivity.this.idEdificioExternoActivo.equals(idEdificioExterno)) {
 
                         //Recuperamos os datos e activamos o edificio
                         activarEdificio(idEdificioExterno, latLng, null);
@@ -535,7 +533,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         int nivel = MapaActivity.this.edificioSitumCustomActivo.getFloor(MapaActivity.this.idPlantaActiva).getLevel();
                         MapaActivity.this.posicionNovoPoi = new Posicion(MapaActivity.this.idEdificioActivo, Integer.valueOf(MapaActivity.this.idPlantaActiva), nivel, latLng.latitude, latLng.longitude);
-                        Float cor = MapaActivity.this.mapaCorMarcador.get(nivel);
+                        Float cor = MapaActivity.this.listaCor.get(nivel % MapaActivity.this.listaCor.size());
                         MapaActivity.this.marcadorNovoPoi = MapaActivity.this.map.addMarker(new MarkerOptions()
                                 .position(latLng)
                                 .title(MapaActivity.this.getString(R.string.novo_poi))
@@ -551,6 +549,22 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
 
+            }
+        });
+
+        this.map.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                // Cambiar a patron punto-raia
+                if ((polyline.getPattern() == null) || (!polyline.getPattern().contains(DOT))) {
+                    polyline.setPattern(PATTERN_POLYLINE_DOTTED);
+                    //TODO Permitir que seleccione un POI para introducir no medio
+                }
+                else {
+                    // Por defecto, normal
+                    polyline.setPattern(null);
+                }
             }
         });
 
@@ -777,6 +791,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
 
                     MapaActivity.this.idEdificioExternoLocalizado = null;
+                    MapaActivity.this.edificioSitumCustomLocalizado = null;
                     MapaActivity.this.idPlantaVisibelLocalizada = null;
                     MapaActivity.this.idPlantaLocalizada = null;
 
@@ -833,8 +848,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             //Amosamos o selector de piso
             Collection<Piso> listaPisoCaronte = this.edificioSitumCustomActivo.getPisos();
-            establecerCorPiso(listaPisoCaronte);
-            MapaActivity.this.selectorPiso.amosarSelectorPiso(listaPisoCaronte, idPlantaAmosar, MapaActivity.this.mapaCorMarcador);
+            MapaActivity.this.selectorPiso.amosarSelectorPiso(listaPisoCaronte, idPlantaAmosar, MapaActivity.this.listaCor);
 
             //Mostro o mapa
             recuperarMapa(idPlantaAmosar, true);
@@ -852,6 +866,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         else {
             idEdificioConsulta = this.idEdificioExternoLocalizado;
+            //Se activamos o edificio localizado antes de que Situm actue debemos establecelo
+            if (this.edificioSitumCustomLocalizado == null
+                    && this.idEdificioExternoLocalizado.equals(this.idEdificioExternoActivo)) {
+                this.edificioSitumCustomLocalizado = this.edificioSitumCustomActivo;
+            }
             edificio = this.edificioSitumCustomLocalizado;
         }
 
@@ -879,8 +898,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (edificioActivo) {
                         MapaActivity.this.edificioSitumCustomActivo.setPisos(listaPiso);
                         Collection<Piso> listaPisoCaronte = MapaActivity.this.mapaEdificioSitumCustom.get(edificio.getEdificio().getIdentifier()).getPisos();
-                        establecerCorPiso(listaPisoCaronte);
-                        MapaActivity.this.selectorPiso.amosarSelectorPiso(listaPisoCaronte, idPlantaMostrar, MapaActivity.this.mapaCorMarcador);
+                        MapaActivity.this.selectorPiso.amosarSelectorPiso(listaPisoCaronte, idPlantaMostrar, MapaActivity.this.listaCor);
                     }
                     else {
                         MapaActivity.this.edificioSitumCustomLocalizado.setPisos(listaPiso);
@@ -1067,21 +1085,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.listaCor.add(BitmapDescriptorFactory.HUE_AZURE);
     }
 
-    private void establecerCorPiso(Collection<Piso> listaPiso) {
-
-        if (listaPiso != null) {
-            int indice = 0;
-            for (Piso piso : listaPiso) {
-                this.mapaCorMarcador.put(piso.getPiso().getLevel(), this.listaCor.get(indice));
-                indice++;
-                if (indice == this.listaCor.size()) {
-                    indice = 0;
-                }
-            }
-        }
-
-    }
-
     public void crearListaPoi(String idEdificioExterno, List<PuntoInterese> listaPoi) {
 
         List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(idEdificioExterno);
@@ -1100,10 +1103,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //Se non conten o poi debemos crear o marcador
                 marcadorCustom = new MarcadorCustom(poi.getIdPuntoInterese(), posicion.getIdPlanta(), poi);
                 latLng = new LatLng(posicion.getLatitude(), posicion.getLonxitude());
-                Float cor = this.mapaCorMarcador.get(posicion.getNivel());
+                Float cor = this.listaCor.get(posicion.getNivel() % this.listaCor.size());
                 Marker marcadorPoi = this.map.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(poi.getNome())
+                        .visible(false)
                         .icon(BitmapDescriptorFactory.defaultMarker(cor)));
                 marcadorCustom.setMarcadorGoogle(marcadorPoi);
                 listaMarcadorEdificio.add(marcadorCustom);
@@ -1181,10 +1185,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     //PercorridoParam
     public void ocultarPercorrido() {
         //Ocultar as posibeis marcas
-        if (MapaActivity.this.marcaPercorrido != null) {
-            MapaActivity.this.marcaPercorrido.remove();
-            MapaActivity.this.marcaPercorrido = null;
+        for (Polyline polilinea : this.listaMarcaPercorrido) {
+            polilinea.remove();
         }
+        this.listaMarcaPercorrido.clear();
     }
 
     public void amosarPercorrido(List<MarcadorCustom> listaPIP) {
@@ -1210,23 +1214,25 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         boolean percorridoEditabel = EModoMapa.EDICION.equals(this.modoMapa)|| EModoMapa.CREAR_PERCORRIDO.equals(this.modoMapa);
 
         //Amosamos o percorrido
-        PolylineOptions polyLineOptions = new PolylineOptions().color(Color.BLUE).width(4f).clickable(percorridoEditabel).endCap(new CustomCap(BitmapDescriptorFactory.fromResource(R.drawable.ic_play_arrow_black_24dp)));
+        //TODO.endCap(new CustomCap(BitmapDescriptorFactory.fromResource(R.drawable.ic_play_arrow_black_24dp)))
+        PolylineOptions polyLineOptions;
+        Polyline polilinea;
+        LatLng marcadorPrevio = null;
+        LatLng marcadorNuevo = null;
         for (MarcadorCustom mc : listaAmosar) {
-            polyLineOptions.add(new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude));
-        }
-        this.marcaPercorrido = this.map.addPolyline(polyLineOptions);
-    }
+            marcadorNuevo = new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude);
+            if (marcadorPrevio != null) {
+                //Engadimos os puntos da polilinha
+                polyLineOptions = new PolylineOptions().color(Constantes.COR_PERCORRIDO).width(Constantes.GROSOR_PERCORRIDO);
+                polyLineOptions.add(marcadorPrevio);
+                polyLineOptions.add(marcadorNuevo);
 
-    @Override
-    public void onPolylineClick(Polyline polyline) {
-        // Cambiar a patron punto-raia
-        if ((polyline.getPattern() == null) || (!polyline.getPattern().contains(DOT))) {
-            polyline.setPattern(PATTERN_POLYLINE_DOTTED);
-            //TODO Permitir que seleccione un POI para introducir no medio
-        }
-        else {
-            // Por defecto, normal
-            polyline.setPattern(null);
+                //Creamos a polilinha e a engadimos
+                polilinea = this.map.addPolyline(polyLineOptions);
+                polilinea.setClickable(percorridoEditabel);
+                this.listaMarcaPercorrido.add(polilinea);
+            }
+            marcadorPrevio = marcadorNuevo;
         }
 
     }
@@ -1258,7 +1264,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onSuccess(PolylineOptions listaLinhas, LatLngBounds.Builder limite) {
                         if (listaLinhas != null) {
                             ocultarPercorrido();
-                            MapaActivity.this.marcaPercorrido = map.addPolyline(listaLinhas);
+                            MapaActivity.this.listaMarcaPercorrido.add(MapaActivity.this.map.addPolyline(listaLinhas));
                         }
 //                debuxarRuta(mapa);
                         MapaActivity.this.map.animateCamera(CameraUpdateFactory.newLatLngBounds(limite.build(), 100));
