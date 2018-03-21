@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fondo"
     tools:context="gal.caronte.caronte.activity.InicioActivity">
 
     <TextView
@@ -89,7 +90,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textViewNomeContaGoogle"
-        android:layout_marginTop="50dp">
+        android:layout_marginTop="50dp"
+        android:layout_marginHorizontal="15dp">
 
         <TextView
             android:id="@+id/textViewContaSitum"
@@ -108,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/textViewContaSitum"
-            android:textColor="@color/branco" />
+            android:color="@color/colorPrimary" />
 
     </RelativeLayout>
 

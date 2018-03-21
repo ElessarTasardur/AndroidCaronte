@@ -31,17 +31,22 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CustomCap;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -86,11 +91,18 @@ import gal.caronte.caronte.view.SelectorPoiPercorrido;
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
 //        com.google.android.gms.location.LocationListener,
         GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnPolylineClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
 
     private static final int CODIGO_SOLICITUDE_PERMISO_LOCALIZACION = 1;
+
+    //Patrons polilinhas
+    private static final PatternItem DOT = new Dot();
+    private static final PatternItem GAP = new Gap(4);
+    //Patron composto
+    private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
 
     //GoogleMaps
     private GoogleMap map;
@@ -1195,12 +1207,28 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void amosarLinhaPercorrido(List<MarcadorCustom> listaAmosar) {
+        boolean percorridoEditabel = EModoMapa.EDICION.equals(this.modoMapa)|| EModoMapa.CREAR_PERCORRIDO.equals(this.modoMapa);
+
         //Amosamos o percorrido
-        PolylineOptions polyLineOptions = new PolylineOptions().color(Color.GREEN).width(4f);
+        PolylineOptions polyLineOptions = new PolylineOptions().color(Color.BLUE).width(4f).clickable(percorridoEditabel).endCap(new CustomCap(BitmapDescriptorFactory.fromResource(R.drawable.ic_play_arrow_black_24dp)));
         for (MarcadorCustom mc : listaAmosar) {
             polyLineOptions.add(new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude));
         }
         this.marcaPercorrido = this.map.addPolyline(polyLineOptions);
+    }
+
+    @Override
+    public void onPolylineClick(Polyline polyline) {
+        // Cambiar a patron punto-raia
+        if ((polyline.getPattern() == null) || (!polyline.getPattern().contains(DOT))) {
+            polyline.setPattern(PATTERN_POLYLINE_DOTTED);
+            //TODO Permitir que seleccione un POI para introducir no medio
+        }
+        else {
+            // Por defecto, normal
+            polyline.setPattern(null);
+        }
+
     }
 
     //Servizos
