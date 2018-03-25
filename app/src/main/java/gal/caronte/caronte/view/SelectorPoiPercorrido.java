@@ -70,7 +70,7 @@ public class SelectorPoiPercorrido {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 SelectorPoiPercorrido.this.percorridoSeleccionado = (PercorridoCustom) SelectorPoiPercorrido.this.spinnerPercorrido.getSelectedItem();
-                Log.i(TAG, StringUtil.creaString("Seleccionado o percorrido: ", percorridoSeleccionado));
+                Log.i(TAG, StringUtil.creaString("Seleccionado o percorrido: ", SelectorPoiPercorrido.this.percorridoSeleccionado));
 
                 SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
                 SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
@@ -320,6 +320,7 @@ public class SelectorPoiPercorrido {
                 }
 
                 percorrido.setListaPIP(listaMarcadorPIP);
+                this.mapaActivity.ocultarPercorrido();
                 this.mapaActivity.amosarPercorrido(listaMarcadorPIP);
             }
         }
@@ -376,5 +377,9 @@ public class SelectorPoiPercorrido {
 
     public MapaActivity getMapaActivity() {
         return this.mapaActivity;
+    }
+
+    public PercorridoCustom getPercorridoSeleccionado() {
+        return this.percorridoSeleccionado;
     }
 }

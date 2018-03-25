@@ -69,7 +69,7 @@
     <string name="situar_poi">Sitúe o POI</string>
     <string name="novo_poi">Novo POI</string>
     <string name="novo_percorrido">Novo percorrido</string>
-    <string name="poi_consecutivo_percorrido">Non se pode escoller dúas veces consecutivas o mesmo POI</string>
+    <string name="poi_repetido_percorrido">Non se pode escoller dúas veces o mesmo POI</string>
 
 
     <!-- Mensaxes ao eliminar -->

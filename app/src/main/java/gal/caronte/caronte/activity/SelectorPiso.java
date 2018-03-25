@@ -86,7 +86,8 @@ public class SelectorPiso {
         this.idPlantaActual = idPlanta;
 
         if (this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_POI)
-                || this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_PERCORRIDO)) {
+                || this.mapaActivity.getModoMapa().equals(EModoMapa.CREAR_PERCORRIDO)
+                || this.mapaActivity.getModoMapa().equals(EModoMapa.MODIFICAR_POI_PERCORRIDO)) {
             this.mapaActivity.amosarPoiPiso();
         }
 
