@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,7 +35,6 @@ import gal.caronte.caronte.custom.sw.EdificioCustom;
 import gal.caronte.caronte.servizo.ComprobarUsuarioGoogle;
 import gal.caronte.caronte.servizo.RecuperarConta;
 import gal.caronte.caronte.servizo.RecuperarEdificio;
-import gal.caronte.caronte.servizo.RecuperarPuntoInteresePercorrido;
 import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.StringUtil;
 
