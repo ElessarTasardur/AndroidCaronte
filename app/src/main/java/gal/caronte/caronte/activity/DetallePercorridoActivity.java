@@ -94,7 +94,8 @@ public class DetallePercorridoActivity extends AppCompatActivity {
             }
         }
         else if (this.modo != null
-                && this.modo.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                && (this.modo.equals(EModoMapa.CREAR_PERCORRIDO)
+                        || this.modo.equals(EModoMapa.MODIFICAR_POI_PERCORRIDO))) {
             botonGardar.setVisibility(View.VISIBLE);
             botonEliminar.setVisibility(View.INVISIBLE);
         }

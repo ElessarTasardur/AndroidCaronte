@@ -81,5 +81,6 @@
     <string name="eliminar_percorrido_correcto">Percorrido eliminado correctamente</string>
     <string name="boton_eliminar">Eliminar</string>
     <string name="boton_centrar_posicion">Centrar posición</string>
+    <string name="boton_percorrido_engadir_poi">Engadir un POI ao percorrido</string>
 
 </resources>

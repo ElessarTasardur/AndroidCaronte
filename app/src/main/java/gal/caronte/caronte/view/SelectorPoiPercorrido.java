@@ -42,6 +42,7 @@ public class SelectorPoiPercorrido {
 
     private Spinner spinnerPercorrido;
     private ImageButton botonPercorrido;
+    private ImageButton botonPercorridoEngadirPoi;
 
     private Spinner spinnerPoi;
     private ImageButton botonPoi;
@@ -57,6 +58,7 @@ public class SelectorPoiPercorrido {
 
         crearSpinnerPercorrido();
         crearBotonPercorrido();
+        crearBotonPercorridoEngadirPoi();
         crearSpinnerPoi();
         crearBotonPoi();
 
@@ -90,10 +92,19 @@ public class SelectorPoiPercorrido {
 
                     //Mostramos o boton para abrir o detalle
                     SelectorPoiPercorrido.this.botonPercorrido.setVisibility(View.VISIBLE);
+
+                    //Se temos o modo edicion activado, mostramos o boton
+                    if (EModoMapa.EDICION.equals(SelectorPoiPercorrido.this.mapaActivity.getModoMapa())) {
+                        SelectorPoiPercorrido.this.botonPercorridoEngadirPoi.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        SelectorPoiPercorrido.this.botonPercorridoEngadirPoi.setVisibility(View.INVISIBLE);
+                    }
                 }
                 else {
-                    //Ocultamos o boton para abrir o detalle
+                    //Ocultamos o boton para abrir o detalle e o boton para engadir POIs
                     SelectorPoiPercorrido.this.botonPercorrido.setVisibility(View.INVISIBLE);
+                    SelectorPoiPercorrido.this.botonPercorridoEngadirPoi.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -136,6 +147,19 @@ public class SelectorPoiPercorrido {
 
                 //Iniciamos a actividade do detalle do percorrido
                 SelectorPoiPercorrido.this.mapaActivity.startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_PERCORRIDO);
+            }
+        });
+    }
+
+    private void crearBotonPercorridoEngadirPoi() {
+        //Boton engadir POI a percorrido
+        this.botonPercorridoEngadirPoi = this.mapaActivity.findViewById(R.id.image_button_percorrido_engadir_poi);
+        this.botonPercorridoEngadirPoi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO modificar modo de mapa. ENGADIR_POI_PERCORRIDO?
+                //TODO como escoller o punto no que se vai engadir, comezo ou final?
+
             }
         });
     }
@@ -193,14 +217,7 @@ public class SelectorPoiPercorrido {
                 Bundle b = new Bundle();
                 b.putParcelable(Constantes.PUNTO_INTERESE, SelectorPoiPercorrido.this.poiSeleccionado);
 
-                EModoMapa modo;
-                if (SelectorPoiPercorrido.this.mapaActivity.comprobarPermisoEdificio(SelectorPoiPercorrido.this.poiSeleccionado.getPosicion().getIdEdificio())) {
-                    modo = EModoMapa.EDICION;
-                }
-                else {
-                    modo = EModoMapa.CONSULTA;
-                }
-                intent.putExtra(Constantes.MODO, modo);
+                intent.putExtra(Constantes.MODO, SelectorPoiPercorrido.this.mapaActivity.getModoMapa());
 
                 intent.putExtras(b);
 
@@ -216,6 +233,10 @@ public class SelectorPoiPercorrido {
             //Se o elemento seleccionado non e o primeiro, mostramos o boton
             if (!this.spinnerPercorrido.getSelectedItem().equals(this.spinnerPercorrido.getAdapter().getItem(0))) {
                 this.botonPercorrido.setVisibility(View.VISIBLE);
+                //Se estamos no modo edicion, mostramos o boton de engadir POIs
+                if (EModoMapa.EDICION.equals(this.mapaActivity.getModoMapa())) {
+                    this.botonPercorridoEngadirPoi.setVisibility(View.VISIBLE);
+                }
             }
         }
         else {
@@ -241,6 +262,7 @@ public class SelectorPoiPercorrido {
     public void ocultarSpinnerPercorrido() {
         this.spinnerPercorrido.setVisibility(View.INVISIBLE);
         this.botonPercorrido.setVisibility(View.INVISIBLE);
+        this.botonPercorridoEngadirPoi.setVisibility(View.INVISIBLE);
     }
 
     public void ocultarSpinnerPoi() {

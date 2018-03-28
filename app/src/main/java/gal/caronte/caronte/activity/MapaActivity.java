@@ -327,7 +327,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Boton aceptar
         MenuItem botonAceptar = menu.findItem(R.id.accion_aceptar);
         boolean mostrarBotonAceptar = (modoCrearPoi && this.posicionNovoPoi != null)
-                || (modoCrearPercorrido && this.listaNovoPercorrido.size() > 2);
+                || (modoCrearPercorrido && this.listaNovoPercorrido.size() > 2
+                || modoModificarPoiPercorrido);
         botonAceptar.setVisible(mostrarBotonAceptar);
 
         //Boton cancelar
@@ -390,7 +391,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //Iniciamos a actividade do mapa
                     startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_POI);
                 }
-                else if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)) {
+                else if (this.modoMapa.equals(EModoMapa.CREAR_PERCORRIDO)
+                        || this.modoMapa.equals(EModoMapa.MODIFICAR_POI_PERCORRIDO)) {
                     this.detallePercorrido = true;
                     Intent intent = new Intent(this, DetallePercorridoActivity.class);
 
@@ -410,7 +412,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     //Iniciamos a actividade do mapa
                     startActivityForResult(intent, Constantes.ACTIVIDADE_DETALLE_PERCORRIDO);
-
+//TODO
                 }
                 return true;
 
@@ -522,6 +524,20 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     MapaActivity.this.posicionPoiMover = null;
                     MapaActivity.this.modoMapa = EModoMapa.EDICION;
                     invalidateOptionsMenu();
+                }
+                else if () {
+                    MarcadorCustom mcElixido = null;
+                    List<MarcadorCustom> listaMarcadorEdificio = MapaActivity.this.mapaMarcador.get(MapaActivity.this.idEdificioExternoActivo);
+                    for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
+                        if (marcadorCustom.getMarcadorGoogle().getPosition().equals(marker.getPosition())) {
+                            mcElixido = marcadorCustom;
+                            break;
+                        }
+                    }
+
+                    if (mcElixido) {
+
+                    }
                 }
                 
                 return true;
