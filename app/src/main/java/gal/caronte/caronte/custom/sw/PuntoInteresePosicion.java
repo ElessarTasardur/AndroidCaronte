@@ -45,4 +45,13 @@ public class PuntoInteresePosicion {
         this.posicion = posicion;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("PuntoInteresePosicion{");
+        sb.append("idPercorrido=").append(idPercorrido);
+        sb.append(", idPuntoInterese=").append(idPuntoInterese);
+        sb.append(", posicion=").append(posicion);
+        sb.append('}');
+        return sb.toString();
+    }
 }

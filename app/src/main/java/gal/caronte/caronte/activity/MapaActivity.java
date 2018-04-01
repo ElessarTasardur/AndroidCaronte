@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CustomCap;
@@ -75,10 +78,10 @@ import gal.caronte.caronte.custom.sw.PercorridoParam;
 import gal.caronte.caronte.custom.sw.Posicion;
 import gal.caronte.caronte.custom.sw.PuntoInterese;
 import gal.caronte.caronte.servizo.GardarPercorrido;
-import gal.caronte.caronte.servizo.situm.RecuperarMapa;
 import gal.caronte.caronte.servizo.RecuperarPoi;
 import gal.caronte.caronte.servizo.situm.RecuperarEdificioSitum;
 import gal.caronte.caronte.servizo.situm.RecuperarListaEdificioSitum;
+import gal.caronte.caronte.servizo.situm.RecuperarMapa;
 import gal.caronte.caronte.servizo.situm.RecuperarRuta;
 import gal.caronte.caronte.util.Constantes;
 import gal.caronte.caronte.util.EModoMapa;
@@ -168,6 +171,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<MarcadorCustom> listaNovoPercorrido = new ArrayList<>();
     private List<Integer> listaIdNovoPercorrido = new ArrayList<>();
     private boolean eliminarPoi = false;
+    private BitmapDescriptor cap;
 
     //Menu lateral
 //    private DrawerLayout mDrawerLayout;
@@ -1429,12 +1433,13 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (listaMarcadorEdificio != null) {
             List<MarcadorCustom> listaAmosar = new ArrayList<>(listaPIP.size());
             List<Integer> listaIdAmosar = new ArrayList<>(listaPIP.size());
-            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
-                boolean amosar = listaPIP.contains(marcadorCustom);
-                marcadorCustom.getMarcadorGoogle().setVisible(amosar);
-                if (amosar) {
-                    listaAmosar.add(marcadorCustom);
-                    listaIdAmosar.add(marcadorCustom.getIdPoi());
+            for (MarcadorCustom marcadorCustom : listaPIP) {
+                int indice = listaMarcadorEdificio.indexOf(marcadorCustom);
+                if (indice != -1) {
+                    MarcadorCustom mcAtopado = listaMarcadorEdificio.get(indice);
+                    mcAtopado.getMarcadorGoogle().setVisible(true);
+                    listaAmosar.add(mcAtopado);
+                    listaIdAmosar.add(mcAtopado.getIdPoi());
                 }
             }
 
@@ -1450,7 +1455,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Amosamos o percorrido
         PolylineOptions polyLineOptions;
-        Polyline polilinea;
+        Polyline polilinha;
         LatLng marcadorPrevio = null;
         LatLng marcadorNuevo;
         for (MarcadorCustom mc : listaAmosar) {
@@ -1462,14 +1467,27 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 polyLineOptions.add(marcadorNuevo);
 
                 //Creamos a polilinha e a engadimos
-                polilinea = this.map.addPolyline(polyLineOptions);
-                polilinea.setClickable(percorridoEditabel);
-                polilinea.setStartCap(new CustomCap(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa), 20));
-                this.listaMarcaPercorrido.add(polilinea);
+                polilinha = this.map.addPolyline(polyLineOptions);
+                polilinha.setClickable(percorridoEditabel);
+                polilinha.setEndCap(new CustomCap(getEndCapIcon(), 20));
+                this.listaMarcaPercorrido.add(polilinha);
             }
             marcadorPrevio = marcadorNuevo;
         }
 
+    }
+
+    private BitmapDescriptor getEndCapIcon() {
+
+        if (this.cap == null) {
+            Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_posicion_mapa);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            drawable.draw(new Canvas(bitmap));
+            this.cap = BitmapDescriptorFactory.fromBitmap(bitmap);
+        }
+
+        return this.cap;
     }
 
     //Servizos
