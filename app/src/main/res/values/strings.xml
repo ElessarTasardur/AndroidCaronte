@@ -70,6 +70,7 @@
     <string name="novo_poi">Novo POI</string>
     <string name="novo_percorrido">Novo percorrido</string>
     <string name="poi_repetido_percorrido">Non se pode escoller dúas veces o mesmo POI</string>
+    <string name="poi_percorrido_eliminar_non_permitido">Non se pode borrar o POI porque o percorrido é moi curto</string>
 
 
     <!-- Mensaxes ao eliminar -->
@@ -82,5 +83,8 @@
     <string name="boton_eliminar">Eliminar</string>
     <string name="boton_centrar_posicion">Centrar posición</string>
     <string name="boton_percorrido_engadir_poi">Engadir un POI ao percorrido</string>
+    <string name="ultima">Última</string>
+    <string name="primeira">Primeira</string>
+    <string name="eliminar_poi">Eliminar POI</string>
 
 </resources>

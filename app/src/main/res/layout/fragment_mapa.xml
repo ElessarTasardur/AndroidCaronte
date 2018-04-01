@@ -9,17 +9,17 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     tools:context=".activity.MapaActivity">
 
-    <ImageButton
-        android:id="@+id/image_button_actualizar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/boton_actualizar_descricion"
-        app:srcCompat="@drawable/ic_refresh_black_24dp" />
+    <!--<ImageButton-->
+        <!--android:id="@+id/image_button_actualizar"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:contentDescription="@string/boton_actualizar_descricion"-->
+        <!--app:srcCompat="@drawable/ic_refresh_black_24dp" />-->
 
     <include layout="@layout/layout_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center" />
+        android:layout_gravity="top|start" />
 
     <include layout="@layout/layout_niveis"
         android:layout_width="wrap_content"

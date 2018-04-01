@@ -34,19 +34,20 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
     private static final String TAG = GardarPercorrido.class.getSimpleName();
 
     private DetallePercorridoActivity detallePercorridoActivity;
+    private MapaActivity mapaActivity;
 
     @Override
     protected Short doInBackground(GardarPercorridoParam... params) {
         GardarPercorridoParam percorridoParam = params[0];
         Short idPercorrido = null;
         try {
-            final String url = StringUtil.creaString(this.detallePercorridoActivity.getString(R.string.direccion_servidor), this.detallePercorridoActivity.getString(R.string.direccion_servizo_gardar_percorrido));
+            final String url = StringUtil.creaString(getActivity().getString(R.string.direccion_servidor), getActivity().getString(R.string.direccion_servizo_gardar_percorrido));
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.setAuthorization(new HttpBasicAuthentication(this.detallePercorridoActivity.getString(R.string.usuario_sw), this.detallePercorridoActivity.getString(R.string.contrasinal_sw)));
+            headers.setAuthorization(new HttpBasicAuthentication(getActivity().getString(R.string.usuario_sw), getActivity().getString(R.string.contrasinal_sw)));
             HttpEntity<GardarPercorridoParam> entity = new HttpEntity<>(percorridoParam, headers);
 
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
@@ -67,12 +68,33 @@ public class GardarPercorrido extends AsyncTask<GardarPercorridoParam, Void, Sho
 
     @Override
     protected void onPostExecute(Short idPercorrido) {
-        Intent intent = new Intent();
-        this.detallePercorridoActivity.setResult(Activity.RESULT_OK, intent);
-        this.detallePercorridoActivity.finish();
+        if (this.detallePercorridoActivity != null) {
+            Intent intent = new Intent();
+            getActivity().setResult(Activity.RESULT_OK, intent);
+            getActivity().finish();
+        }
+        //Se a chamada veu dende o mapa, refrescamos percorrido
+        else {
+            this.mapaActivity.actualizarPercorrido();
+        }
     }
 
     public void setDetallePercorridoActivity(DetallePercorridoActivity detallePercorridoActivity) {
         this.detallePercorridoActivity = detallePercorridoActivity;
+    }
+
+    public void setMapaActivity(MapaActivity mapaActivity) {
+        this.mapaActivity = mapaActivity;
+    }
+
+    private Activity getActivity() {
+        Activity retorno;
+        if (this.detallePercorridoActivity != null) {
+            retorno = this.detallePercorridoActivity;
+        }
+        else {
+            retorno = this.mapaActivity;
+        }
+        return retorno;
     }
 }

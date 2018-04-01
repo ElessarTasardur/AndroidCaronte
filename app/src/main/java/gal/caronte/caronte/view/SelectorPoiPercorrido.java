@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,9 @@ public class SelectorPoiPercorrido {
     private PuntoInterese poiSeleccionado;
 
     private MapaActivity mapaActivity;
+
+    //Para evitar parte da loxica cando se selecciona un elemento directamente
+    private boolean seleccionarElemento;
 
     public SelectorPoiPercorrido(MapaActivity mapaActivity) {
         super();
@@ -157,11 +161,14 @@ public class SelectorPoiPercorrido {
         this.botonPercorridoEngadirPoi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO modificar modo de mapa. ENGADIR_POI_PERCORRIDO?
-                //TODO como escoller o punto no que se vai engadir, comezo ou final?
-
+                SelectorPoiPercorrido.this.mapaActivity.setModoMapa(EModoMapa.ENGADIR_POI_PERCORRIDO);
+                SelectorPoiPercorrido.this.mapaActivity.invalidateOptionsMenu();
+                SelectorPoiPercorrido.this.mapaActivity.amosarPoiPiso();
+                //Cambiar o titulo da actividade
+                SelectorPoiPercorrido.this.mapaActivity.setTitle(SelectorPoiPercorrido.this.mapaActivity.getString(R.string.seleccionar_poi));
             }
         });
+
     }
 
     private void crearSpinnerPoi() {
@@ -174,9 +181,13 @@ public class SelectorPoiPercorrido {
                 Log.i(TAG, StringUtil.creaString("Seleccionado o poi: ", SelectorPoiPercorrido.this.poiSeleccionado));
 
                 if (!Constantes.ID_FICTICIO.equals(SelectorPoiPercorrido.this.poiSeleccionado.getIdPuntoInterese())) {
-                    SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
-                    SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
-                    SelectorPoiPercorrido.this.mapaActivity.amosarPoi(SelectorPoiPercorrido.this.poiSeleccionado.getIdPuntoInterese());
+
+                    //Se se selecciona o POI no spinner, realizamos as accions. Se se escolle a traves dun marcador, non
+                    if (!SelectorPoiPercorrido.this.seleccionarElemento) {
+                        SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
+                        SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
+                        SelectorPoiPercorrido.this.mapaActivity.amosarPoi(SelectorPoiPercorrido.this.poiSeleccionado.getIdPuntoInterese());
+                    }
 
                     //Se os percorridos estan visibeis seleccionamos o primeiro
                     if (SelectorPoiPercorrido.this.spinnerPercorrido.getAdapter() != null
@@ -192,6 +203,8 @@ public class SelectorPoiPercorrido {
                     //Ocultamos o boton para abrir o detalle
                     SelectorPoiPercorrido.this.botonPoi.setVisibility(View.INVISIBLE);
                 }
+
+                SelectorPoiPercorrido.this.seleccionarElemento = false;
             }
 
             @Override
@@ -270,6 +283,14 @@ public class SelectorPoiPercorrido {
         this.botonPoi.setVisibility(View.INVISIBLE);
     }
 
+    public boolean isSpinnerPoiVisible() {
+        return this.spinnerPoi.getVisibility() == View.VISIBLE;
+    }
+
+    public boolean isSpinnerPercorridoVisible() {
+        return this.spinnerPercorrido.getVisibility() == View.VISIBLE;
+    }
+
     public void deseleccionarPercorrido() {
         if (this.spinnerPercorrido.getAdapter() != null
                 && this.spinnerPercorrido.getAdapter().getCount() > 0) {
@@ -281,6 +302,21 @@ public class SelectorPoiPercorrido {
         if (this.spinnerPoi.getAdapter() != null
                 && this.spinnerPoi.getAdapter().getCount() > 0) {
             this.spinnerPoi.setSelection(0);
+        }
+    }
+
+    public void seleccionarPoi(Integer idPoi) {
+        if (this.spinnerPoi.getAdapter() != null
+                && this.spinnerPoi.getAdapter().getCount() > 0) {
+            SpinnerAdapter nha = this.spinnerPoi.getAdapter();
+            int indice;
+            for (indice = 0; indice < nha.getCount(); indice++) {
+                if (((PuntoInterese) nha.getItem(indice)).getIdPuntoInterese().equals(idPoi)) {
+                    break;
+                }
+            }
+            this.seleccionarElemento = true;
+            this.spinnerPoi.setSelection(indice);
         }
     }
 
