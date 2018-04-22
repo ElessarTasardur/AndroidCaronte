@@ -14,12 +14,6 @@ android {
 
     }
     buildTypes {
-        debug {
-//            def gmaps_api_key = System.getenv("GMAPS_KEY").toString()
-//            def api_user = System.getenv("API_USER").toString()
-//            def api_key = System.getenv("API_KEY").toString()
-            resValue 'string', 'google_maps_key', "AIzaSyAJUqzy0W87HwurLOVwiPdC_Qwdja_bKiA"
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -52,6 +46,16 @@ dependencies {
     implementation 'org.springframework.android:spring-android-rest-template:2.0.0.M3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     testImplementation 'junit:junit:4.12'
+
+
+
+    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    implementation('org.apache.httpcomponents:httpmime:4.3') {
+            exclude module: "httpclient"
+        }
+
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'

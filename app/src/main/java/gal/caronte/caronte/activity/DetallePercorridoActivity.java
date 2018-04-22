@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,16 +36,21 @@ public class DetallePercorridoActivity extends AppCompatActivity {
     private String nomePercorrido;
     private String descricionPercorrido;
     private Integer idEdificio;
+    private Integer tempoCaminho;
+    private Integer tempoTotal;
     private List<PuntoInterese> listaPuntoInterese;
     private EModoMapa modo;
 
     private EditText editTextNome;
     private EditText editTextDescricion;
+    private EditText editTextTempoCaminho;
+    private EditText editTextTempoTotal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_percorrido);
+        setTitle(getString(R.string.title_activity_detalle_percorrido));
 
         //Toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPercorrido);
@@ -58,6 +65,8 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         this.nomePercorrido = bundle.getString(Constantes.NOME_PERCORRIDO);
         this.descricionPercorrido = bundle.getString(Constantes.DESCRICION_PERCORRIDO);
         this.idEdificio = bundle.getInt(Constantes.ID_EDIFICIO);
+        this.tempoTotal = bundle.getInt(Constantes.TEMPO_TOTAL);
+        this.tempoCaminho = bundle.getInt(Constantes.TEMPO_CAMINHO);
         this.listaPuntoInterese = bundle.getParcelableArrayList(Constantes.LISTA_PUNTO_INTERESE);
         this.modo = (EModoMapa) getIntent().getSerializableExtra(Constantes.MODO);
 
@@ -69,6 +78,30 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         this.editTextDescricion = this.findViewById(R.id.editTextDescricion);
         this.editTextDescricion.setText(this.descricionPercorrido);
         activarTexto(this.editTextDescricion);
+
+        this.editTextTempoCaminho = this.findViewById(R.id.editTextTempoCaminho);
+        this.editTextTempoCaminho.setText(this.tempoCaminho.toString());
+        this.editTextTempoCaminho.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+
+                String valor = DetallePercorridoActivity.this.editTextTempoCaminho.getText().toString();
+                Integer novoValor = DetallePercorridoActivity.this.tempoTotal - DetallePercorridoActivity.this.tempoCaminho;
+                if (!valor.isEmpty()) {
+                    novoValor = novoValor + Integer.valueOf(valor);
+                }
+                DetallePercorridoActivity.this.editTextTempoTotal.setText(novoValor.toString());
+
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+        activarTexto(this.editTextTempoCaminho);
+
+        this.editTextTempoTotal = this.findViewById(R.id.editTextTempoTotal);
+        this.editTextTempoTotal.setText(this.tempoTotal.toString());
 
         Button botonGardar = this.findViewById(R.id.buttonGardar);
         botonGardar.setOnClickListener(new View.OnClickListener() {
@@ -114,7 +147,7 @@ public class DetallePercorridoActivity extends AppCompatActivity {
     private void gardarInformacionPercorrido() {
         GardarPercorrido gardarPercorrido = new GardarPercorrido();
         boolean cambio = false;
-        PercorridoParam percorridoParam = new PercorridoParam(this.idPercorrido, this.nomePercorrido, this.descricionPercorrido, this.idEdificio);
+        PercorridoParam percorridoParam = new PercorridoParam(this.idPercorrido, this.nomePercorrido, this.descricionPercorrido, this.idEdificio, this.tempoTotal, this.tempoCaminho);
 
         String novoNome = this.editTextNome.getText().toString();
         if (!novoNome.isEmpty()
@@ -127,6 +160,17 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         if (!novaDescricion.isEmpty()
                 && !novaDescricion.equals(this.descricionPercorrido)) {
             percorridoParam.setDescricion(novaDescricion);
+            cambio = true;
+        }
+
+        String valorTempoCaminhoStr = this.editTextTempoCaminho.getText().toString();
+        Integer valorTempoCaminho = 0;
+        if (!valorTempoCaminhoStr.isEmpty()) {
+            valorTempoCaminho = Integer.valueOf(valorTempoCaminhoStr);
+        }
+        if (!valorTempoCaminho.equals(this.tempoCaminho)) {
+            percorridoParam.setTempoCaminho(valorTempoCaminho);
+            percorridoParam.setTempoTotal(Integer.valueOf(this.editTextTempoTotal.getText().toString()));
             cambio = true;
         }
 

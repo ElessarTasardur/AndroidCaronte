@@ -180,6 +180,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
+        setTitle(getString(R.string.title_activity_maps));
 
         //Recuperamos a informacion do intent
         Bundle bundle = getIntent().getExtras();
@@ -401,10 +402,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     //Engadimos a informacion do poi ao intent
                     Bundle b = new Bundle();
-                    PuntoInterese poi = new PuntoInterese();
-                    poi.setIdPuntoInterese(Constantes.ID_FICTICIO);
-                    poi.setNome("");
-                    poi.setDescricion("");
+                    PuntoInterese poi = new PuntoInterese(Constantes.ID_FICTICIO, "", "", 0);
                     poi.setPosicion(this.posicionNovoPoi);
                     b.putParcelable(Constantes.PUNTO_INTERESE, poi);
                     intent.putExtras(b);
@@ -1500,9 +1498,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void gardarInformacionPercorrido() {
         GardarPercorrido gardarPercorrido = new GardarPercorrido();
         gardarPercorrido.setMapaActivity(this);
-        PercorridoCustom percorridoCustom = this.seccionSpinner.getPercorridoSeleccionado();
+        PercorridoCustom percorrido = this.seccionSpinner.getPercorridoSeleccionado();
 
-        PercorridoParam percorridoParam = new PercorridoParam(percorridoCustom.getIdPercorrido(), percorridoCustom.getNome(), percorridoCustom.getDescricion(), percorridoCustom.getIdEdificio());
+        PercorridoParam percorridoParam = new PercorridoParam(percorrido.getIdPercorrido(), percorrido.getNome(), percorrido.getDescricion(), percorrido.getIdEdificio(), percorrido.getTempoTotal(), percorrido.getTempoCaminho());
 
         List<PuntoInterese> listaPoi = new ArrayList<>(this.listaNovoPercorrido.size());
         for (MarcadorCustom mc : this.listaNovoPercorrido) {

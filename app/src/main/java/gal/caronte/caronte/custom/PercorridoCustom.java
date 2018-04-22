@@ -15,18 +15,22 @@ public class PercorridoCustom {
     private String nome;
     private String descricion;
     private Integer idEdificio;
+    private Integer tempoTotal;
+    private Integer tempoCaminho;
     private List<MarcadorCustom> listaPIP = new ArrayList<>();
 
     public PercorridoCustom() {
         super();
     }
 
-    public PercorridoCustom(Integer idPercorrido, String nome, String descricion, Integer idEdificio) {
+    public PercorridoCustom(Integer idPercorrido, String nome, String descricion, Integer idEdificio, Integer tempoTotal, Integer tempoCaminho) {
         super();
         this.idPercorrido = idPercorrido;
         this.nome = nome;
         this.descricion = descricion;
         this.idEdificio = idEdificio;
+        this.tempoTotal = tempoTotal;
+        this.tempoCaminho = tempoCaminho;
     }
 
     /**
@@ -83,6 +87,22 @@ public class PercorridoCustom {
      */
     public void setIdEdificio(Integer idEdificio) {
         this.idEdificio = idEdificio;
+    }
+
+    public Integer getTempoTotal() {
+        return tempoTotal;
+    }
+
+    public void setTempoTotal(Integer tempoTotal) {
+        this.tempoTotal = tempoTotal;
+    }
+
+    public Integer getTempoCaminho() {
+        return tempoCaminho;
+    }
+
+    public void setTempoCaminho(Integer tempoCaminho) {
+        this.tempoCaminho = tempoCaminho;
     }
 
     /**

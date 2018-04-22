@@ -1,5 +1,7 @@
 <resources>
 
+    <string name="google_maps_key">AIzaSyAJUqzy0W87HwurLOVwiPdC_Qwdja_bKiA</string>
+
     <!-- Fixos -->
     <string name="app_name">Caronte</string>
     <string name="title_activity_maps">Caronte</string>
@@ -18,6 +20,13 @@
     <string name="direccion_servizo_recuperar_puntos_interese_percorrido">ppi/{idPercorrido}</string>
     <string name="direccion_servizo_eliminar_poi">poi/eliminar</string>
     <string name="direccion_servizo_eliminar_percorrido">percorrido/eliminar</string>
+    <string name="direccion_servizo_recuperar_datos_imaxe">imaxe/recuperar/{listaIdImaxeCSV}</string>
+
+    <string name="direccion_servidor_imaxe">http://ec2-34-241-173-6.eu-west-1.compute.amazonaws.com:8080/sw/imaxe/</string>
+    <string name="direccion_servizo_recuperar_imaxe">recuperar/{idEdificio}/{idPoi}/{idImaxe}</string>
+    <string name="direccion_servizo_subir_imaxe">subir/{idEdificio}/{idPoi}/{nome}/{descricion}</string>
+    <string name="direccion_servizo_actualizar_imaxe">actualizar/{idImaxe}/{nome}/{descricion}</string>
+    <string name="direccion_servizo_eliminar_imaxe">eliminar/{idImaxe}</string>
 
     <string name="usuario_sw">CaronteSW</string>
     <string name="contrasinal_sw">aplicacion</string>
@@ -71,6 +80,7 @@
     <string name="novo_percorrido">Novo percorrido</string>
     <string name="poi_repetido_percorrido">Non se pode escoller dúas veces o mesmo POI</string>
     <string name="poi_percorrido_eliminar_non_permitido">Non se pode borrar o POI porque o percorrido é moi curto</string>
+    <string name="poi_seleccionar_imaxe">Seleccionar imaxe</string>
 
 
     <!-- Mensaxes ao eliminar -->
@@ -86,5 +96,11 @@
     <string name="ultima">Última</string>
     <string name="primeira">Primeira</string>
     <string name="eliminar_poi">Eliminar POI</string>
+    <string name="textview_tempo_aproximado">Tempo aproximado:</string>
+    <string name="ver_imaxe">Ver imaxe</string>
+    <string name="subir_imaxe">Subir imaxe</string>
+    <string name="textview_tempo_total">Tempo total:</string>
+    <string name="textview_tempo_caminho">Tempo camiño:</string>
+
 
 </resources>

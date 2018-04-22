@@ -56,6 +56,43 @@
         android:textColor="@color/colorPrimary"
         tools:text="@string/edicion_descricion" />
 
+    <TextView
+        android:id="@+id/textViewTempoAprox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/editTextDescricion"
+        android:textColor="@color/colorAccent"
+        android:text="@string/textview_tempo_aproximado" />
+
+    <EditText
+        android:id="@+id/editTextTempoAprox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewTempoAprox"
+        android:ems="10"
+        android:textColor="@color/colorPrimary"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/buttonSubirImaxe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/buttonVerImaxe"
+        android:text="@string/subir_imaxe"
+        android:textColor="@color/colorPrimary" />
+
+    <Button
+        android:id="@+id/buttonVerImaxe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/buttonEliminar"
+        android:text="@string/ver_imaxe"
+        android:textColor="@color/colorPrimary" />
+
     <Button
         android:id="@+id/buttonEliminar"
         android:layout_width="wrap_content"

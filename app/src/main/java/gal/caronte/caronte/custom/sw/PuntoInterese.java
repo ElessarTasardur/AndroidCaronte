@@ -3,6 +3,7 @@ package gal.caronte.caronte.custom.sw;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -15,21 +16,25 @@ public class PuntoInterese implements Parcelable {
     private String nome;
     private String descricion;
     private Posicion posicion;
+    private Integer tempo;
+    private List<Integer> listaIdImaxe;
+    private List<ImaxeCustom> listaImaxe;
 
     public PuntoInterese() {
         super();
     }
 
-    public PuntoInterese(Integer idPuntoInterese, String nome, String descricion) {
+    public PuntoInterese(Integer idPuntoInterese, String nome, String descricion, Integer tempo) {
         super();
         this.idPuntoInterese = idPuntoInterese;
         this.nome = nome;
         this.descricion = descricion;
+        this.tempo = tempo;
     }
 
     public PuntoInterese(Integer idPuntoInterese, String nome, String descricion, Integer idEdificio, Integer idPlanta, Integer nivel,
-                         Double latitude, Double lonxitude) {
-        this(idPuntoInterese, nome, descricion);
+                         Double latitude, Double lonxitude, Integer tempo) {
+        this(idPuntoInterese, nome, descricion, tempo);
         this.posicion = new Posicion(idEdificio, idPlanta, nivel, latitude, lonxitude);
     }
 
@@ -89,6 +94,30 @@ public class PuntoInterese implements Parcelable {
         this.posicion = posicion;
     }
 
+    public Integer getTempo() {
+        return this.tempo;
+    }
+
+    public void setTempo(Integer tempo) {
+        this.tempo = tempo;
+    }
+
+    public List<Integer> getListaIdImaxe() {
+        return this.listaIdImaxe;
+    }
+
+    public void setListaIdImaxe(List<Integer> listaIdImaxe) {
+        this.listaIdImaxe = listaIdImaxe;
+    }
+
+    public List<ImaxeCustom> getListaImaxe() {
+        return this.listaImaxe;
+    }
+
+    public void setListaImaxe(List<ImaxeCustom> listaImaxe) {
+        this.listaImaxe = listaImaxe;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -135,6 +164,9 @@ public class PuntoInterese implements Parcelable {
         this.nome = in.readString();
         this.descricion = in.readString();
         this.posicion = in.readParcelable(Posicion.class.getClassLoader());
+        this.tempo = in.readInt();
+        this.listaIdImaxe = in.readArrayList(Integer.class.getClassLoader());
+        this.listaImaxe = in.readArrayList(ImaxeCustom.class.getClassLoader());
     }
 
     @Override
@@ -143,6 +175,9 @@ public class PuntoInterese implements Parcelable {
         dest.writeString(this.nome);
         dest.writeString(this.descricion);
         dest.writeParcelable(this.posicion, 0);
+        dest.writeInt(this.tempo);
+        dest.writeList(this.listaIdImaxe);
+        dest.writeList(this.listaImaxe);
     }
 
     @Override

@@ -26,6 +26,9 @@ public class Constantes {
     public static final String USUARIO_EDIFICIO = "usuarioEdificio";
     public static final String LISTA_EDIFICIO = "listaEdificio";
     public static final String LISTA_PUNTO_INTERESE = "listaPuntoInterese";
+    public static final String LISTA_IMAXE = "listaImaxe";
+    public static final String TEMPO_TOTAL = "tempoTotal";
+    public static final String TEMPO_CAMINHO = "tempoCaminho";
 
     //Percorrido
     public static final int COR_PERCORRIDO = Color.BLUE;

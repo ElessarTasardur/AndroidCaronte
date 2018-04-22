@@ -50,7 +50,7 @@ public class RecuperarPoi extends AsyncTask<String, Void, List<PuntoInterese>> {
             headers.setAuthorization(new HttpBasicAuthentication(this.mapaActivity.getString(R.string.usuario_sw), this.mapaActivity.getString(R.string.contrasinal_sw)));
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, idEdificioExterno);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, this.idEdificioExterno);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();

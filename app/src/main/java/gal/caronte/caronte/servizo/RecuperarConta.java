@@ -50,12 +50,6 @@ public class RecuperarConta extends AsyncTask<String, Void, List<Conta>> {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-//            restTemplate.setMessageConverters(Arrays.asList(
-//                    new MappingJackson2HttpMessageConverter(),
-//                    new FormHttpMessageConverter(),
-//                    new StringHttpMessageConverter()
-//            ));
-
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             headers.setAuthorization(new HttpBasicAuthentication(this.inicioActivity.getString(R.string.usuario_sw), this.inicioActivity.getString(R.string.contrasinal_sw)));

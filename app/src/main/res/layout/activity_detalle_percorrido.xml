@@ -56,6 +56,45 @@
         android:textColor="@color/colorPrimary"
         tools:text="@string/edicion_descricion" />
 
+    <TextView
+        android:id="@+id/textViewTempoCaminho"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/editTextDescricion"
+        android:text="@string/textview_tempo_caminho"
+        android:textColor="@color/colorAccent" />
+
+    <EditText
+        android:id="@+id/editTextTempoCaminho"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewTempoCaminho"
+        android:ems="10"
+        android:textColor="@color/colorPrimary"
+        android:inputType="number" />
+
+    <TextView
+        android:id="@+id/textViewTempoTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/editTextTempoCaminho"
+        android:text="@string/textview_tempo_total"
+        android:textColor="@color/colorAccent" />
+
+    <EditText
+        android:id="@+id/editTextTempoTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewTempoTotal"
+        android:ems="10"
+        android:textColor="@color/colorPrimary"
+        android:inputType="number"
+        android:enabled="false"/>
+
     <Button
         android:id="@+id/buttonEliminar"
         android:layout_width="wrap_content"

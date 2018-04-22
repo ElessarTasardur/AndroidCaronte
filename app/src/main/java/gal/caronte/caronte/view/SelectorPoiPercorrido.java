@@ -137,6 +137,8 @@ public class SelectorPoiPercorrido {
                 b.putString(Constantes.NOME_PERCORRIDO, SelectorPoiPercorrido.this.percorridoSeleccionado.getNome());
                 b.putString(Constantes.DESCRICION_PERCORRIDO, SelectorPoiPercorrido.this.percorridoSeleccionado.getDescricion());
                 b.putInt(Constantes.ID_EDIFICIO, SelectorPoiPercorrido.this.percorridoSeleccionado.getIdEdificio());
+                b.putInt(Constantes.TEMPO_TOTAL, SelectorPoiPercorrido.this.percorridoSeleccionado.getTempoTotal());
+                b.putInt(Constantes.TEMPO_CAMINHO, SelectorPoiPercorrido.this.percorridoSeleccionado.getTempoCaminho());
 
                 EModoMapa modo;
                 if (SelectorPoiPercorrido.this.mapaActivity.comprobarPermisoEdificio(SelectorPoiPercorrido.this.percorridoSeleccionado.getIdEdificio())) {
@@ -390,7 +392,7 @@ public class SelectorPoiPercorrido {
         if (listaPoi != null
                 && !listaPoi.isEmpty()) {
             String seleccionar = this.mapaActivity.getString(R.string.seleccionar_poi);
-            listaPoi.add(0, new PuntoInterese(Constantes.ID_FICTICIO, seleccionar, seleccionar));
+            listaPoi.add(0, new PuntoInterese(Constantes.ID_FICTICIO, seleccionar, seleccionar, null));
             ArrayAdapter<PuntoInterese> adapter = new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPoi);
             this.spinnerPoi.setAdapter(adapter);
             adapter.notifyDataSetChanged();
@@ -406,11 +408,11 @@ public class SelectorPoiPercorrido {
                 && !listaPercorrido.isEmpty()) {
             List<PercorridoCustom> listaPercorridoCustom = new ArrayList<>(listaPercorrido.size());
             for (PercorridoParam percorridoParam : listaPercorrido) {
-                listaPercorridoCustom.add(new PercorridoCustom(percorridoParam.getIdPercorrido(), percorridoParam.getNome(), percorridoParam.getDescricion(), percorridoParam.getIdEdificio()));
+                listaPercorridoCustom.add(new PercorridoCustom(percorridoParam.getIdPercorrido(), percorridoParam.getNome(), percorridoParam.getDescricion(), percorridoParam.getIdEdificio(), percorridoParam.getTempoTotal(), percorridoParam.getTempoCaminho()));
             }
 
             String seleccionar = this.mapaActivity.getString(R.string.seleccionar_percorrido);
-            listaPercorridoCustom.add(0, new PercorridoCustom(Constantes.ID_FICTICIO, seleccionar, seleccionar, null));
+            listaPercorridoCustom.add(0, new PercorridoCustom(Constantes.ID_FICTICIO, seleccionar, seleccionar, null, 0, 0));
             ArrayAdapter<PercorridoCustom> adapter = new ArrayAdapter<>(this.mapaActivity, R.layout.drawer_list_item, listaPercorridoCustom);
             this.spinnerPercorrido.setAdapter(adapter);
             adapter.notifyDataSetChanged();

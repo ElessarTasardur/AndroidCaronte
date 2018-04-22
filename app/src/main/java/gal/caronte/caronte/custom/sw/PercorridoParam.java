@@ -15,17 +15,21 @@ public class PercorridoParam {
     private String nome;
     private String descricion;
     private Integer idEdificio;
+    private Integer tempoTotal;
+    private Integer tempoCaminho;
 
     public PercorridoParam() {
         super();
     }
 
-    public PercorridoParam(Integer idPercorrido, String nome, String descricion, Integer idEdificio) {
+    public PercorridoParam(Integer idPercorrido, String nome, String descricion, Integer idEdificio, Integer tempoTotal, Integer tempoCaminho) {
         super();
         this.idPercorrido = idPercorrido;
         this.nome = nome;
         this.descricion = descricion;
         this.idEdificio = idEdificio;
+        this.tempoTotal = tempoTotal;
+        this.tempoCaminho = tempoCaminho;
     }
 
     /**
@@ -82,6 +86,22 @@ public class PercorridoParam {
      */
     public void setIdEdificio(Integer idEdificio) {
         this.idEdificio = idEdificio;
+    }
+
+    public Integer getTempoTotal() {
+        return this.tempoTotal;
+    }
+
+    public void setTempoTotal(Integer tempoTotal) {
+        this.tempoTotal = tempoTotal;
+    }
+
+    public Integer getTempoCaminho() {
+        return this.tempoCaminho;
+    }
+
+    public void setTempoCaminho(Integer tempoCaminho) {
+        this.tempoCaminho = tempoCaminho;
     }
 
     @Override
