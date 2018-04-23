@@ -262,7 +262,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
     private void showProgressDialog() {
         if (this.progressDialog == null) {
             this.progressDialog = new ProgressDialog(this);
-            this.progressDialog.setMessage("Comprobando credenciais");
+            this.progressDialog.setMessage(getString(R.string.comprobar_credenciais));
             this.progressDialog.setIndeterminate(true);
         }
 
@@ -271,7 +271,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     private void hideProgressDialog() {
         if (this.progressDialog != null) {
-            this.progressDialog.hide();
+            this.progressDialog.dismiss();
         }
     }
 

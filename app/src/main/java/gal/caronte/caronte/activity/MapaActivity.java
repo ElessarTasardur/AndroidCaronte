@@ -967,6 +967,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //Se saimos do edificio debemos actualizar as variabeis de localizacion e activar a localizacion de Google Maps
                 else if (MapaActivity.this.idEdificioExternoLocalizado != null) {
 
+                    Log.i(TAG, "Deixamos de estar nun edificio de Situm");
+
                     //Se o edificio activo tamen e o localizado, "reiniciamos" o mapa
                     if (MapaActivity.this.idEdificioExternoLocalizado.equals(MapaActivity.this.idEdificioExternoActivo)) {
                         //Establecemos o nome da aplicacion na barra de ferramentas
@@ -1019,7 +1021,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.edificioSitumCustomActivo = this.mapaEdificioSitumCustom.get(this.idEdificioExternoActivo);
         setTitle(this.edificioSitumCustomActivo.getEdificio().getName());
 
-        //Recuperamos os datos do edificio se non os temos xa
+        //Recuperamos os datos do edificio se non os temos
         if (this.edificioSitumCustomActivo.getPisos() == null) {
             recuperarDatosEdificio(idPlanta, true);
         }
@@ -1059,6 +1061,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (edificioActivo) {
             idEdificioConsulta = this.idEdificioExternoActivo;
             edificio = this.edificioSitumCustomActivo;
+            Log.i(TAG, "Establecemos o edificio activo: " + edificio);
         }
         else {
             idEdificioConsulta = this.idEdificioExternoLocalizado;
@@ -1148,6 +1151,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void deterLocalizacionSitum() {
+
+        Log.i(TAG, "Detemos a localizacion proporcionada por Situm");
+
         //Reiniciamos variabeis
         this.edificioSitumCustomLocalizado = null;
         this.idEdificioExternoLocalizado = null;
@@ -1163,6 +1169,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void deterChamadas() {
+
+        Log.i(TAG, "Detemos as chamadas pendentes");
+
         this.seccionSpinner.deterChamadas();
         if (this.recuperarListaEdificioSitum != null) {
             this.recuperarListaEdificioSitum.cancel();
