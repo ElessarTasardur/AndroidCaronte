@@ -1,33 +1,27 @@
 {
   "project_info": {
-    "project_number": "448237493715",
-    "project_id": "firebase-caronte"
+    "project_number": "937334461735",
+    "firebase_url": "https://caronte-203119.firebaseio.com",
+    "project_id": "caronte-203119",
+    "storage_bucket": "caronte-203119.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:448237493715:android:4f54f00e3c3377f2",
+        "mobilesdk_app_id": "1:937334461735:android:4f54f00e3c3377f2",
         "android_client_info": {
           "package_name": "gal.caronte"
         }
       },
       "oauth_client": [
         {
-          "client_id": "448237493715-s46le70t03k0if88gs07g70lddvarhou.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "gal.caronte",
-            "certificate_hash": "b4fe3fd58177cec59411d65ba1cb1eae52b48a6d"
-          }
-        },
-        {
-          "client_id": "448237493715-f8qnmr9mblorb5bqqaoc836sftm7jl6k.apps.googleusercontent.com",
+          "client_id": "937334461735-5ld5hochfmdj5hour3tdh0cbigtobtjo.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC8T1YQMXh0k0j_uLB4HSv38gG6VsTHVQI"
+          "current_key": "AIzaSyCNNf0HzvBFPQgZnRdG7Xd-lJg5de-La9c"
         }
       ],
       "services": {
@@ -35,11 +29,16 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "937334461735-5ld5hochfmdj5hour3tdh0cbigtobtjo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

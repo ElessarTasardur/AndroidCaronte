@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:layout_marginTop="?attr/actionBarSize"
     android:name="com.google.android.gms.maps.SupportMapFragment"
-    tools:context=".activity.MapaActivity">
+    tools:context="gal.caronte.activity.MapaActivity">
 
     <!--<ImageButton-->
         <!--android:id="@+id/image_button_actualizar"-->

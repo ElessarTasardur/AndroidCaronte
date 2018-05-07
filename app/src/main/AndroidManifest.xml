@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="gal.caronte.caronte">
+    package="gal.caronte">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -19,7 +19,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".activity.InicioActivity"
+            android:name="gal.caronte.activity.InicioActivity"
             android:label="@string/title_activity_inicio">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,17 +28,17 @@
         </activity>
 
         <activity
-            android:name=".activity.MapaActivity"
+            android:name="gal.caronte.activity.MapaActivity"
             android:label="@string/title_activity_maps">
         </activity>
 
         <activity
-            android:name=".activity.DetallePoiActivity"
+            android:name="gal.caronte.activity.DetallePoiActivity"
             android:label="@string/title_activity_detalle_poi">
         </activity>
 
         <activity
-            android:name=".activity.DetallePercorridoActivity"
+            android:name="gal.caronte.activity.DetallePercorridoActivity"
             android:label="@string/title_activity_detalle_percorrido">
         </activity>
 
