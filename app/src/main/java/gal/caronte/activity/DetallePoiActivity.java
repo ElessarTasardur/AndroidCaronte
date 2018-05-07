@@ -1,4 +1,4 @@
-package gal.caronte.caronte.activity;
+package gal.caronte.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -18,18 +18,18 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import gal.caronte.caronte.R;
-import gal.caronte.caronte.custom.sw.ImaxeCustom;
-import gal.caronte.caronte.custom.sw.PuntoInterese;
-import gal.caronte.caronte.custom.sw.SubirImaxeCustom;
-import gal.caronte.caronte.servizo.EliminarPoi;
-import gal.caronte.caronte.servizo.GardarPoi;
-import gal.caronte.caronte.servizo.RecuperarDatosImaxe;
-import gal.caronte.caronte.servizo.RecuperarImaxe;
-import gal.caronte.caronte.servizo.SubirImaxe;
-import gal.caronte.caronte.util.Constantes;
-import gal.caronte.caronte.util.EModoMapa;
-import gal.caronte.caronte.util.StringUtil;
+import gal.caronte.R;
+import gal.caronte.custom.sw.ImaxeCustom;
+import gal.caronte.custom.sw.PuntoInterese;
+import gal.caronte.custom.sw.SubirImaxeCustom;
+import gal.caronte.servizo.EliminarPoi;
+import gal.caronte.servizo.GardarPoi;
+import gal.caronte.servizo.RecuperarDatosImaxe;
+import gal.caronte.servizo.RecuperarImaxe;
+import gal.caronte.servizo.SubirImaxe;
+import gal.caronte.util.Constantes;
+import gal.caronte.util.EModoMapa;
+import gal.caronte.util.StringUtil;
 
 /**
  * Created by ElessarTasardur on 04/03/2018.
