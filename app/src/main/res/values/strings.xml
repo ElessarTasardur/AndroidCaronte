@@ -106,6 +106,9 @@
     <string name="comprobar_credenciais">Comprobando credenciais</string>
     <string name="usuario_logueado">Usuario logueado</string>
     <string name="usuario_non_logueado">Usuario non logueado</string>
+    <string name="boton_iniciar_guiado">Iniciar guiado</string>
+    <string name="boton_cancelar_guiado">Cancelar guiado</string>
+    <string name="boton_seguinte">Seguinte</string>
 
 
 </resources>

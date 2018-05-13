@@ -84,11 +84,12 @@ public class SelectorPoiPercorrido {
 
                     SelectorPoiPercorrido.this.percorridoSeleccionado = (PercorridoCustom) SelectorPoiPercorrido.this.spinnerPercorrido.getSelectedItem();
                     Log.i(TAG, StringUtil.creaString("Seleccionado o percorrido: ", SelectorPoiPercorrido.this.percorridoSeleccionado));
+                    SelectorPoiPercorrido.this.mapaActivity.activarOpcionsPercorrido(SelectorPoiPercorrido.this.percorridoSeleccionado);
+
+                    SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
+                    SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
 
                     if (!Constantes.ID_FICTICIO.equals(SelectorPoiPercorrido.this.percorridoSeleccionado.getIdPercorrido())) {
-
-                        SelectorPoiPercorrido.this.mapaActivity.ocultarTodosPoi();
-                        SelectorPoiPercorrido.this.mapaActivity.ocultarPercorrido();
 
                         //Se hai POIs no spinner seleccionamos o primeiro
                         if (SelectorPoiPercorrido.this.spinnerPoi.getAdapter() != null
@@ -100,20 +101,23 @@ public class SelectorPoiPercorrido {
 
                         if (SelectorPoiPercorrido.this.percorridoSeleccionado.getListaPIP().isEmpty()) {
                             recuperarPuntoPercorrido(SelectorPoiPercorrido.this.percorridoSeleccionado.getIdPercorrido());
-                        } else {
+                        }
+                        else {
                             SelectorPoiPercorrido.this.mapaActivity.amosarPercorrido(SelectorPoiPercorrido.this.percorridoSeleccionado.getListaPIP());
                         }
 
-                        //Mostramos o boton para abrir o detalle
+                        //Amosamos o boton para abrir o detalle
                         SelectorPoiPercorrido.this.botonPercorrido.setVisibility(View.VISIBLE);
 
-                        //Se temos o modo edicion activado, mostramos o boton
+                        //Se temos o modo edicion activado, amosamos o boton
                         if (EModoMapa.EDICION.equals(SelectorPoiPercorrido.this.mapaActivity.getModoMapa())) {
                             SelectorPoiPercorrido.this.botonPercorridoEngadirPoi.setVisibility(View.VISIBLE);
-                        } else {
+                        }
+                        else {
                             SelectorPoiPercorrido.this.botonPercorridoEngadirPoi.setVisibility(View.INVISIBLE);
                         }
-                    } else {
+                    }
+                    else {
                         //Ocultamos o boton para abrir o detalle e o boton para engadir POIs
                         SelectorPoiPercorrido.this.botonPercorrido.setVisibility(View.INVISIBLE);
                         SelectorPoiPercorrido.this.botonPercorridoEngadirPoi.setVisibility(View.INVISIBLE);
@@ -194,7 +198,8 @@ public class SelectorPoiPercorrido {
 
                 if (!SelectorPoiPercorrido.this.seleccionAutomatica) {
                     SelectorPoiPercorrido.this.poiSeleccionado = (PuntoInterese) SelectorPoiPercorrido.this.spinnerPoi.getSelectedItem();
-                    Log.i(TAG, StringUtil.creaString("Seleccionado o poi: ", SelectorPoiPercorrido.this.poiSeleccionado));
+                    Log.i(TAG, StringUtil.creaString("Seleccionado o POI: ", SelectorPoiPercorrido.this.poiSeleccionado));
+                    SelectorPoiPercorrido.this.mapaActivity.activarOpcionsPoi(SelectorPoiPercorrido.this.poiSeleccionado);
 
                     if (!Constantes.ID_FICTICIO.equals(SelectorPoiPercorrido.this.poiSeleccionado.getIdPuntoInterese())) {
 
@@ -210,6 +215,7 @@ public class SelectorPoiPercorrido {
                                     && SelectorPoiPercorrido.this.spinnerPercorrido.getSelectedItemPosition() != 0) {
                                 SelectorPoiPercorrido.this.seleccionAutomatica = true;
                                 SelectorPoiPercorrido.this.spinnerPercorrido.setSelection(0, false);
+//                                SelectorPoiPercorrido.this.mapaActivity.activarOpcionsPercorrido(null);
                             }
 
                         }
@@ -464,5 +470,9 @@ public class SelectorPoiPercorrido {
 
     public PercorridoCustom getPercorridoSeleccionado() {
         return this.percorridoSeleccionado;
+    }
+
+    public PuntoInterese getPoiSeleccionado() {
+        return this.poiSeleccionado;
     }
 }

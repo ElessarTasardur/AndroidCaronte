@@ -24,4 +24,9 @@
         <item name="android:textColor">@color/branco</item>
     </style>
 
+    <!-- ProgressDialog -->
+    <style name="ProgressDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
 </resources>

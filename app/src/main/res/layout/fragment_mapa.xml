@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="?attr/actionBarSize"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
     tools:context="gal.caronte.activity.MapaActivity">
 
     <!--<ImageButton-->
-        <!--android:id="@+id/image_button_actualizar"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:contentDescription="@string/boton_actualizar_descricion"-->
-        <!--app:srcCompat="@drawable/ic_refresh_black_24dp" />-->
+    <!--android:id="@+id/image_button_actualizar"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:contentDescription="@string/boton_actualizar_descricion"-->
+    <!--app:srcCompat="@drawable/ic_refresh_black_24dp" />-->
 
-    <include layout="@layout/layout_spinner"
+    <include
+        layout="@layout/layout_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start" />
 
-    <include layout="@layout/layout_niveis"
+    <include
+        layout="@layout/layout_niveis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|center" />
@@ -30,18 +32,54 @@
         android:id="@+id/image_button_centrar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/boton_centrar_posicion"
-        app:srcCompat="@drawable/ic_my_location_black_24dp"
         android:layout_gravity="end|top"
-        android:visibility="invisible"/>
+        android:contentDescription="@string/boton_centrar_posicion"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_my_location_black_24dp" />
 
     <ImageButton
         android:id="@+id/image_button_editar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/boton_editar_descricion"
-        app:srcCompat="@drawable/ic_mode_edit_black_24dp"
         android:layout_gravity="end|bottom"
-        android:visibility="invisible"/>
+        android:contentDescription="@string/boton_editar_descricion"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_mode_edit_black_24dp" />
 
+    <RelativeLayout
+        android:id="@+id/lytBotonsGuiado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:layout_marginTop="26dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonSeguinte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/boton_seguinte"
+            android:textColor="@color/colorPrimary"
+            tools:text="@string/boton_seguinte" />
+
+        <Button
+            android:id="@+id/buttonCancelarGuiado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buttonSeguinte"
+            android:layout_gravity="start|bottom"
+            android:text="@string/boton_cancelar_guiado"
+            android:textColor="@color/colorPrimary"
+            tools:text="@string/boton_cancelar_guiado" />
+
+        <Button
+            android:id="@+id/buttonIniciarGuiado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:text="@string/boton_iniciar_guiado"
+            android:textColor="@color/colorPrimary"
+            tools:text="@string/boton_iniciar_guiado" />
+
+    </RelativeLayout>
 </fragment>

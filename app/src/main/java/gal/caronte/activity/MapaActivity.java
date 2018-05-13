@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -95,8 +96,6 @@ import gal.caronte.view.SelectorPoiPercorrido;
  */
 
 public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback,
-//        com.google.android.gms.location.LocationListener,
-        GoogleMap.OnInfoWindowClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MapaActivity.class.getSimpleName();
@@ -156,12 +155,21 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<Float> listaCor = new ArrayList<>();
     private List<Polyline> listaMarcaPercorrido = new ArrayList<>();
     private LatLng posicionPoiMover;
+
+    //Guiado
     private MarcadorCustom posicionGuiar;
+    private PercorridoCustom percorridoSeleccionado;
+    private PuntoInterese poiSeleccionado;
+    private List<Polyline> listaMarcaGuiado = new ArrayList<>();
+    private List<Polyline> listaMarcaGuiadoRealizado = new ArrayList<>();
 
     //Elementos visuais
     private SelectorPoiPercorrido seccionSpinner;
     private ImageButton botonEditar;
     private ImageButton botonCentrarPosicion;
+    private Button botonCancelarGuiado;
+    private Button botonIniciarGuiado;
+    private Button botonSeguinteGuiado;
     private SelectorPiso selectorPiso;
 
     //Variabeis creacion
@@ -215,8 +223,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
 
-//            this.mDrawerLayout = findViewById(R.id.drawer_layout);
-
             //Toolbar
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -245,7 +251,126 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
 
+            this.botonCancelarGuiado = findViewById(R.id.buttonCancelarGuiado);
+            this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
+            this.botonCancelarGuiado.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    cancelarGuiado(true);
+                }
+            });
+
+            this.botonIniciarGuiado = findViewById(R.id.buttonIniciarGuiado);
+            this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
+            this.botonIniciarGuiado.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    iniciarGuiado();
+                }
+            });
+
+            this.botonSeguinteGuiado = findViewById(R.id.buttonSeguinte);
+            this.botonSeguinteGuiado.setVisibility(View.INVISIBLE);
+            this.botonSeguinteGuiado.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    avanzarPoiGuiado();
+                }
+            });
+
             this.gooPosicion = new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa));
+        }
+
+    }
+
+    private void avanzarPoiGuiado() {
+        if (this.percorridoSeleccionado != null
+                && this.posicionGuiar != null
+                && this.percorridoSeleccionado.getListaPIP() != null
+                && !this.percorridoSeleccionado.getListaPIP().isEmpty()) {
+            int indice = this.percorridoSeleccionado.getListaPIP().indexOf(this.posicionGuiar);
+
+            //Se o POI actual non e o ultimo, avanzamos
+            if (indice != -1
+                    && this.percorridoSeleccionado.getListaPIP().size() - 1 != indice) {
+                //Se avanzamos ao ultimo, quitamos o boton de avanzar
+                if (this.percorridoSeleccionado.getListaPIP().size() - 2 == indice) {
+                    this.botonSeguinteGuiado.setVisibility(View.INVISIBLE);
+                }
+
+                List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+                int indiceGlobal = listaMarcadorEdificio.indexOf(this.percorridoSeleccionado.getListaPIP().get(indice + 1));
+                if (indiceGlobal != -1) {
+                    this.posicionGuiar = listaMarcadorEdificio.get(indiceGlobal);
+                    guiarMarcadorCustom(this.posicionGuiar);
+                }
+
+            }
+
+        }
+
+    }
+
+    private void cancelarGuiado(boolean chamadaDendeBoton) {
+
+        ocultarPercorridoGuiado();
+
+        if (chamadaDendeBoton) {
+            if (this.percorridoSeleccionado != null) {
+                activarOpcionsGuiadoPercorrido(this.percorridoSeleccionado);
+                this.poiSeleccionado = null;
+            }
+            else if (this.poiSeleccionado != null) {
+                activarOpcionsGuiadoPoi(this.poiSeleccionado);
+                this.percorridoSeleccionado = null;
+            }
+            else {
+                this.poiSeleccionado = null;
+                this.percorridoSeleccionado = null;
+            }
+        }
+        else {
+            this.poiSeleccionado = null;
+            this.percorridoSeleccionado = null;
+        }
+
+        //Ocultamos as linhas do percorrido xa realizado
+        for (Polyline polilinea : this.listaMarcaGuiadoRealizado) {
+            polilinea.remove();
+        }
+        this.listaMarcaGuiadoRealizado.clear();
+
+        this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
+        this.botonSeguinteGuiado.setVisibility(View.INVISIBLE);
+    }
+
+    private void iniciarGuiado() {
+
+        List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+        if (this.percorridoSeleccionado != null
+                && this.percorridoSeleccionado.getListaPIP() != null
+                && !this.percorridoSeleccionado.getListaPIP().isEmpty()) {
+            MarcadorCustom mcGuiar = this.percorridoSeleccionado.getListaPIP().get(0);
+            int indice = listaMarcadorEdificio.indexOf(mcGuiar);
+            if (indice != -1) {
+                this.posicionGuiar = listaMarcadorEdificio.get(indice);
+                //TODO amosar resto de percorrido
+                this.botonSeguinteGuiado.setVisibility(View.VISIBLE);
+            }
+        }
+        else if (this.poiSeleccionado != null) {
+            for (MarcadorCustom mcGuiar : listaMarcadorEdificio) {
+                if (mcGuiar.getIdPoi().equals(this.poiSeleccionado.getIdPuntoInterese())) {
+                    this.posicionGuiar = mcGuiar;
+                    break;
+                }
+            }
+        }
+
+        if (this.posicionGuiar != null) {
+            guiarMarcadorCustom(this.posicionGuiar);
+            this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
+            this.botonCancelarGuiado.setVisibility(View.VISIBLE);
         }
 
     }
@@ -427,6 +552,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     b.putParcelableArrayList(Constantes.LISTA_PUNTO_INTERESE, (ArrayList<? extends Parcelable>) listaPoi);
 
+                    //Resto de datos do percorrido
+                    PercorridoCustom percorridoSeleccionado = this.seccionSpinner.getPercorridoSeleccionado();
+                    b.putInt(Constantes.ID_PERCORRIDO, percorridoSeleccionado.getIdPercorrido());
+                    b.putString(Constantes.NOME_PERCORRIDO, percorridoSeleccionado.getNome());
+                    b.putString(Constantes.DESCRICION_PERCORRIDO, percorridoSeleccionado.getDescricion());
+                    b.putInt(Constantes.ID_EDIFICIO, percorridoSeleccionado.getIdEdificio());
+                    b.putInt(Constantes.TEMPO_TOTAL, percorridoSeleccionado.getTempoTotal());
+                    b.putInt(Constantes.TEMPO_CAMINHO, percorridoSeleccionado.getTempoCaminho());
+
                     intent.putExtras(b);
 
                     intent.putExtra(Constantes.MODO, this.modoMapa);
@@ -530,7 +664,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.map.getUiSettings().setMapToolbarEnabled(false);
         this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
         this.map.setInfoWindowAdapter(new InfoWindowAdapterGuiado(LayoutInflater.from(getApplicationContext()), this));
-        this.map.setOnInfoWindowClickListener(this);
+//        this.map.setOnInfoWindowClickListener(this);
 
         //Desactivar as opcions dos marcadores cando se fai click
         this.map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -553,7 +687,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     engadirPoiPercorrido(marker, indice);
                     MapaActivity.this.posicionPoiMover = null;
-                    MapaActivity.this.modoMapa = EModoMapa.EDICION;
+//                    MapaActivity.this.modoMapa = EModoMapa.EDICION;
                     invalidateOptionsMenu();
                 }
                 else if (MapaActivity.this.modoMapa.equals(EModoMapa.ENGADIR_POI_PERCORRIDO)
@@ -778,10 +912,17 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 this.listaIdNovoPercorrido.add(posicionPoi, mcElixido.getIdPoi());
             }
 
-            //Amosar percorrido
+            //Ocultamos as linhas do percorrido para volvelas amosar
+            for (Polyline polilinea : this.listaMarcaPercorrido) {
+                polilinea.remove();
+            }
+            this.listaMarcaPercorrido.clear();
             amosarLinhaPercorrido(this.listaNovoPercorrido);
 
-            invalidateOptionsMenu();
+            //Cambiar modo
+//            this.modoMapa.equals(EModoMapa.MODIFICAR_POI_PERCORRIDO);
+//
+//            invalidateOptionsMenu();
         }
     }
 
@@ -953,12 +1094,16 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                         MapaActivity.this.imaxePosicion = null;
                     }
 
-                    //Se o edificio activo e o mesmo que o localizado e temos unha posicion a cal guiar, actualizamos o recorrido
-                    if (MapaActivity.this.posicionGuiar != null
-                            && MapaActivity.this.idEdificioExternoLocalizado != null
-                            && MapaActivity.this.idEdificioExternoActivo != null
-                            && MapaActivity.this.idEdificioExternoLocalizado.equals(MapaActivity.this.idEdificioExternoActivo)) {
-                        guiarMarcadorCustom(MapaActivity.this.posicionGuiar);
+                    if (MapaActivity.this.posicionGuiar != null) {
+                        //Se o edificio activo e o mesmo que o localizado e temos unha posicion a cal guiar, actualizamos as linhas de guiado
+                        if (MapaActivity.this.idEdificioExternoLocalizado != null
+                                && MapaActivity.this.idEdificioExternoActivo != null
+                                && MapaActivity.this.idEdificioExternoLocalizado.equals(MapaActivity.this.idEdificioExternoActivo)) {
+                            guiarMarcadorCustom(MapaActivity.this.posicionGuiar);
+                        }
+                        else {
+                            cancelarGuiado(false);
+                        }
                     }
 
                     MapaActivity.this.idPlantaLocalizada = location.getFloorIdentifier();
@@ -1433,6 +1578,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.listaIdNovoPercorrido.clear();
     }
 
+    public void ocultarPercorridoGuiado() {
+        //Ocultar as posibeis marcas
+        for (Polyline polilinea : this.listaMarcaGuiado) {
+            polilinea.remove();
+        }
+        this.listaMarcaGuiado.clear();
+        this.posicionGuiar = null;
+    }
+
     public void amosarPercorrido(List<MarcadorCustom> listaPIP) {
 
         //Amosamos os marcadores
@@ -1520,33 +1674,20 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         gardarPercorrido.execute(gpp);
     }
 
-    public void guiarMarker(Marker marcador) {
-
-        //Se o edificio activo e o mesmo edificio no que estamos, ofrecemos o guiado
-        if (this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
-            MarcadorCustom posicionGuiar = null;
-            List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
-            for (MarcadorCustom marcadorCustom : listaMarcadorEdificio) {
-                if (marcadorCustom.getMarcadorGoogle().getPosition().equals(marcador.getPosition())) {
-                    posicionGuiar = marcadorCustom;
-                    break;
-                }
-            }
-
-            guiarMarcadorCustom(posicionGuiar);
-        }
-    }
-
     private void guiarMarcadorCustom(final MarcadorCustom novaPosicionGuiar) {
+        Log.i(TAG, StringUtil.creaString("Solicitamos guiado a posicion: ", novaPosicionGuiar));
         if (novaPosicionGuiar != null) {
             this.recuperarRuta = new RecuperarRuta();
             this.recuperarRuta.get(this.idEdificioExternoLocalizado, this.posicionActual, novaPosicionGuiar, new RecuperarRuta.Callback() {
                 @Override
                 public void onSuccess(PolylineOptions listaLinhas, LatLngBounds.Builder limite) {
-                    if (listaLinhas != null) {
-                        ocultarPercorrido();
-                        MapaActivity.this.listaMarcaPercorrido.add(MapaActivity.this.map.addPolyline(listaLinhas));
+                    //Se atopamos unha ruta e ademais non cancelamos o guiado a esa posicion, amosamos a ruta
+                    if (listaLinhas != null
+                            && MapaActivity.this.posicionGuiar != null
+                            && MapaActivity.this.posicionGuiar.equals(novaPosicionGuiar)) {
+                        ocultarPercorridoGuiado();
                         MapaActivity.this.posicionGuiar = novaPosicionGuiar;
+                        MapaActivity.this.listaMarcaGuiado.add(MapaActivity.this.map.addPolyline(listaLinhas));
                     }
                 }
 
@@ -1562,19 +1703,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, R.string.marcador_non_localizado, Toast.LENGTH_SHORT).show();
         }
     }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        Log.i(TAG, "Pinchouse sobre a venta de informacion dun marcador. Solicitase o guiado");
-        guiarMarker(marker);
-    }
-
-//    @Override
-//    public boolean onMyLocationButtonClick() {
-//        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
-//        return false;
-//    }
 
     private void comprobarVisibilidadeBotonEdicion() {
 
@@ -1702,4 +1830,61 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.detallePercorrido = false;
         }
     }
+
+    public void activarOpcionsPercorrido(PercorridoCustom percorridoSeleccionado) {
+        cancelarGuiado(false);
+        activarOpcionsGuiadoPercorrido(percorridoSeleccionado);
+    }
+
+    private void activarOpcionsGuiadoPercorrido(PercorridoCustom percorridoSeleccionado) {
+        //Se o percorrido e real e estamos dentro do edificio localizado
+        if (percorridoSeleccionado != null
+                && !Constantes.ID_FICTICIO.equals(percorridoSeleccionado.getIdPercorrido())
+                && percorridoSeleccionado.getIdEdificio().equals(this.idEdificioActivo)
+                && this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
+            this.percorridoSeleccionado = percorridoSeleccionado;
+            this.botonIniciarGuiado.setVisibility(View.VISIBLE);
+        }
+//        else if (this.poiSeleccionado == null
+//                || !this.poiSeleccionado.getPosicion().getIdEdificio().equals(this.idEdificioActivo)
+//                || !this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
+        else {
+            this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
+            this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void activarOpcionsPoi(PuntoInterese poiSeleccionado) {
+        cancelarGuiado(false);
+        activarOpcionsGuiadoPoi(poiSeleccionado);
+    }
+
+    private void activarOpcionsGuiadoPoi(PuntoInterese poiSeleccionado) {
+        //Se o percorrido e real e estamos dentro do edificio localizado
+
+        Log.i(TAG, String.valueOf(poiSeleccionado));
+        Log.i(TAG, String.valueOf(this.idEdificioActivo));
+        Log.i(TAG, "idEdificioExternoActivo " + String.valueOf(this.idEdificioExternoActivo));
+        Log.i(TAG, "idEdificioExternoLocalizado " + String.valueOf(this.idEdificioExternoLocalizado));
+
+
+        if (poiSeleccionado != null
+                && !Constantes.ID_FICTICIO.equals(poiSeleccionado.getIdPuntoInterese())
+                && poiSeleccionado.getPosicion().getIdEdificio().equals(this.idEdificioActivo)
+                && this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
+            this.poiSeleccionado = poiSeleccionado;
+            this.botonIniciarGuiado.setVisibility(View.VISIBLE);
+        }
+//        else if (this.percorridoSeleccionado == null
+//                || !this.percorridoSeleccionado.getIdEdificio().equals(this.idEdificioActivo)
+//                || !this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
+//            this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
+//            this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
+//        }
+        else {
+            this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
+            this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
+        }
+    }
+
 }

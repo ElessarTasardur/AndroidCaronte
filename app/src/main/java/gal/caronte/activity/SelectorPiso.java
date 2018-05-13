@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import gal.caronte.custom.Piso;
@@ -18,7 +19,7 @@ import gal.caronte.util.EModoMapa;
 
 public class SelectorPiso {
 
-    private static final int TAMANHO_BOTON = 10;
+    private static final int TAMANHO_BOTON = 100;
 
     private MapaActivity mapaActivity;
     private LinearLayout layoutNiveis;
@@ -60,12 +61,10 @@ public class SelectorPiso {
                 final String idPlantaBoton = piso.getPiso().getIdentifier();
                 botonPiso.setId(Integer.valueOf(idPlantaBoton));
                 botonPiso.setText(String.valueOf(piso.getPiso().getLevel()));
-                botonPiso.setTextSize(12F);
-                botonPiso.setWidth(TAMANHO_BOTON);
-                botonPiso.setHeight(TAMANHO_BOTON);
+                botonPiso.setTextSize(30F);
                 Integer cor = this.listaCor.get(piso.getPiso().getLevel() % this.listaCor.size());
                 botonPiso.setTextColor(cor);
-                this.layoutNiveis.addView(botonPiso);
+                this.layoutNiveis.addView(botonPiso, 0);
                 botonPiso.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         SelectorPiso.this.mapaActivity.recuperarMapa(idPlantaBoton, true);

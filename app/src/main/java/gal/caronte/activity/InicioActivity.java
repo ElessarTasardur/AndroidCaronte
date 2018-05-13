@@ -59,7 +59,6 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     private SignInButton botonLogin;
     private Button botonLogout;
-    private Button botonDesconectar;
     private Button botonAcceder;
     private Spinner spinnerContas;
     private TextView tvGoogle;
@@ -102,21 +101,6 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onClick(View v) {
                 Auth.GoogleSignInApi.signOut(apiClient).setResultCallback(
-                        new ResultCallback<Status>() {
-                            @Override
-                            public void onResult(@NonNull Status status) {
-                                actualizarVista(false);
-                            }
-                        });
-            }
-        });
-
-        this.botonDesconectar = findViewById(R.id.boton_desconectar);
-        this.botonDesconectar.setVisibility(View.GONE);
-        this.botonDesconectar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Auth.GoogleSignInApi.revokeAccess(apiClient).setResultCallback(
                         new ResultCallback<Status>() {
                             @Override
                             public void onResult(@NonNull Status status) {
@@ -232,12 +216,10 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         if (loginCorrecto) {
             this.botonLogin.setVisibility(View.GONE);
             this.botonLogout.setVisibility(View.VISIBLE);
-            this.botonDesconectar.setVisibility(View.VISIBLE);
         }
         else {
             this.botonLogin.setVisibility(View.VISIBLE);
             this.botonLogout.setVisibility(View.GONE);
-            this.botonDesconectar.setVisibility(View.GONE);
 
             this.usuarioEdificio = null;
             amosarListaConta(this.listaContaPublica);
@@ -265,7 +247,7 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
 
     private void showProgressDialog() {
         if (this.progressDialog == null) {
-            this.progressDialog = new ProgressDialog(this);
+            this.progressDialog = new ProgressDialog(this, R.style.ProgressDialog);
             this.progressDialog.setMessage(getString(R.string.comprobar_credenciais));
             this.progressDialog.setIndeterminate(true);
         }

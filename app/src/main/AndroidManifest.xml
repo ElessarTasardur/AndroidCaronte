@@ -19,8 +19,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="gal.caronte.activity.InicioActivity"
-            android:label="@string/title_activity_inicio">
+            android:name="gal.caronte.activity.InicioActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -28,18 +27,15 @@
         </activity>
 
         <activity
-            android:name="gal.caronte.activity.MapaActivity"
-            android:label="@string/title_activity_maps">
+            android:name="gal.caronte.activity.MapaActivity">
         </activity>
 
         <activity
-            android:name="gal.caronte.activity.DetallePoiActivity"
-            android:label="@string/title_activity_detalle_poi">
+            android:name="gal.caronte.activity.DetallePoiActivity">
         </activity>
 
         <activity
-            android:name="gal.caronte.activity.DetallePercorridoActivity"
-            android:label="@string/title_activity_detalle_percorrido">
+            android:name="gal.caronte.activity.DetallePercorridoActivity">
         </activity>
 
     </application>

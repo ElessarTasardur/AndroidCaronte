@@ -136,7 +136,7 @@ public class DetallePercorridoActivity extends AppCompatActivity {
     }
 
     private void activarTexto(EditText editText) {
-        boolean activar = this.modo != null && (this.modo.equals(EModoMapa.CREAR_PERCORRIDO) || this.modo.equals(EModoMapa.EDICION));
+        boolean activar = this.modo != null && (this.modo.equals(EModoMapa.CREAR_PERCORRIDO) || this.modo.equals(EModoMapa.EDICION) || this.modo.equals(EModoMapa.MODIFICAR_POI_PERCORRIDO));
         editText.setEnabled(activar);
     }
 
@@ -168,6 +168,11 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         if (!valorTempoCaminho.equals(this.tempoCaminho)) {
             percorridoParam.setTempoCaminho(valorTempoCaminho);
             percorridoParam.setTempoTotal(Integer.valueOf(this.editTextTempoTotal.getText().toString()));
+            cambio = true;
+        }
+
+        //Se se modificou algun POI do percorrido tamen permitimos gardar
+        if (this.modo.equals(EModoMapa.MODIFICAR_POI_PERCORRIDO)) {
             cambio = true;
         }
 
