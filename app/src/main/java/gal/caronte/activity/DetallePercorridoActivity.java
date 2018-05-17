@@ -56,14 +56,17 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         //Recuperamos a informacion do intent
         Bundle bundle = getIntent().getExtras();
         this.idPercorrido = bundle.getInt(Constantes.ID_PERCORRIDO);
-        if (this.idPercorrido.intValue() == 0) {
+        if (this.idPercorrido.equals(Constantes.ID_FICTICIO)) {
             this.idPercorrido = null;
         }
-        this.nomePercorrido = bundle.getString(Constantes.NOME_PERCORRIDO);
-        this.descricionPercorrido = bundle.getString(Constantes.DESCRICION_PERCORRIDO);
+        else {
+            this.nomePercorrido = bundle.getString(Constantes.NOME_PERCORRIDO);
+            this.descricionPercorrido = bundle.getString(Constantes.DESCRICION_PERCORRIDO);
+        }
         this.idEdificio = bundle.getInt(Constantes.ID_EDIFICIO);
         this.tempoTotal = bundle.getInt(Constantes.TEMPO_TOTAL);
         this.tempoCaminho = bundle.getInt(Constantes.TEMPO_CAMINHO);
+
         this.listaPuntoInterese = bundle.getParcelableArrayList(Constantes.LISTA_PUNTO_INTERESE);
         this.modo = (EModoMapa) getIntent().getSerializableExtra(Constantes.MODO);
 
@@ -100,18 +103,20 @@ public class DetallePercorridoActivity extends AppCompatActivity {
         this.editTextTempoTotal = this.findViewById(R.id.editTextTempoTotal);
         this.editTextTempoTotal.setText(this.tempoTotal.toString());
 
-        Button botonGardar = this.findViewById(R.id.buttonGardar);
+        final Button botonGardar = this.findViewById(R.id.buttonGardar);
         botonGardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                botonGardar.setEnabled(false);
                 gardarInformacionPercorrido();
             }
         });
 
-        Button botonEliminar = this.findViewById(R.id.buttonEliminar);
+        final Button botonEliminar = this.findViewById(R.id.buttonEliminar);
         botonEliminar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                botonEliminar.setEnabled(false);
                 eliminarPercorrido();
             }
         });

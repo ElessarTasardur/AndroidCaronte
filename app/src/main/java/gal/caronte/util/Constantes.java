@@ -32,6 +32,7 @@ public class Constantes {
 
     //Percorrido
     public static final int COR_PERCORRIDO = Color.BLUE;
+    public static final int COR_PERCORRIDO_REALIZADO = Color.GRAY;
     public static final int COR_GUIADO = Color.CYAN;
     public static final float GROSOR_PERCORRIDO = 15f;
 

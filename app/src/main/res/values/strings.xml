@@ -18,8 +18,8 @@
     <string name="direccion_servizo_recuperar_percorridos">percorridosidexterno/{idEdificioExterno}</string>
     <string name="direccion_servizo_recuperar_pois">pois/{idEdificioExterno}</string>
     <string name="direccion_servizo_recuperar_puntos_interese_percorrido">ppi/{idPercorrido}</string>
-    <string name="direccion_servizo_eliminar_poi">poi/eliminar</string>
-    <string name="direccion_servizo_eliminar_percorrido">percorrido/eliminar</string>
+    <string name="direccion_servizo_eliminar_poi">poi/eliminar/{idPoi}</string>
+    <string name="direccion_servizo_eliminar_percorrido">percorrido/eliminar/{idPercorrido}</string>
     <string name="direccion_servizo_recuperar_datos_imaxe">imaxe/recuperar/{listaIdImaxeCSV}</string>
 
     <string name="direccion_servidor_imaxe">http://ec2-34-241-173-6.eu-west-1.compute.amazonaws.com:8080/sw/imaxe/</string>
@@ -96,11 +96,11 @@
     <string name="ultima">Última</string>
     <string name="primeira">Primeira</string>
     <string name="eliminar_poi">Eliminar POI</string>
-    <string name="textview_tempo_aproximado">Tempo aproximado:</string>
+    <string name="textview_tempo_aproximado">Tempo aproximado (minutos):</string>
     <string name="ver_imaxe">Ver imaxe</string>
     <string name="subir_imaxe">Subir imaxe</string>
-    <string name="textview_tempo_total">Tempo total:</string>
-    <string name="textview_tempo_caminho">Tempo camiño:</string>
+    <string name="textview_tempo_total">Tempo total (minutos):</string>
+    <string name="textview_tempo_caminho">Tempo camiño (minutos):</string>
 
 
     <string name="comprobar_credenciais">Comprobando credenciais</string>

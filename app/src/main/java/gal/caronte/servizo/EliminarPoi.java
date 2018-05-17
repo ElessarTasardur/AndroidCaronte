@@ -47,9 +47,9 @@ public class EliminarPoi extends AsyncTask<Integer, Void, Boolean> {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             headers.setAuthorization(new HttpBasicAuthentication(this.detallePoiActivity.getString(R.string.usuario_sw), this.detallePoiActivity.getString(R.string.contrasinal_sw)));
-            HttpEntity<Integer> entity = new HttpEntity<>(idPoi, headers);
+            HttpEntity<Integer> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, Object.class, idPoi);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();

@@ -162,6 +162,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private PuntoInterese poiSeleccionado;
     private List<Polyline> listaMarcaGuiado = new ArrayList<>();
     private List<Polyline> listaMarcaGuiadoRealizado = new ArrayList<>();
+    private List<Polyline> listaMarcaGuiadoPendente = new ArrayList<>();
 
     //Elementos visuais
     private SelectorPoiPercorrido seccionSpinner;
@@ -298,7 +299,35 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     this.botonSeguinteGuiado.setVisibility(View.INVISIBLE);
                 }
 
+                //Todos os marcadores do edificio
                 List<MarcadorCustom> listaMarcadorEdificio = this.mapaMarcador.get(this.idEdificioExternoActivo);
+
+                //Borramos a linha de puntos do percorrido (se existe)
+                if (indice != 0) {
+                    this.listaMarcaGuiadoPendente.get(0).remove();
+                    this.listaMarcaGuiadoPendente.remove(0);
+                }
+
+                //Borramos a primeira linha lisa do percorrido
+                this.listaMarcaGuiadoPendente.get(0).remove();
+                this.listaMarcaGuiadoPendente.remove(0);
+
+                //Amosar linha de puntos para a union dos dous POIs que se esta realizando
+                LatLng marcadorPrevio = listaMarcadorEdificio.get(listaMarcadorEdificio.indexOf(this.percorridoSeleccionado.getListaPIP().get(indice))).getMarcadorGoogle().getPosition();
+                LatLng marcadorNovo = listaMarcadorEdificio.get(listaMarcadorEdificio.indexOf(this.percorridoSeleccionado.getListaPIP().get(indice + 1))).getMarcadorGoogle().getPosition();
+
+                Polyline polilinha = crearPolilinha(marcadorPrevio, marcadorNovo, false, false);
+                polilinha.setPattern(PATTERN_POLYLINE_DOTTED);
+                this.listaMarcaGuiadoPendente.add(0, polilinha);
+
+                //Engadimos unha nova linha ao percorrido realizado (se ten polo menos dous puntos)
+                if (indice >= 1) {
+                    marcadorPrevio = listaMarcadorEdificio.get(listaMarcadorEdificio.indexOf(this.percorridoSeleccionado.getListaPIP().get(indice - 1))).getMarcadorGoogle().getPosition();
+                    marcadorNovo = listaMarcadorEdificio.get(listaMarcadorEdificio.indexOf(this.percorridoSeleccionado.getListaPIP().get(indice))).getMarcadorGoogle().getPosition();
+
+                    this.listaMarcaGuiadoRealizado.add(crearPolilinha(marcadorPrevio, marcadorNovo, false, true));
+                }
+
                 int indiceGlobal = listaMarcadorEdificio.indexOf(this.percorridoSeleccionado.getListaPIP().get(indice + 1));
                 if (indiceGlobal != -1) {
                     this.posicionGuiar = listaMarcadorEdificio.get(indiceGlobal);
@@ -319,6 +348,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (this.percorridoSeleccionado != null) {
                 activarOpcionsGuiadoPercorrido(this.percorridoSeleccionado);
                 this.poiSeleccionado = null;
+
+                //Amosar o percorrido de novo
+                amosarPercorrido(this.percorridoSeleccionado.getListaPIP());
             }
             else if (this.poiSeleccionado != null) {
                 activarOpcionsGuiadoPoi(this.poiSeleccionado);
@@ -340,6 +372,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         this.listaMarcaGuiadoRealizado.clear();
 
+        //Ocultamos as linhas do percorrido pendente
+        for (Polyline polilinea : this.listaMarcaGuiadoPendente) {
+            polilinea.remove();
+        }
+        this.listaMarcaGuiadoPendente.clear();
+
         this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
         this.botonSeguinteGuiado.setVisibility(View.INVISIBLE);
     }
@@ -354,7 +392,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             int indice = listaMarcadorEdificio.indexOf(mcGuiar);
             if (indice != -1) {
                 this.posicionGuiar = listaMarcadorEdificio.get(indice);
-                //TODO amosar resto de percorrido
+
+                //Traspasamos as linhas a lista de guiado pendente
+                this.listaMarcaGuiadoPendente.addAll(this.listaMarcaPercorrido);
+                this.listaMarcaPercorrido.clear();
                 this.botonSeguinteGuiado.setVisibility(View.VISIBLE);
             }
         }
@@ -557,7 +598,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                     b.putInt(Constantes.ID_PERCORRIDO, percorridoSeleccionado.getIdPercorrido());
                     b.putString(Constantes.NOME_PERCORRIDO, percorridoSeleccionado.getNome());
                     b.putString(Constantes.DESCRICION_PERCORRIDO, percorridoSeleccionado.getDescricion());
-                    b.putInt(Constantes.ID_EDIFICIO, percorridoSeleccionado.getIdEdificio());
                     b.putInt(Constantes.TEMPO_TOTAL, percorridoSeleccionado.getTempoTotal());
                     b.putInt(Constantes.TEMPO_CAMINHO, percorridoSeleccionado.getTempoCaminho());
 
@@ -664,7 +704,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.map.getUiSettings().setMapToolbarEnabled(false);
         this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
         this.map.setInfoWindowAdapter(new InfoWindowAdapterGuiado(LayoutInflater.from(getApplicationContext()), this));
-//        this.map.setOnInfoWindowClickListener(this);
 
         //Desactivar as opcions dos marcadores cando se fai click
         this.map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -921,8 +960,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             //Cambiar modo
 //            this.modoMapa.equals(EModoMapa.MODIFICAR_POI_PERCORRIDO);
-//
-//            invalidateOptionsMenu();
+
+            invalidateOptionsMenu();
         }
     }
 
@@ -1615,27 +1654,39 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         boolean percorridoEditabel = EModoMapa.EDICION.equals(this.modoMapa)|| EModoMapa.CREAR_PERCORRIDO.equals(this.modoMapa);
 
         //Amosamos o percorrido
-        PolylineOptions polyLineOptions;
-        Polyline polilinha;
         LatLng marcadorPrevio = null;
-        LatLng marcadorNuevo;
+        LatLng marcadorNovo;
         for (MarcadorCustom mc : listaAmosar) {
-            marcadorNuevo = new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude);
+            marcadorNovo = new LatLng(mc.getMarcadorGoogle().getPosition().latitude, mc.getMarcadorGoogle().getPosition().longitude);
             if (marcadorPrevio != null) {
-                //Engadimos os puntos da polilinha
-                polyLineOptions = new PolylineOptions().color(Constantes.COR_PERCORRIDO).width(Constantes.GROSOR_PERCORRIDO);
-                polyLineOptions.add(marcadorPrevio);
-                polyLineOptions.add(marcadorNuevo);
-
-                //Creamos a polilinha e a engadimos
-                polilinha = this.map.addPolyline(polyLineOptions);
-                polilinha.setClickable(percorridoEditabel);
-                polilinha.setEndCap(new CustomCap(getEndCapIcon(), 20));
-                this.listaMarcaPercorrido.add(polilinha);
+                this.listaMarcaPercorrido.add(crearPolilinha(marcadorPrevio, marcadorNovo, percorridoEditabel, false));
             }
-            marcadorPrevio = marcadorNuevo;
+            marcadorPrevio = marcadorNovo;
         }
 
+    }
+
+    private Polyline crearPolilinha(LatLng marcadorPrevio, LatLng marcadorNovo, boolean percorridoEditabel, boolean percorridoRealizado) {
+
+        int cor;
+        if (percorridoRealizado) {
+            cor = Constantes.COR_PERCORRIDO_REALIZADO;
+        }
+        else {
+            cor = Constantes.COR_PERCORRIDO;
+        }
+
+        //Engadimos os puntos da polilinha
+        PolylineOptions polyLineOptions = new PolylineOptions().color(cor).width(Constantes.GROSOR_PERCORRIDO);
+        polyLineOptions.add(marcadorPrevio);
+        polyLineOptions.add(marcadorNovo);
+
+        //Creamos a polilinha e a engadimos
+        Polyline polilinha = this.map.addPolyline(polyLineOptions);
+        polilinha.setClickable(percorridoEditabel);
+        polilinha.setEndCap(new CustomCap(getEndCapIcon(), 20));
+
+        return polilinha;
     }
 
     private BitmapDescriptor getEndCapIcon() {
@@ -1845,9 +1896,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.percorridoSeleccionado = percorridoSeleccionado;
             this.botonIniciarGuiado.setVisibility(View.VISIBLE);
         }
-//        else if (this.poiSeleccionado == null
-//                || !this.poiSeleccionado.getPosicion().getIdEdificio().equals(this.idEdificioActivo)
-//                || !this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
         else {
             this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
             this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
@@ -1860,14 +1908,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void activarOpcionsGuiadoPoi(PuntoInterese poiSeleccionado) {
-        //Se o percorrido e real e estamos dentro do edificio localizado
-
-        Log.i(TAG, String.valueOf(poiSeleccionado));
-        Log.i(TAG, String.valueOf(this.idEdificioActivo));
-        Log.i(TAG, "idEdificioExternoActivo " + String.valueOf(this.idEdificioExternoActivo));
-        Log.i(TAG, "idEdificioExternoLocalizado " + String.valueOf(this.idEdificioExternoLocalizado));
-
-
+        //Se o poi e real e estamos dentro do edificio localizado
         if (poiSeleccionado != null
                 && !Constantes.ID_FICTICIO.equals(poiSeleccionado.getIdPuntoInterese())
                 && poiSeleccionado.getPosicion().getIdEdificio().equals(this.idEdificioActivo)
@@ -1875,12 +1916,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.poiSeleccionado = poiSeleccionado;
             this.botonIniciarGuiado.setVisibility(View.VISIBLE);
         }
-//        else if (this.percorridoSeleccionado == null
-//                || !this.percorridoSeleccionado.getIdEdificio().equals(this.idEdificioActivo)
-//                || !this.idEdificioExternoActivo.equals(this.idEdificioExternoLocalizado)) {
-//            this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
-//            this.botonCancelarGuiado.setVisibility(View.INVISIBLE);
-//        }
         else {
             this.botonIniciarGuiado.setVisibility(View.INVISIBLE);
             this.botonCancelarGuiado.setVisibility(View.INVISIBLE);

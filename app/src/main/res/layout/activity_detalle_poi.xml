@@ -79,8 +79,8 @@
         android:id="@+id/buttonSubirImaxe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/buttonVerImaxe"
+        android:layout_above="@+id/buttonVerImaxe"
+        android:layout_alignParentStart="true"
         android:text="@string/subir_imaxe"
         android:textColor="@color/colorPrimary" />
 
@@ -89,7 +89,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/buttonEliminar"
+        android:layout_alignParentStart="true"
         android:text="@string/ver_imaxe"
         android:textColor="@color/colorPrimary" />
 

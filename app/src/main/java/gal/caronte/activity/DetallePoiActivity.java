@@ -109,7 +109,7 @@ public class DetallePoiActivity extends AppCompatActivity {
             botonVerImaxe.setVisibility(View.INVISIBLE);
         }
 
-        Button botonSubirImaxe = this.findViewById(R.id.buttonSubirImaxe);
+        final Button botonSubirImaxe = this.findViewById(R.id.buttonSubirImaxe);
         botonSubirImaxe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,18 +118,20 @@ public class DetallePoiActivity extends AppCompatActivity {
             }
         });
 
-        Button botonGardar = this.findViewById(R.id.buttonGardar);
+        final Button botonGardar = this.findViewById(R.id.buttonGardar);
         botonGardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                botonGardar.setEnabled(false);
                 gardarInformacionPoi();
             }
         });
 
-        Button botonEliminar = this.findViewById(R.id.buttonEliminar);
+        final Button botonEliminar = this.findViewById(R.id.buttonEliminar);
         botonEliminar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                botonEliminar.setEnabled(false);
                 eliminarPoi();
             }
         });
@@ -307,8 +309,44 @@ public class DetallePoiActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.my_menu, menu);
+//
+//        getLayoutInflater().setFactory(new Factory() {
+//            @Override
+//            public View onCreateView(String name, Context context,
+//                                     AttributeSet attrs) {
+//
+//                if (name .equalsIgnoreCase(“com.android.internal.view.menu.IconMenuItemView”)) {
+//                    try {
+//                        LayoutInflater f = getLayoutInflater();
+//                        final View view = f.createView(name, null, attrs);
+//
+//                        new Handler().post(new Runnable() {
+//                            public void run() {
+//
+//// set the background drawable
+//                                view .setBackgroundResource(R.drawable.my_ac_menu_background);
+//
+//// set the text color
+//                                ((TextView) view).setTextColor(Color.WHITE);
+//                            }
+//                        });
+//                        return view;
+//                    } catch (InflateException e) {
+//                    } catch (ClassNotFoundException e) {
+//                    }
+//                }
+//                return null;
+//            }
+//        });
+//        return super.onCreateOptionsMenu(menu);
+//    }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(MenuItem item) {
 
         if (this.poi.getListaImaxe() != null) {
             for (ImaxeCustom imaxe : this.poi.getListaImaxe()) {
@@ -323,7 +361,7 @@ public class DetallePoiActivity extends AppCompatActivity {
         }
 
         // En caso de que non identifiquemos a accion
-        return super.onOptionsItemSelected(item);
+        return super.onContextItemSelected(item);
     }
 
     public void setListaImaxe(List<ImaxeCustom> listaImaxe) {
