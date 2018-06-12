@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="gal.caronte.activity.DatosImaxeActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarDatosImaxe"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        app:theme="@style/ToolBar" />
+
+    <TextView
+        android:id="@+id/textViewNomeImaxe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/toolbarDatosImaxe"
+        android:text="@string/textview_nome"
+        android:textColor="@color/colorAccent"
+        tools:text="@string/textview_nome" />
+
+    <EditText
+        android:id="@+id/editTextNomeImaxe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewNomeImaxe"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:textColor="@color/colorPrimary"
+        tools:text="@string/edicion_nome" />
+
+    <TextView
+        android:id="@+id/textViewDescricionImaxe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/editTextNomeImaxe"
+        android:text="@string/textview_descricion"
+        android:textColor="@color/colorAccent"
+        tools:text="@string/textview_descricion" />
+
+    <EditText
+        android:id="@+id/editTextDescricionImaxe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textViewDescricionImaxe"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:textColor="@color/colorPrimary"
+        tools:text="@string/edicion_descricion" />
+
+    <Button
+        android:id="@+id/buttonCancelarImaxe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/buttonGardarImaxe"
+        android:text="@string/boton_cancelar"
+        android:textColor="@color/colorPrimary"
+        tools:text="@string/boton_cancelar" />
+
+    <Button
+        android:id="@+id/buttonGardarImaxe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="@string/boton_gardar"
+        android:textColor="@color/colorPrimary"
+        tools:text="@string/boton_gardar" />
+
+</RelativeLayout>

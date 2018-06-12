@@ -100,8 +100,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String TAG = MapaActivity.class.getSimpleName();
 
-    private static final int CODIGO_SOLICITUDE_PERMISO_LOCALIZACION = 1;
-
     //Patrons polilinhas
     private static final PatternItem DOT = new Dot();
     private static final PatternItem GAP = new Gap(15);
@@ -853,7 +851,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         //Comprobamos o permiso de localizacion para activar a localizacion
-        boolean permisoConcedido = PermisosUtil.comprobarPermisos(this, Manifest.permission.ACCESS_FINE_LOCATION, CODIGO_SOLICITUDE_PERMISO_LOCALIZACION, true);
+        boolean permisoConcedido = PermisosUtil.comprobarPermisos(this, Manifest.permission.ACCESS_FINE_LOCATION, PermisosUtil.CODIGO_SOLICITUDE_PERMISO_LOCALIZACION, true);
         if (permisoConcedido) {
             activarLocalizacionGoogle(true);
             activarLocalizacionSitum();
@@ -992,7 +990,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permisos, @NonNull int[] resultados) {
-        if (requestCode != CODIGO_SOLICITUDE_PERMISO_LOCALIZACION) {
+        if (requestCode != PermisosUtil.CODIGO_SOLICITUDE_PERMISO_LOCALIZACION) {
             return;
         }
 

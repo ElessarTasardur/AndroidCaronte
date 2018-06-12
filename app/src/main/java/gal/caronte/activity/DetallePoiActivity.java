@@ -1,8 +1,13 @@
 package gal.caronte.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,9 +19,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
 
 import gal.caronte.R;
 import gal.caronte.custom.sw.ImaxeCustom;
@@ -29,6 +40,7 @@ import gal.caronte.servizo.RecuperarImaxe;
 import gal.caronte.servizo.SubirImaxe;
 import gal.caronte.util.Constantes;
 import gal.caronte.util.EModoMapa;
+import gal.caronte.util.PermisosUtil;
 import gal.caronte.util.StringUtil;
 
 /**
@@ -39,12 +51,12 @@ public class DetallePoiActivity extends AppCompatActivity {
 
     private static final String TAG = DetallePoiActivity.class.getSimpleName();
 
-    private static int RESULT_LOAD_IMAGE = 1;
+    private static int RESULTADO_SELECCIONAR_IMAXE = 1;
+    private static int RESULTADO_SACAR_FOTO = 2;
 
     private GardarPoi gardarPoi;
     private RecuperarDatosImaxe recuperarDatosImaxe;
     private EliminarPoi eliminarPoi;
-    private SubirImaxe subirImaxe;
     private RecuperarImaxe recuperarImaxe;
 
     private PuntoInterese poi;
@@ -53,6 +65,8 @@ public class DetallePoiActivity extends AppCompatActivity {
     private EditText editTextNome;
     private EditText editTextDescricion;
     private EditText editTextTempo;
+
+    private Button botonVerImaxe;
 
     private Integer MENU_ID_IMAXE = 1654984681;
 
@@ -93,28 +107,28 @@ public class DetallePoiActivity extends AppCompatActivity {
         this.editTextTempo.setText(this.poi.getTempo().toString());
         activarTexto(this.editTextTempo);
 
-        final Button botonVerImaxe = this.findViewById(R.id.buttonVerImaxe);
-        registerForContextMenu(botonVerImaxe);
-        botonVerImaxe.setOnClickListener(new View.OnClickListener() {
+        this.botonVerImaxe = this.findViewById(R.id.buttonVerImaxe);
+        registerForContextMenu(this.botonVerImaxe);
+        this.botonVerImaxe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openContextMenu(botonVerImaxe);
+                openContextMenu(DetallePoiActivity.this.botonVerImaxe);
             }
         });
         if (this.poi.getListaIdImaxe() != null
                 && !this.poi.getListaIdImaxe().isEmpty()) {
-            botonVerImaxe.setVisibility(View.VISIBLE);
+            this.botonVerImaxe.setVisibility(View.VISIBLE);
         }
         else {
-            botonVerImaxe.setVisibility(View.INVISIBLE);
+            this.botonVerImaxe.setVisibility(View.INVISIBLE);
         }
 
         final Button botonSubirImaxe = this.findViewById(R.id.buttonSubirImaxe);
+        registerForContextMenu(botonSubirImaxe);
         botonSubirImaxe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                openContextMenu(botonSubirImaxe);
             }
         });
 
@@ -168,12 +182,6 @@ public class DetallePoiActivity extends AppCompatActivity {
         this.eliminarPoi = new EliminarPoi();
         this.eliminarPoi.setDetallePoiActivity(this);
         this.eliminarPoi.execute(this.poi.getIdPuntoInterese());
-    }
-
-    private void subirImaxe(SubirImaxeCustom subirImaxeCustom) {
-        this.subirImaxe = new SubirImaxe();
-        this.subirImaxe.setDetallePoiActivity(this);
-        this.subirImaxe.execute(subirImaxeCustom);
     }
 
     private void recuperarImaxe(ImaxeCustom imaxeCustom) {
@@ -232,9 +240,6 @@ public class DetallePoiActivity extends AppCompatActivity {
         if (this.eliminarPoi != null) {
             this.eliminarPoi.cancel(true);
         }
-        if (this.subirImaxe != null) {
-            this.subirImaxe.cancel(true);
-        }
         super.onStop();
     }
 
@@ -242,55 +247,72 @@ public class DetallePoiActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RESULT_LOAD_IMAGE
-                && resultCode == RESULT_OK
-                && data != null) {
+        if (resultCode == RESULT_OK
+                && data != null
+                && (requestCode == RESULTADO_SELECCIONAR_IMAXE
+                        || requestCode == RESULTADO_SACAR_FOTO)) {
 
-//            final Uri selectedImage = data.getData();
-//            if (selectedImage == null) {
-//                return;
-//            }
-//            try {
-//                java.net.URI juri = new java.net.URI(selectedImage.toString());
-//
-//                File file = new File(juri);
-//                final Handler handler = new Handler();
-//                MediaScannerConnection.scanFile(this, new String[]{file.toString()}, null,
-//                        new MediaScannerConnection.OnScanCompletedListener() {
-//                            public void onScanCompleted(String path, final Uri uri) {
-//
-//                                handler.post(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        uploadFile(uri);
-//                                    }
-//                                });
-//                            }
-//                        });
-//            }
-//            catch (URISyntaxException e) {
-//                Log.e(TAG, "Erro ao traducir URI");
-//            }
-
-            final Uri selectedImage = data.getData();
-            if (selectedImage == null) {
-                return;
+            File imaxe = null;
+            if (requestCode == RESULTADO_SELECCIONAR_IMAXE) {
+                if (data.getData() != null) {
+                    imaxe = new File(getPath(data.getData()));
+                }
             }
-            try {
-                java.net.URI juri = new java.net.URI(selectedImage.toString());
+            else if (requestCode == RESULTADO_SACAR_FOTO) {
 
-                File imaxe = new File(juri.getPath());
-//                SubirImaxeCustom subirImaxeCustom = new SubirImaxeCustom(this.poi.getPosicion().getIdEdificio(), this.poi.getIdPuntoInterese(), this.nomeImaxe, this.descricionImaxe, imaxe);
-//                subirImaxe(new SubirImaxeCustom(this.poi.getPosicion().getIdEdificio(), this.poi.getIdPuntoInterese(), "nomeImaxe", "descricionImaxe", juri.getPath()));
-                subirImaxe(new SubirImaxeCustom(this.poi.getPosicion().getIdEdificio(), this.poi.getIdPuntoInterese(), "nomeImaxe", "descricionImaxe", imaxe));
-            }
-            catch (URISyntaxException e) {
-                Log.e(TAG, "Erro ao traducir URI");
+                Bitmap foto = (Bitmap) data.getExtras().get("data");
+
+                imaxe = new File(StringUtil.creaString(Environment.getExternalStorageDirectory(), File.separator, "temporary_file.png"));
+                try (OutputStream os = new BufferedOutputStream(new FileOutputStream(imaxe))) {
+                    foto.compress(Bitmap.CompressFormat.PNG, 100, os);
+                }
+                catch (FileNotFoundException e) {
+                    Log.e(TAG, "Erro ao convertir a foto", e);
+                }
+                catch (IOException e2) {
+                    Log.e(TAG, "Erro ao convertir a foto", e2);
+                }
             }
 
+            if (imaxe != null) {
+                Intent intent = new Intent(this, DatosImaxeActivity.class);
 
+                //Engadimos a informacion do poi ao intent
+                Bundle b = new Bundle();
+                b.putParcelable(Constantes.PUNTO_INTERESE, this.poi);
+                intent.putExtras(b);
+
+                intent.putExtra(Constantes.FILE, imaxe);
+
+                //Iniciamos a actividade do mapa
+                startActivityForResult(intent, Constantes.ACTIVIDADE_DATOS_IMAXE);
+            }
 
         }
+        else if (resultCode == RESULT_OK
+                && data != null
+                && requestCode == Constantes.ACTIVIDADE_DATOS_IMAXE) {
+
+            int idImaxe = data.getIntExtra(Constantes.ID_IMAXE, -1);
+            if (idImaxe != -1) {
+                this.poi.getListaIdImaxe().add(idImaxe);
+                recuperarDatosImaxe();
+                if (this.botonVerImaxe.getVisibility() == View.INVISIBLE) {
+                    this.botonVerImaxe.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+
+    }
+
+    public String getPath(Uri uri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(uri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String res = cursor.getString(column_index);
+        cursor.close();
+        return res;
     }
 
     @Override
@@ -298,15 +320,23 @@ public class DetallePoiActivity extends AppCompatActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_seleccionar_imaxe, menu);
 
-        menu.setHeaderTitle(getString(R.string.poi_seleccionar_imaxe));
+        if(v.getId() == R.id.buttonVerImaxe) {
+            inflater.inflate(R.menu.menu_seleccionar_imaxe, menu);
+            menu.setHeaderTitle(getString(R.string.poi_seleccionar_imaxe));
 
-        int i = 0;
-        for (Integer idImaxe : this.poi.getListaIdImaxe()) {
-            menu.add(0, idImaxe, i, "Ver " + idImaxe);
-            i++;
+            int i = 0;
+            for (Integer idImaxe : this.poi.getListaIdImaxe()) {
+                menu.add(0, idImaxe, i, "Ver " + idImaxe);
+                i++;
+            }
         }
+        else if(v.getId() == R.id.buttonSubirImaxe) {
+            inflater.inflate(R.menu.menu_escoller_opcion_subida, menu);
+            menu.setHeaderTitle(getString(R.string.poi_seleccionar_opcion));
+        }
+
+
     }
 
 //    @Override
@@ -348,7 +378,41 @@ public class DetallePoiActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
 
-        if (this.poi.getListaImaxe() != null) {
+        if (item.getItemId() == R.id.accion_camara) {
+            //Comprobamos o permiso de localizacion para activar a localizacion
+            boolean permisoEscritura = PermisosUtil.comprobarPermisos(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, PermisosUtil.CODIGO_SOLICITUDE_PERMISO_ESCRITURA_ALMACENAMENTO, true);
+            boolean permisoCamara = PermisosUtil.comprobarPermisos(this, Manifest.permission.CAMERA, PermisosUtil.CODIGO_SOLICITUDE_PERMISO_CAMARA, true);
+            if (permisoEscritura
+                    && permisoCamara) {
+                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(takePicture, RESULTADO_SACAR_FOTO);
+
+
+//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+//                        Environment.DIRECTORY_PICTURES), "IMG_FOLDER");
+//
+//                if (!mediaStorageDir.exists()) {
+//                    if (!mediaStorageDir.mkdirs()) {
+//                        return false;
+//                    }
+//                }
+//
+//                Uri imageURI = Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator + "profile_img.jpg"));
+//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+//
+//                startActivityForResult(intent, RESULTADO_SACAR_FOTO);
+            }
+        }
+        else if (item.getItemId() == R.id.accion_galeria) {
+            //Comprobamos o permiso de localizacion para activar a localizacion
+            boolean permisoConcedido = PermisosUtil.comprobarPermisos(this, Manifest.permission.READ_EXTERNAL_STORAGE, PermisosUtil.CODIGO_SOLICITUDE_PERMISO_LECTURA_ALMACENAMENTO, true);
+            if (permisoConcedido) {
+                Intent seleccionarFoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(seleccionarFoto, RESULTADO_SELECCIONAR_IMAXE);
+            }
+        }
+        else if (this.poi.getListaImaxe() != null) {
             for (ImaxeCustom imaxe : this.poi.getListaImaxe()) {
                 if (imaxe.getIdImaxe().equals(item.getItemId())) {
                     //TODO Visualizar imaxe
@@ -372,6 +436,7 @@ public class DetallePoiActivity extends AppCompatActivity {
         for (ImaxeCustom imaxeCustom : this.poi.getListaImaxe()) {
             if (imaxeCustom.getIdImaxe().equals(novaImaxeCustom.getIdImaxe())) {
                 imaxeCustom.setImaxe(novaImaxeCustom.getImaxe());
+                break;
             }
         }
     }

@@ -23,6 +23,11 @@ public class PermisosUtil {
 
     private static final String TAG = PermisosUtil.class.getSimpleName();
 
+    public static final int CODIGO_SOLICITUDE_PERMISO_LOCALIZACION = 1;
+    public static final int CODIGO_SOLICITUDE_PERMISO_LECTURA_ALMACENAMENTO = 2;
+    public static final int CODIGO_SOLICITUDE_PERMISO_ESCRITURA_ALMACENAMENTO = 3;
+    public static final int CODIGO_SOLICITUDE_PERMISO_CAMARA = 4;
+
     public static boolean comprobarPermisos(AppCompatActivity actividad, String permiso, Integer codigoSolicitude, boolean finalizar) {
 
         boolean permisoConcedido = false;
@@ -38,7 +43,7 @@ public class PermisosUtil {
             }
         }
         else {
-            Log.i(TAG, StringUtil.creaString("Permiso ", permiso, " xa obtido. Iniciamos a localizacion"));
+            Log.i(TAG, StringUtil.creaString("Permiso ", permiso, " xa obtido. Continuamos co proceso"));
             permisoConcedido = true;
         }
 
@@ -91,11 +96,27 @@ public class PermisosUtil {
             final int codigoSolicitude = argumentos.getInt(ARGUMENTO_CODIGO_SOLICITUDE_PERMISO);
             finalizarActividad = argumentos.getBoolean(ARGUMENTO_CERRAR_ACTIVIDAD);
 
+            String[] permiso = null;
+            if (codigoSolicitude == CODIGO_SOLICITUDE_PERMISO_LOCALIZACION) {
+                permiso = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+            }
+            else if (codigoSolicitude == CODIGO_SOLICITUDE_PERMISO_LECTURA_ALMACENAMENTO) {
+                permiso = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+            }
+            else if (codigoSolicitude == CODIGO_SOLICITUDE_PERMISO_ESCRITURA_ALMACENAMENTO) {
+                permiso = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            }
+            else if (codigoSolicitude == CODIGO_SOLICITUDE_PERMISO_CAMARA) {
+                permiso = new String[]{Manifest.permission.CAMERA};
+            }
+
+            final String[] permisoDialogo = permiso;
+
             DialogInterface.OnClickListener okListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // After click on Ok, request the permission.
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, codigoSolicitude);
+                    ActivityCompat.requestPermissions(getActivity(), permisoDialogo, codigoSolicitude);
                     // Do not finish the Activity while requesting permission.
                     finalizarActividad = false;
                 }
