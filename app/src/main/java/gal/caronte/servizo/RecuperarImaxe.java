@@ -1,21 +1,24 @@
 package gal.caronte.servizo;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpBasicAuthentication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,23 +36,50 @@ public class RecuperarImaxe extends AsyncTask<ImaxeCustom, Void, ImaxeCustom> {
     @Override
     protected ImaxeCustom doInBackground(ImaxeCustom... params) {
         ImaxeCustom imaxeCustom = params[0];
-        Resource imaxe = null;
+        byte[] imaxe = null;
         try {
-            final String url = StringUtil.creaString(this.detallePoiActivity.getString(R.string.direccion_servidor), this.detallePoiActivity.getString(R.string.direccion_servizo_recuperar_datos_imaxe));
+            final String url = StringUtil.creaString(this.detallePoiActivity.getString(R.string.direccion_servidor), this.detallePoiActivity.getString(R.string.direccion_servizo_recuperar_imaxe));
             RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             headers.setAuthorization(new HttpBasicAuthentication(this.detallePoiActivity.getString(R.string.usuario_sw), this.detallePoiActivity.getString(R.string.contrasinal_sw)));
             HttpEntity<List<Integer>> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, imaxeCustom.getIdEdificio(), imaxeCustom.getIdPuntoInterese(), imaxeCustom.getIdImaxe());
-            Object resource = response.getBody();
+            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class, imaxeCustom.getIdEdificio(), imaxeCustom.getIdPuntoInterese(), imaxeCustom.getIdImaxe());
 
-            ObjectMapper mapper = new ObjectMapper();
-            imaxe = mapper.convertValue(resource, new TypeReference<Resource>() { });
-            imaxeCustom.setImaxe(imaxe);
+            //Construese o Bitmap
+            imaxe = response.getBody();
+            Bitmap nha = BitmapFactory.decodeByteArray(imaxe,0, imaxe.length);
+
+            //Crease o directorio e a ruta onde se garda a imaxe
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), this.detallePoiActivity.getString(R.string.app_name));
+            if (!mediaStorageDir.exists()) {
+                mediaStorageDir.mkdirs();
+            }
+
+            mediaStorageDir = new File(StringUtil.creaString(mediaStorageDir.getPath(), File.separator, imaxeCustom.getIdEdificio(), File.separator, imaxeCustom.getIdPuntoInterese()));
+            if (!mediaStorageDir.exists()) {
+                mediaStorageDir.mkdirs();
+            }
+
+            String rutaImaxe = StringUtil.creaString(mediaStorageDir.getPath(), File.separator, imaxeCustom.getIdImaxe(), ".jpg");
+
+            OutputStream outStream = null;
+            File imaxeSistema = new File(rutaImaxe);
+            try {
+                outStream = new FileOutputStream(imaxeSistema);
+                nha.compress(Bitmap.CompressFormat.JPEG, 85, outStream);
+                outStream.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Uri imageURI = Uri.fromFile(imaxeSistema);
+
+            imaxeCustom.setRutaImaxe(imageURI.toString());
 
         }
         catch (Exception e) {
