@@ -14,6 +14,7 @@ public class Constantes {
     public static final int ACTIVIDADE_DETALLE_POI = 1;
     public static final int ACTIVIDADE_DETALLE_PERCORRIDO = 2;
     public static final int ACTIVIDADE_DATOS_IMAXE = 3;
+    public static final int ACTIVIDADE_IMAXE = 4;
 
     //Obxectos entre activities
     public static final String PUNTO_INTERESE = "puntoInterese";
@@ -32,6 +33,8 @@ public class Constantes {
     public static final String TEMPO_CAMINHO = "tempoCaminho";
     public static final String FILE = "file";
     public static final String ID_IMAXE = "idImaxe";
+    public static final String IMAXE = "imaxe";
+    public static final String NOME_IMAXE = "nomeImaxe";
 
     //Percorrido
     public static final int COR_PERCORRIDO = Color.BLUE;

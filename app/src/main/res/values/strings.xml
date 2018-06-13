@@ -90,6 +90,8 @@
 
     <string name="eliminar_percorrido_erro">Erro ao intentar eliminar o percorrido. Por favor, ténteo de novo</string>
     <string name="eliminar_percorrido_correcto">Percorrido eliminado correctamente</string>
+    <string name="eliminar_imaxe_erro">Erro ao intentar eliminar a imaxe. Por favor, ténteo de novo</string>
+    <string name="eliminar_imaxe_correcto">Imaxe eliminada correctamente</string>
     <string name="boton_eliminar">Eliminar</string>
     <string name="boton_centrar_posicion">Centrar posición</string>
     <string name="boton_percorrido_engadir_poi">Engadir un POI ao percorrido</string>

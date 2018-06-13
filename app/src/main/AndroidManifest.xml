@@ -45,6 +45,10 @@
             android:name="gal.caronte.activity.DatosImaxeActivity">
         </activity>
 
+        <activity
+            android:name="gal.caronte.activity.ImaxeActivity">
+        </activity>
+
     </application>
 
 </manifest>

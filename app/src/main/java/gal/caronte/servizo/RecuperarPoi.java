@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import gal.caronte.R;
-import gal.caronte.custom.sw.PuntoInterese;
 import gal.caronte.activity.MapaActivity;
+import gal.caronte.custom.sw.PuntoInterese;
 import gal.caronte.util.StringUtil;
 
 /**

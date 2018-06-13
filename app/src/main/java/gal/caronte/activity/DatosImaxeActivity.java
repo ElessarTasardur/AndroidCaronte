@@ -68,7 +68,6 @@ public class DatosImaxeActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     @Override

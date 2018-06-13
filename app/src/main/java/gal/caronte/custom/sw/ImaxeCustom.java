@@ -9,7 +9,7 @@ public class ImaxeCustom implements Parcelable {
     private String nome;
     private String descricion;
     private Integer idPuntoInterese;
-    private Object imaxe;
+    private String rutaImaxe;
     //De inicio, null. Hai que establecerlle o valor
     private Integer idEdificio;
 
@@ -17,14 +17,13 @@ public class ImaxeCustom implements Parcelable {
         super();
     }
 
-    public ImaxeCustom(Integer idImaxe, String nome, String descricion, Integer idPuntoInterese, Object imaxe) {
+    public ImaxeCustom(Integer idImaxe, String nome, String descricion, Integer idPuntoInterese, String rutaImaxe) {
         super();
         this.idImaxe = idImaxe;
         this.nome = nome;
         this.descricion = descricion;
         this.idPuntoInterese = idPuntoInterese;
-
-        this.imaxe = imaxe;
+        this.rutaImaxe = rutaImaxe;
     }
 
     public Integer getIdImaxe() {
@@ -59,12 +58,12 @@ public class ImaxeCustom implements Parcelable {
         this.idPuntoInterese = idPuntoInterese;
     }
 
-    public Object getImaxe() {
-        return this.imaxe;
+    public String getRutaImaxe() {
+        return this.rutaImaxe;
     }
 
-    public void setImaxe(Object imaxe) {
-        this.imaxe = imaxe;
+    public void setRutaImaxe(String rutaImaxe) {
+        this.rutaImaxe = rutaImaxe;
     }
 
     public Integer getIdEdificio() {
@@ -81,7 +80,7 @@ public class ImaxeCustom implements Parcelable {
         this.descricion = in.readString();
         this.idPuntoInterese = in.readInt();
         this.idEdificio = in.readInt();
-//        this.imaxe = in.read(Integer.class.getClassLoader());
+        this.rutaImaxe = in.readString();
     }
 
     @Override
@@ -91,7 +90,7 @@ public class ImaxeCustom implements Parcelable {
         dest.writeString(this.descricion);
         dest.writeInt(this.idPuntoInterese);
         dest.writeInt(this.idEdificio);
-//        dest.writeList(this.imaxe);
+        dest.writeString(this.rutaImaxe);
     }
 
     @Override

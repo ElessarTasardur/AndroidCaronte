@@ -25,19 +25,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import gal.caronte.R;
 import gal.caronte.custom.sw.ImaxeCustom;
 import gal.caronte.custom.sw.PuntoInterese;
-import gal.caronte.custom.sw.SubirImaxeCustom;
 import gal.caronte.servizo.EliminarPoi;
 import gal.caronte.servizo.GardarPoi;
 import gal.caronte.servizo.RecuperarDatosImaxe;
 import gal.caronte.servizo.RecuperarImaxe;
-import gal.caronte.servizo.SubirImaxe;
 import gal.caronte.util.Constantes;
 import gal.caronte.util.EModoMapa;
 import gal.caronte.util.PermisosUtil;
@@ -115,8 +112,8 @@ public class DetallePoiActivity extends AppCompatActivity {
                 openContextMenu(DetallePoiActivity.this.botonVerImaxe);
             }
         });
-        if (this.poi.getListaIdImaxe() != null
-                && !this.poi.getListaIdImaxe().isEmpty()) {
+        if (this.poi.getListaImaxe() != null
+                && !this.poi.getListaImaxe().isEmpty()) {
             this.botonVerImaxe.setVisibility(View.VISIBLE);
         }
         else {
@@ -302,6 +299,24 @@ public class DetallePoiActivity extends AppCompatActivity {
                 }
             }
         }
+        else if (resultCode != RESULT_OK
+                || requestCode == Constantes.ACTIVIDADE_IMAXE) {
+
+            Integer idImaxe = data.getIntExtra(Constantes.ID_IMAXE, -1);
+            if (idImaxe != -1) {
+                //Eliminar imaxe
+                this.poi.getListaIdImaxe().remove(idImaxe);
+                Iterator<ImaxeCustom> iterador = this.poi.getListaImaxe().iterator();
+                while (iterador.hasNext()) {
+                    ImaxeCustom imaxeBorrar = iterador.next();
+                    if (imaxeBorrar.getIdImaxe().equals(idImaxe)) {
+                        iterador.remove();
+                        break;
+                    }
+                }
+            }
+
+        }
 
     }
 
@@ -339,42 +354,6 @@ public class DetallePoiActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.my_menu, menu);
-//
-//        getLayoutInflater().setFactory(new Factory() {
-//            @Override
-//            public View onCreateView(String name, Context context,
-//                                     AttributeSet attrs) {
-//
-//                if (name .equalsIgnoreCase(“com.android.internal.view.menu.IconMenuItemView”)) {
-//                    try {
-//                        LayoutInflater f = getLayoutInflater();
-//                        final View view = f.createView(name, null, attrs);
-//
-//                        new Handler().post(new Runnable() {
-//                            public void run() {
-//
-//// set the background drawable
-//                                view .setBackgroundResource(R.drawable.my_ac_menu_background);
-//
-//// set the text color
-//                                ((TextView) view).setTextColor(Color.WHITE);
-//                            }
-//                        });
-//                        return view;
-//                    } catch (InflateException e) {
-//                    } catch (ClassNotFoundException e) {
-//                    }
-//                }
-//                return null;
-//            }
-//        });
-//        return super.onCreateOptionsMenu(menu);
-//    }
-
     @Override
     public boolean onContextItemSelected(MenuItem item) {
 
@@ -386,22 +365,6 @@ public class DetallePoiActivity extends AppCompatActivity {
                     && permisoCamara) {
                 Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(takePicture, RESULTADO_SACAR_FOTO);
-
-
-//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-//                        Environment.DIRECTORY_PICTURES), "IMG_FOLDER");
-//
-//                if (!mediaStorageDir.exists()) {
-//                    if (!mediaStorageDir.mkdirs()) {
-//                        return false;
-//                    }
-//                }
-//
-//                Uri imageURI = Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator + "profile_img.jpg"));
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
-//
-//                startActivityForResult(intent, RESULTADO_SACAR_FOTO);
             }
         }
         else if (item.getItemId() == R.id.accion_galeria) {
@@ -415,10 +378,29 @@ public class DetallePoiActivity extends AppCompatActivity {
         else if (this.poi.getListaImaxe() != null) {
             for (ImaxeCustom imaxe : this.poi.getListaImaxe()) {
                 if (imaxe.getIdImaxe().equals(item.getItemId())) {
-                    //TODO Visualizar imaxe
                     imaxe.setIdEdificio(this.poi.getPosicion().getIdEdificio());
                     Toast.makeText(this, "Visualizar imaxe " + imaxe.getIdImaxe(), Toast.LENGTH_SHORT).show();
-                    recuperarImaxe(imaxe);
+
+                    //Se xa abrimos a imaxe antes, collemola
+                    if (imaxe.getRutaImaxe() != null) {
+                        abrirActividadeImaxe(imaxe);
+                    }
+                    //Senon a amosamos, recuperamola
+                    else {
+                        //Comprobamos se existe no directorio do mobil
+                        String rutaImaxe = StringUtil.creaString(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), File.separator, this.getString(R.string.app_name), File.separator, imaxe.getIdEdificio(), File.separator, imaxe.getIdPuntoInterese(), File.separator, imaxe.getIdImaxe(), ".jpg");
+                        File ficheiroImaxe = new File(rutaImaxe);
+                        if (ficheiroImaxe.isFile()) {
+                            imaxe.setRutaImaxe(rutaImaxe);
+                            abrirActividadeImaxe(imaxe);
+                        }
+                        //Senon, temos que ir buscala
+                        else {
+                            recuperarImaxe(imaxe);
+                        }
+                    }
+
+
                     return true;
                 }
             }
@@ -429,15 +411,43 @@ public class DetallePoiActivity extends AppCompatActivity {
     }
 
     public void setListaImaxe(List<ImaxeCustom> listaImaxe) {
+        for (ImaxeCustom imaxe : listaImaxe) {
+            imaxe.setIdEdificio(this.poi.getPosicion().getIdEdificio());
+        }
         this.poi.setListaImaxe(listaImaxe);
+        if (this.poi.getListaImaxe() != null
+                && !this.poi.getListaImaxe().isEmpty()) {
+            this.botonVerImaxe.setVisibility(View.VISIBLE);
+        }
+        else {
+            this.botonVerImaxe.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void actualizarImaxe(ImaxeCustom novaImaxeCustom) {
+        boolean atopada = false;
         for (ImaxeCustom imaxeCustom : this.poi.getListaImaxe()) {
             if (imaxeCustom.getIdImaxe().equals(novaImaxeCustom.getIdImaxe())) {
-                imaxeCustom.setImaxe(novaImaxeCustom.getImaxe());
+                imaxeCustom.setRutaImaxe(novaImaxeCustom.getRutaImaxe());
+                atopada = true;
                 break;
             }
         }
+        if (atopada) {
+            abrirActividadeImaxe(novaImaxeCustom);
+        }
     }
+
+    private void abrirActividadeImaxe(ImaxeCustom imaxeCustom) {
+        Intent intent = new Intent(this, ImaxeActivity.class);
+
+        //Engadimos a imaxe ao intent
+        intent.putExtra(Constantes.IMAXE, imaxeCustom.getRutaImaxe());
+        intent.putExtra(Constantes.NOME_IMAXE, imaxeCustom.getNome());
+        intent.putExtra(Constantes.ID_IMAXE, imaxeCustom.getIdImaxe());
+
+        //Iniciamos a actividade do mapa
+        startActivityForResult(intent, Constantes.ACTIVIDADE_IMAXE);
+    }
+
 }
