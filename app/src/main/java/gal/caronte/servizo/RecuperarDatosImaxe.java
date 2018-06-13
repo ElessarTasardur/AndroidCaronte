@@ -31,7 +31,7 @@ public class RecuperarDatosImaxe extends AsyncTask<String, Void, List<ImaxeCusto
 
     @Override
     protected List<ImaxeCustom> doInBackground(String... params) {
-        String listaIdImaxe = params[0];
+        String listaIdImaxeCSV = params[0];
         List<ImaxeCustom> listaImaxe = null;
         try {
             final String url = StringUtil.creaString(this.detallePoiActivity.getString(R.string.direccion_servidor), this.detallePoiActivity.getString(R.string.direccion_servizo_recuperar_datos_imaxe));
@@ -43,7 +43,7 @@ public class RecuperarDatosImaxe extends AsyncTask<String, Void, List<ImaxeCusto
             headers.setAuthorization(new HttpBasicAuthentication(this.detallePoiActivity.getString(R.string.usuario_sw), this.detallePoiActivity.getString(R.string.contrasinal_sw)));
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, listaIdImaxe);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class, listaIdImaxeCSV);
             Object resource = response.getBody();
 
             ObjectMapper mapper = new ObjectMapper();

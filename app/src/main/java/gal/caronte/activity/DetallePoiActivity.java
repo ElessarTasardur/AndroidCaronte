@@ -259,7 +259,7 @@ public class DetallePoiActivity extends AppCompatActivity {
 
                 Bitmap foto = (Bitmap) data.getExtras().get("data");
 
-                imaxe = new File(StringUtil.creaString(Environment.getExternalStorageDirectory(), File.separator, "temporary_file.png"));
+                imaxe = new File(StringUtil.creaString(Environment.getExternalStorageDirectory(), File.separator, getString(R.string.ficheiro_temporal)));
                 try (OutputStream os = new BufferedOutputStream(new FileOutputStream(imaxe))) {
                     foto.compress(Bitmap.CompressFormat.PNG, 100, os);
                 }
@@ -341,8 +341,8 @@ public class DetallePoiActivity extends AppCompatActivity {
             menu.setHeaderTitle(getString(R.string.poi_seleccionar_imaxe));
 
             int i = 0;
-            for (Integer idImaxe : this.poi.getListaIdImaxe()) {
-                menu.add(0, idImaxe, i, "Ver " + idImaxe);
+            for (ImaxeCustom imaxe : this.poi.getListaImaxe()) {
+                menu.add(0, imaxe.getIdImaxe(), i, imaxe.getNome());
                 i++;
             }
         }
@@ -379,7 +379,6 @@ public class DetallePoiActivity extends AppCompatActivity {
             for (ImaxeCustom imaxe : this.poi.getListaImaxe()) {
                 if (imaxe.getIdImaxe().equals(item.getItemId())) {
                     imaxe.setIdEdificio(this.poi.getPosicion().getIdEdificio());
-                    Toast.makeText(this, "Visualizar imaxe " + imaxe.getIdImaxe(), Toast.LENGTH_SHORT).show();
 
                     //Se xa abrimos a imaxe antes, collemola
                     if (imaxe.getRutaImaxe() != null) {

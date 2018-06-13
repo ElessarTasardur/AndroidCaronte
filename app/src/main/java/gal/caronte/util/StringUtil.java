@@ -28,7 +28,7 @@ public class StringUtil {
                 retornoSB.append(enteiro);
                 retornoSB.append(",");
             }
-            retorno = retornoSB.substring(0, retornoSB.length() - 2);
+            retorno = retornoSB.substring(0, retornoSB.length() - 1);
         }
         return retorno;
     }

@@ -117,5 +117,6 @@
     <string name="boton_cancelar">Cancelar</string>
     <string name="title_activity_datos_imaxe">Datos da imaxe</string>
 
+    <string name="ficheiro_temporal">tmp.png</string>
 
 </resources>
