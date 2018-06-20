@@ -35,7 +35,8 @@ public class PermisosUtil {
             Log.i(TAG, StringUtil.creaString("Sen permiso para ", permiso, ". Procedemos a solicitalo"));
             //Se debemos explicar a solicitude do permiso creamos un aviso e realizamola
             if (ActivityCompat.shouldShowRequestPermissionRationale(actividad, permiso)) {
-                PermisosUtil.RationaleDialog.newInstance(codigoSolicitude, finalizar, permiso).show(actividad.getSupportFragmentManager(), "dialog");
+                PermisosUtil.RationaleDialog.newInstance(codigoSolicitude, finalizar, permiso)
+                        .show(actividad.getSupportFragmentManager(), "dialog");
             }
             //Se non precisamos explicacion para a solicitude, realizamola directamente
             else {

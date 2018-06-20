@@ -36,31 +36,21 @@ public class RecuperarEdificio extends AsyncTask<Void, Void, List<EdificioCustom
     @Override
     protected List<EdificioCustom> doInBackground(Void... params) {
 
-        List<EdificioCustom> listaEdificio = null;
-        try {
-            final String url = StringUtil.creaString(this.inicioActivity.getString(R.string.direccion_servidor), this.inicioActivity.getString(R.string.direccion_servizo_recuperar_edificios));
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        final String url = StringUtil.creaString(this.inicioActivity.getString(R.string.direccion_servidor),
+                this.inicioActivity.getString(R.string.direccion_servizo_recuperar_edificios));
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.setAuthorization(new HttpBasicAuthentication(this.inicioActivity.getString(R.string.usuario_sw), this.inicioActivity.getString(R.string.contrasinal_sw)));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        headers.setAuthorization(new HttpBasicAuthentication(this.inicioActivity.getString(R.string.usuario_sw),
+                this.inicioActivity.getString(R.string.contrasinal_sw)));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
-            Object resource = response.getBody();
+        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+        Object resource = response.getBody();
 
-            ObjectMapper mapper = new ObjectMapper();
-            listaEdificio = mapper.convertValue(resource, new TypeReference<List<EdificioCustom>>() { });
-
-        }
-        catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-        Log.i(TAG, StringUtil.creaString("Lista de edificios recuperados: ", listaEdificio));
-
-        return listaEdificio;
+        return new ObjectMapper().convertValue(resource, new TypeReference<List<EdificioCustom>>() { });
     }
 
     @Override

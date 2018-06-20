@@ -187,10 +187,6 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
             if (acct != null) {
                 String idToken = acct.getIdToken();
                 this.nomeMostrar = acct.getDisplayName();
-                Log.i(TAG, "Display name: " + acct.getDisplayName());
-                Log.i(TAG, "Email: " + acct.getEmail());
-                Log.i(TAG, "Family name: " + acct.getFamilyName());
-                Log.i(TAG, "Given name: " + acct.getGivenName());
 
                 this.tvGoogle.setText(acct.getEmail());
                 this.tvNomeGoogle.setText(this.nomeMostrar);
@@ -204,8 +200,8 @@ public class InicioActivity extends AppCompatActivity implements GoogleApiClient
         }
         else {
 
-            Toast.makeText(this, getString(R.string.usuario_non_logueado), Toast.LENGTH_SHORT).show();
-            Toast.makeText(this, result.getStatus().toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.usuario_non_logueado) + result.getStatus().toString(),
+                    Toast.LENGTH_SHORT).show();
             //Usuario non logueado --> Desconectado
             actualizarVista(false);
             hideProgressDialog();

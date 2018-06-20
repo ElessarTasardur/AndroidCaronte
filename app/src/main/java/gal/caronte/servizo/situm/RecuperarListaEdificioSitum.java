@@ -54,13 +54,6 @@ public class RecuperarListaEdificioSitum {
                 }
                 clearCallback();
 
-//                //Recuperar pisos a partir de edificioActual
-//                if (novoEdificio != null) {
-//                    recuperarPiso(novoEdificio);
-//                }
-//                else {
-//                    clearCallback();
-//                }
             }
 
             @Override
@@ -73,32 +66,6 @@ public class RecuperarListaEdificioSitum {
             }
         });
     }
-
-//    private void recuperarPiso(final EdificioSitumCustom edificioSitumCustom) {
-//
-//        SitumSdk.communicationManager().fetchFloorsFromBuilding(edificioSitumCustom.getEdificio(), new Handler<Collection<Floor>>() {
-//            @Override
-//            public void onSuccess(Collection<Floor> pisos) {
-//                if (!pisos.isEmpty()) {
-//                    edificioSitumCustom.setPisos(pisos);
-//
-//                    if (hasCallback()) {
-//                        callback.onSuccess(edificioSitumCustom);
-//                    }
-//                    clearCallback();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Error error) {
-//                Log.e(TAG, error.getMessage());
-//                if (hasCallback()){
-//                    callback.onError(error);
-//                }
-//                clearCallback();
-//            }
-//        });
-//    }
 
     public void cancel() {
         callback = null;

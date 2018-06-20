@@ -130,8 +130,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Posicionamento
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private GroundOverlay imaxePosicion;
-    private GroundOverlayOptions gooPosicion;
+    private Marker marcadorPosicion;
 
     //Variabeis Situm+Caronte
     private Map<String, EdificioSitumCustom> mapaEdificioSitumCustom;
@@ -277,7 +276,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
 
-            this.gooPosicion = new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa));
         }
 
     }
@@ -1056,8 +1054,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             LocationRequest locationRequest = new LocationRequest.Builder()
-                    .useWifi(true)
-                    .useBle(true)
                     .useForegroundService(true)
                     .build();
             this.locationManager.requestLocationUpdates(locationRequest, locationListener);
@@ -1114,23 +1110,24 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
                     if (location.getFloorIdentifier().equals(MapaActivity.this.idPlantaVisibelLocalizada)) {
-                        if (MapaActivity.this.imaxePosicion == null) {
-                            MapaActivity.this.gooPosicion.bearing((float) location.getBearing().degrees())
-                                    .position(latLng, 1);
-                            MapaActivity.this.imaxePosicion = MapaActivity.this.map.addGroundOverlay(MapaActivity.this.gooPosicion);
+                        if (MapaActivity.this.marcadorPosicion == null) {
+                            MapaActivity.this.marcadorPosicion = MapaActivity.this.map.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_posicion_mapa))
+                                    .flat(true)
+                                    .rotation((float) location.getBearing().degrees()));
                         }
                         else {
-                            MapaActivity.this.gooPosicion.bearing((float) location.getBearing().degrees())
-                                    .position(latLng, 1);
-                            MapaActivity.this.imaxePosicion.remove();
-                            MapaActivity.this.imaxePosicion = MapaActivity.this.map.addGroundOverlay(MapaActivity.this.gooPosicion);
+                            MapaActivity.this.marcadorPosicion.setRotation((float) location.getBearing().degrees());
+                            MapaActivity.this.marcadorPosicion.setPosition(latLng);
                         }
                     }
-                    else if (MapaActivity.this.imaxePosicion != null) {
-                        MapaActivity.this.imaxePosicion.remove();
-                        MapaActivity.this.imaxePosicion = null;
+                    else if (MapaActivity.this.marcadorPosicion != null) {
+                        MapaActivity.this.marcadorPosicion.remove();
+                        MapaActivity.this.marcadorPosicion = null;
                     }
 
+                    //Se o piso actual coincide coa planta visibel, mostramos a localizacion do usuario
                     if (MapaActivity.this.posicionGuiar != null) {
                         //Se o edificio activo e o mesmo que o localizado e temos unha posicion a cal guiar, actualizamos as linhas de guiado
                         if (MapaActivity.this.idEdificioExternoLocalizado != null
@@ -1170,9 +1167,9 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                         activarLocalizacionGoogle(true);
                     }
                     //Ocultamos a imaxe que indica a posicion de Situm
-                    if (MapaActivity.this.imaxePosicion != null) {
-                        MapaActivity.this.imaxePosicion.remove();
-                        MapaActivity.this.imaxePosicion = null;
+                    if (MapaActivity.this.marcadorPosicion != null) {
+                        MapaActivity.this.marcadorPosicion.remove();
+                        MapaActivity.this.marcadorPosicion = null;
                     }
                 }
             }
