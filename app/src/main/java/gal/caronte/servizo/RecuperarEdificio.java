@@ -1,7 +1,6 @@
 package gal.caronte.servizo;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

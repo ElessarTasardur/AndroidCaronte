@@ -63,7 +63,9 @@ import es.situm.sdk.location.LocationRequest;
 import es.situm.sdk.location.LocationStatus;
 import es.situm.sdk.model.cartography.Building;
 import es.situm.sdk.model.cartography.Floor;
+import es.situm.sdk.model.cartography.Point;
 import es.situm.sdk.model.location.Bounds;
+import es.situm.sdk.model.location.CartesianCoordinate;
 import es.situm.sdk.model.location.Coordinate;
 import es.situm.sdk.model.location.Location;
 import gal.caronte.R;
@@ -1723,8 +1725,13 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void guiarMarcadorCustom(final MarcadorCustom novaPosicionGuiar) {
         Log.i(TAG, StringUtil.creaString("Solicitamos guiado a posicion: ", novaPosicionGuiar));
         if (novaPosicionGuiar != null) {
+
+            Coordinate coordenada = new Coordinate(novaPosicionGuiar.getMarcadorGoogle().getPosition().latitude, novaPosicionGuiar.getMarcadorGoogle().getPosition().longitude);
+            CartesianCoordinate cc = this.edificioSitumCustomLocalizado.convertirACoordenadaCartesiana(coordenada);
+            Point pointGuiar = new Point(this.idEdificioExternoLocalizado, novaPosicionGuiar.getIdPlanta().toString(), coordenada, cc);
+
             this.recuperarRuta = new RecuperarRuta();
-            this.recuperarRuta.get(this.idEdificioExternoLocalizado, this.posicionActual, novaPosicionGuiar, new RecuperarRuta.Callback() {
+            this.recuperarRuta.get(this.posicionActual, pointGuiar, new RecuperarRuta.Callback() {
                 @Override
                 public void onSuccess(PolylineOptions listaLinhas, LatLngBounds.Builder limite) {
                     //Se atopamos unha ruta e ademais non cancelamos o guiado a esa posicion, amosamos a ruta

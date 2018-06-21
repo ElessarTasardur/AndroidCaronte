@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import es.situm.sdk.location.util.CoordinateConverter;
 import es.situm.sdk.model.cartography.Building;
 import es.situm.sdk.model.cartography.Floor;
 import es.situm.sdk.model.cartography.Poi;
 import es.situm.sdk.model.location.Bounds;
+import es.situm.sdk.model.location.CartesianCoordinate;
+import es.situm.sdk.model.location.Coordinate;
 
 /**
  * Created by ElessarTasardur on 15/10/2017.
@@ -20,10 +23,12 @@ public class EdificioSitumCustom {
     private Building edificio;
     private Collection<Piso> pisos;
     private Collection<Poi> listaPoi;
+    private CoordinateConverter convertidor;
 
     public EdificioSitumCustom(Building edificio) {
         super();
         this.edificio = edificio;
+        this.convertidor = new CoordinateConverter(edificio.getDimensions(), edificio.getCenter(), edificio.getRotation());
     }
 
     public Building getEdificio() {
@@ -124,5 +129,9 @@ public class EdificioSitumCustom {
         }
 
         return retorno;
+    }
+
+    public CartesianCoordinate convertirACoordenadaCartesiana(Coordinate coordenada) {
+        return this.convertidor.toCartesianCoordinate(coordenada);
     }
 }
